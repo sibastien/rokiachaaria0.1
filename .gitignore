@@ -21,3 +21,10 @@ Thumbs.db
 .vscode/
 .idea/
 *.winmd
+
+# Graphify analysis outputs
+graphify-out/
+graph.html
+.agents/
+
+

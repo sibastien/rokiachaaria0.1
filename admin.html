@@ -77,17 +77,6 @@
         <p class="text-slate-400 text-sm mt-1">منصة الرقية الشرعية والاستشارات القرآنية</p>
       </div>
 
-      <!-- Server API URL Setting -->
-      <div class="mb-5 bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-        <label class="block text-xs font-semibold text-slate-400 mb-1 flex items-center justify-between">
-          <span>عنوان الخادم (API URL)</span>
-          <button type="button" onclick="resetApiUrl()" class="text-[10px] text-sky-400 hover:underline">إعادة تعيين الافتراضي</button>
-        </label>
-        <input type="text" id="apiUrlInput" value="http://localhost:3001/api" 
-               class="w-full bg-slate-900 border border-slate-700/70 text-xs text-slate-200 px-3 py-1.5 rounded-lg focus:outline-none focus:border-sky-500 dir-ltr text-left">
-        <p class="text-[10px] text-slate-500 mt-1">إذا قمت بنشر التطبيق على سيرفر VPS، اكتب عنوان السيرفر هنا (مثال: http://YOUR_IP:3001/api).</p>
-      </div>
-
       <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
         <div>
           <label class="block text-sm font-medium text-slate-300 mb-1">البريد الإلكتروني للإدارة</label>
@@ -918,7 +907,7 @@
   <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
     // --- STATE MANAGEMENT ---
-    let API_URL = localStorage.getItem('roqia_admin_api_url') || 'http://localhost:3001/api';
+    const API_URL = '/api';
     let token = localStorage.getItem('roqia_admin_token') || null;
     let currentUser = JSON.parse(localStorage.getItem('roqia_admin_user') || 'null');
 
@@ -938,16 +927,10 @@
 
     // --- INITIALIZATION ---
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('apiUrlInput').value = API_URL;
       lucide.createIcons();
       loadAudioTracks();
       checkAuthAndInit();
     });
-
-    function resetApiUrl() {
-      document.getElementById('apiUrlInput').value = 'http://localhost:3001/api';
-      toast('تمت استعادة الرابط الافتراضي للـ API', 'info');
-    }
 
     // --- TOAST HELPER ---
     function toast(message, type = 'info') {
@@ -1039,15 +1022,6 @@
       e.preventDefault();
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
-      const apiUrlVal = document.getElementById('apiUrlInput').value.trim().replace(/\/$/, '');
-
-      if (!apiUrlVal) {
-        toast('يرجى تحديد عنوان API الخادم', 'error');
-        return;
-      }
-
-      API_URL = apiUrlVal;
-      localStorage.setItem('roqia_admin_api_url', API_URL);
 
       const submitBtn = document.getElementById('loginSubmitBtn');
       const originalText = submitBtn.innerHTML;

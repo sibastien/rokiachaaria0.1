@@ -172,6 +172,60 @@ async function main() {
 
   console.log(`✅  Forum posts: 2 seeded`);
 
+  // ── 5. Site Settings ──────────────────────────────────────────────────────
+  await prisma.siteSetting.upsert({
+    where: { id: 'default' },
+    update: {},
+    create: {
+      id: 'default',
+      bannerActive: true,
+      bannerText: 'جميع الرقاة لدينا معتمدون ومجازون في قراءة القرآن الكريم والسنة النبوية الصحيحة بلا بدع',
+      heroTitle: 'منصة الرقية الشرعية المعتمدة أونلاين',
+      heroSubtitle: 'تواصل مباشرة بالصوت والصورة مع نخبة من الرقاة والمشايخ المعتمدين والمجازين شرعياً في سرية وأمان تام',
+      whatsapp: '+966500000000',
+      supportEmail: 'support@roqia.com',
+      sessionDuration: 45,
+      bookingNotice: 'يجب تواجد محرم للنساء أثناء الجلسة المرئية',
+    },
+  });
+  console.log('✅  Site Settings: seeded');
+
+  // ── 6. Audio Tracks ───────────────────────────────────────────────────────
+  const audioTracks = [
+    {
+      title: 'سورة الفاتحة وآية الكرسي',
+      reciter: 'تلاوة خاشعة مرتلة بنية الشفاء',
+      duration: '04:30',
+      category: 'شاملة',
+      src: 'https://server8.mp3quran.net/afs/001.mp3',
+      orderIndex: 0,
+    },
+    {
+      title: 'أواخر سورة البقرة والمعوذات',
+      reciter: 'تلاوة هادئة لرد كيد الشيطان والتحصين',
+      duration: '05:15',
+      category: 'سكينة ونوم',
+      src: 'https://server7.mp3quran.net/basit/002.mp3',
+      orderIndex: 1,
+    },
+    {
+      title: 'آيات إبطال السحر والعين',
+      reciter: 'تلاوة موجهة من سور يونس وطه والأعراف',
+      duration: '06:40',
+      category: 'عين وحسد',
+      src: 'https://server12.mp3quran.net/maher/001.mp3',
+      orderIndex: 2,
+    },
+  ];
+
+  const existingAudio = await prisma.audioTrack.count();
+  if (existingAudio === 0) {
+    await prisma.audioTrack.createMany({ data: audioTracks });
+    console.log(`✅  Audio tracks: ${audioTracks.length} seeded`);
+  } else {
+    console.log(`ℹ️  Audio tracks: already populated (${existingAudio} tracks)`);
+  }
+
   console.log('\n🎉  Seeding complete!\n');
   console.log('📋  Credentials:');
   console.log(`    Admin:  ${adminEmail} / ${adminPassword}`);

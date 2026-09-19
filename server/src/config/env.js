@@ -29,7 +29,10 @@ module.exports = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
 
   // CORS — supports comma-separated list of origins
-  corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:5500')
+  corsOrigins: (
+    process.env.CORS_ORIGIN ||
+    'https://www.ruqyah-al-shariah.online,https://ruqyah-al-shariah.online,http://localhost:5500,http://127.0.0.1:5500'
+  )
     .split(',')
     .map((o) => o.trim()),
 };

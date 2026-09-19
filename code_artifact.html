@@ -921,9 +921,7 @@
         // ══════════════════════════════════════════════════════════════════════
         // API CONFIGURATION
         // ══════════════════════════════════════════════════════════════════════
-        const API_BASE = localStorage.getItem('roqia_admin_api_url') || 
-                         localStorage.getItem('roqia_api_url') || 
-                         (window.location.port === '3001' ? '/api' : 'http://localhost:3001/api');
+        const API_BASE = '/api';
 
         // Auth token stored in localStorage
         let authToken = localStorage.getItem('ruqyah_token') || null;
@@ -942,8 +940,9 @@
                 }
                 return data;
             } catch (err) {
+                console.error(`[API Error] ${options.method || 'GET'} ${endpoint}:`, err);
                 if (err.name === 'TypeError') {
-                    simulateToast('تعذر الاتصال بالخادم. تأكد من تشغيل الخادم على المنفذ 3001.');
+                    simulateToast('تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مجدداً.');
                 } else {
                     simulateToast(err.message);
                 }
@@ -1074,13 +1073,17 @@
                     s = res.data;
                     localStorage.setItem('roqia_site_settings', JSON.stringify(s));
                 }
-            } catch (_) {}
+            } catch (err) {
+                console.warn('[Settings] Could not fetch site settings from API, checking local cache:', err.message);
+            }
 
             if (!s) {
                 try {
                     const saved = localStorage.getItem('roqia_site_settings');
                     if (saved) s = JSON.parse(saved);
-                } catch (_) {}
+                } catch (parseErr) {
+                    console.warn('[Settings] Failed to parse cached site settings:', parseErr);
+                }
             }
 
             if (!s) return;
@@ -1391,7 +1394,9 @@
                     renderPlaylistButtons();
                     updateAudioUI();
                 }
-            } catch (_) {}
+            } catch (err) {
+                console.warn('[Audio] Could not fetch audio library from API, using default playlist:', err.message);
+            }
         }
         loadAudioLibrary();
 
@@ -1407,9 +1412,13 @@
                 const data = await apiCall(`/articles?${params}`);
                 blogArticlesCache = data.data;
                 renderBlog(data.data);
-            } catch (_) {
-                // Falls back to cached data if any
-                if (blogArticlesCache.length > 0) renderBlog(blogArticlesCache);
+            } catch (err) {
+                console.warn('[Blog] Could not fetch articles from API, using fallback data:', err.message);
+                if (blogArticlesCache.length > 0) {
+                    renderBlog(blogArticlesCache);
+                } else {
+                    renderBlog(blogArticles);
+                }
             }
         }
 
@@ -1528,8 +1537,13 @@
                 const data = await apiCall(`/articles/${id}`);
                 art = data.article;
                 showBlogModal(art);
-            } catch (_) {
-                if (art) showBlogModal(art); // show partial if available
+            } catch (err) {
+                console.warn(`[Blog] Failed to load full article for id ${id}:`, err.message);
+                if (art) {
+                    showBlogModal(art); // show partial if available
+                } else {
+                    simulateToast('تعذر تحميل تفاصيل المقال، يرجى المحاولة لاحقاً.');
+                }
             }
         }
 
@@ -1548,7 +1562,10 @@
         }
 
         // Load blogs from API on page load (falls back to static data if server is down)
-        loadBlog('all').catch(() => renderBlog(blogArticles));
+        loadBlog('all').catch((err) => {
+            console.warn('[Blog] Initial blog load fallback:', err.message);
+            renderBlog(blogArticles);
+        });
 
         // ══════════════════════════════════════════════════════════════════════
         // 4. Forum API Integration
@@ -1573,7 +1590,8 @@
                     }));
                     renderForum(forumPostsCache);
                 }
-            } catch (_) {
+            } catch (err) {
+                console.warn('[Forum] Could not fetch forum posts from API, showing fallback:', err.message);
                 // Fallback to static mock data if API not available
                 renderForum(forumPosts);
             }
@@ -1677,7 +1695,9 @@
                     post.liked = data.liked;
                     renderForum(forumPostsCache);
                 }
-            } catch (_) {}
+            } catch (err) {
+                console.error('[Forum] Failed to toggle post like:', err.message);
+            }
         }
 
         function openNewPostModal() {
@@ -1709,7 +1729,8 @@
                 simulateToast('تم إرسال مشاركتك للمراجعة. ستظهر بعد موافقة المشرف بإذن الله.');
                 // Reload forum to pick up any newly approved posts
                 loadForum();
-            } catch (_) {
+            } catch (err) {
+                console.error('[Forum] Failed to create post:', err.message);
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'نشر في المنتدى الآن';
             }
@@ -1749,7 +1770,8 @@
                 select.innerHTML = availableRaqis.map(r => `
                     <option value="${r.id}">${r.name} — ${r.certifications ? r.certifications.split('—')[0] : 'راقي معتمد'}</option>
                 `).join('');
-            } catch (_) {
+            } catch (err) {
+                console.warn('[Bookings] Failed to load raqis from API, using defaults:', err.message);
                 const select = document.getElementById('bookingRaqiSelect');
                 if (select) {
                     select.innerHTML = `
@@ -1825,8 +1847,9 @@
                 closeBookingModal();
                 form.reset();
                 simulateToast(data.message || 'تم إرسال طلب الحجز بنجاح!');
-            } catch (_) {
-                // error handled in apiCall toast
+            } catch (err) {
+                console.error('[Bookings] Failed to submit booking:', err.message);
+                // error message already shown via simulateToast in apiCall
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
