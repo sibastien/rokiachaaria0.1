@@ -117,7 +117,7 @@
                         <span>تسجيل الدخول</span>
                     </button>
                     <div id="userNavInfo" class="hidden items-center gap-2">
-                        <a href="portal.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-sky-800 bg-sky-100 hover:bg-sky-200 border border-sky-300 transition-all duration-200 shadow-xs">
+                        <a href="/dashboard" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-sky-800 bg-sky-100 hover:bg-sky-200 border border-sky-300 transition-all duration-200 shadow-xs">
                             <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-sky-600"></i>
                             <span>بوابة المستفيد</span>
                         </a>
@@ -140,7 +140,7 @@
 
         <!-- Mobile Navigation Drawer -->
         <div id="mobileMenu" class="hidden md:hidden bg-white border-b border-sky-100 px-4 pt-2 pb-6 space-y-1">
-            <a href="portal.html" id="mobilePortalLink" class="hidden items-center gap-2 px-3 py-2.5 rounded-xl text-base font-bold text-sky-800 bg-sky-50 border border-sky-200 mb-2">
+            <a href="/dashboard" id="mobilePortalLink" class="hidden items-center gap-2 px-3 py-2.5 rounded-xl text-base font-bold text-sky-800 bg-sky-50 border border-sky-200 mb-2">
                 <i data-lucide="layout-dashboard" class="w-4 h-4 text-sky-600"></i>
                 <span>بوابة المستفيد ومواعيدي</span>
             </a>
@@ -996,13 +996,19 @@
 
         let currentAuthMode = 'login'; // 'login' | 'register'
 
-        function openAuthModal(mode = 'login') {
+        function openAuthModal(mode = 'login', updateUrl = true) {
             switchAuthTab(mode);
             document.getElementById('authModal').classList.remove('hidden');
+            if (updateUrl && window.location.pathname !== `/${mode}`) {
+                history.pushState({ modal: mode }, '', `/${mode}`);
+            }
         }
 
-        function closeAuthModal() {
+        function closeAuthModal(updateUrl = true) {
             document.getElementById('authModal').classList.add('hidden');
+            if (updateUrl && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
+                history.pushState({}, '', '/');
+            }
         }
 
         function switchAuthTab(mode) {
@@ -1092,6 +1098,23 @@
 
         // Initialize UI on load
         updateAuthUI();
+
+        // Direct URL routing for clean paths (/login, /register, or ?auth=)
+        (function handleDirectRouting() {
+            const path = window.location.pathname.toLowerCase();
+            const params = new URLSearchParams(window.location.search);
+            if (path === '/login' || params.get('auth') === 'login') {
+                openAuthModal('login', false);
+            } else if (path === '/register' || params.get('auth') === 'register') {
+                openAuthModal('register', false);
+            }
+            window.addEventListener('popstate', () => {
+                const curPath = window.location.pathname.toLowerCase();
+                if (curPath === '/login') openAuthModal('login', false);
+                else if (curPath === '/register') openAuthModal('register', false);
+                else closeAuthModal(false);
+            });
+        })();
 
         // Set dynamic Year
         document.getElementById('currentYear').textContent = new Date().getFullYear();

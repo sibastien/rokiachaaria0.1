@@ -49,17 +49,46 @@ function createApp() {
   // ── API Routes ──────────────────────────────────────────────────────────
   app.use('/api', apiRouter);
 
-  // ── Static Frontend Files ───────────────────────────────────────────────
+  // ── Clean Frontend Application Routes ──────────────────────────────────
   const path = require('path');
   const staticRoot = path.resolve(__dirname, '../../');
+
+  // Legacy .html 301 redirects to clean URLs
+  app.get('/index.html', (req, res) => res.redirect(301, '/'));
+  app.get('/portal.html', (req, res) => res.redirect(301, '/dashboard'));
+  app.get('/admin.html', (req, res) => res.redirect(301, '/admin'));
+
+  // Clean Public & Member Routes
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(staticRoot, 'index.html'));
+  });
+
+  app.get(['/login', '/register'], (req, res) => {
+    res.sendFile(path.join(staticRoot, 'index.html'));
+  });
+
+  app.get(['/dashboard', '/portal'], (req, res) => {
+    res.sendFile(path.join(staticRoot, 'portal.html'));
+  });
+
+  app.get(['/admin', '/management'], (req, res) => {
+    res.sendFile(path.join(staticRoot, 'admin.html'));
+  });
+
+  // ── Static Frontend Assets ───────────────────────────────────────────────
   app.use(express.static(staticRoot));
 
   // ── 404 Handler ─────────────────────────────────────────────────────────
   app.use((req, res) => {
-    res.status(404).json({
-      success: false,
-      message: `المسار ${req.method} ${req.path} غير موجود.`,
-    });
+    // Return JSON 404 for API requests, redirect or 404 for web requests
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({
+        success: false,
+        message: `المسار ${req.method} ${req.path} غير موجود.`,
+      });
+    }
+    // Fallback: send index.html or 404
+    res.status(404).sendFile(path.join(staticRoot, 'index.html'));
   });
 
   // ── Global Error Handler (must be last) ─────────────────────────────────

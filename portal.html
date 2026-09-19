@@ -87,7 +87,7 @@
             <div class="flex items-center justify-between h-20">
                 <!-- Brand Logo & Title -->
                 <div class="flex items-center gap-4">
-                    <a href="index.html" class="flex items-center gap-3 group">
+                    <a href="/" class="flex items-center gap-3 group">
                         <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-600 to-sky-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform">
                             <i data-lucide="heart-handshake" class="w-6 h-6"></i>
                         </div>
@@ -101,7 +101,7 @@
                 <!-- Navigation Controls -->
                 <div class="flex items-center gap-3">
                     <!-- Quick Back to Main Site -->
-                    <a href="index.html" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-600 hover:text-sky-700 hover:bg-sky-50 rounded-xl border border-slate-200 transition-colors">
+                    <a href="/" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-600 hover:text-sky-700 hover:bg-sky-50 rounded-xl border border-slate-200 transition-colors">
                         <i data-lucide="home" class="w-4 h-4"></i>
                         <span>الموقع الرئيسي</span>
                     </a>
@@ -584,11 +584,11 @@
         <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div>منصة الرقية الشرعية أونلاين © <span id="portalYear">2026</span> • منهج نبوي موثوق وسكينة تامة</div>
             <div class="flex items-center gap-4 text-slate-400">
-                <a href="index.html#services" class="hover:text-sky-600">الخدمات</a>
+                <a href="/#services" class="hover:text-sky-600">الخدمات</a>
                 <span>•</span>
-                <a href="index.html#blog" class="hover:text-sky-600">المدونة</a>
+                <a href="/#blog" class="hover:text-sky-600">المدونة</a>
                 <span>•</span>
-                <a href="index.html#forum" class="hover:text-sky-600">المجتمع</a>
+                <a href="/#forum" class="hover:text-sky-600">المجتمع</a>
             </div>
         </div>
     </footer>
@@ -611,8 +611,8 @@
             document.getElementById('portalYear').textContent = new Date().getFullYear();
 
             if (!authToken) {
-                // Not authenticated -> redirect to main page login
-                window.location.href = 'index.html?auth=login';
+                // Not authenticated -> redirect to clean login route
+                window.location.href = '/login';
                 return;
             }
 
@@ -684,7 +684,7 @@
         function handleLogout() {
             localStorage.removeItem('ruqyah_token');
             localStorage.removeItem('ruqyah_user');
-            window.location.href = 'index.html';
+            window.location.href = '/';
         }
 
         // 2. Tab Navigation
