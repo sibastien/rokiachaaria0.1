@@ -505,16 +505,8 @@
                             </div>
 
                             <!-- Playlist quick selection -->
-                            <div class="mt-4 pt-4 border-t border-white/10 grid grid-cols-3 gap-2">
-                                <button onclick="selectTrack(0)" class="track-btn px-2 py-1.5 rounded-lg text-xs bg-white/20 text-white hover:bg-white/30 text-center truncate">
-                                    ١. الفاتحة وآية الكرسي
-                                </button>
-                                <button onclick="selectTrack(1)" class="track-btn px-2 py-1.5 rounded-lg text-xs bg-white/10 text-sky-200 hover:bg-white/20 text-center truncate">
-                                    ٢. أواخر سورة البقرة
-                                </button>
-                                <button onclick="selectTrack(2)" class="track-btn px-2 py-1.5 rounded-lg text-xs bg-white/10 text-sky-200 hover:bg-white/20 text-center truncate">
-                                    ٣. الإخلاص والمعوذتان
-                                </button>
+                            <div class="mt-4 pt-4 border-t border-white/10 flex flex-wrap gap-2 justify-center" id="playlistContainer">
+                                <!-- Dynamic Track Buttons rendered by JavaScript -->
                             </div>
                         </div>
 
@@ -929,7 +921,9 @@
         // ══════════════════════════════════════════════════════════════════════
         // API CONFIGURATION
         // ══════════════════════════════════════════════════════════════════════
-        const API_BASE = 'http://localhost:3001/api';
+        const API_BASE = localStorage.getItem('roqia_admin_api_url') || 
+                         localStorage.getItem('roqia_api_url') || 
+                         (window.location.port === '3001' ? '/api' : 'http://localhost:3001/api');
 
         // Auth token stored in localStorage
         let authToken = localStorage.getItem('ruqyah_token') || null;
@@ -1179,130 +1173,227 @@
         // Initialize first step
         switchStep(1);
 
-        // 2. Audio Recitation Player Simulator
+        // 2. Real HTML5 Audio Recitation Player (Connected to Backend & Admin)
         const defaultTracks = [
             {
+                id: 1,
                 title: "سورة الفاتحة وآية الكرسي",
                 reciter: "تلاوة خاشعة مرتلة بنية الشفاء",
-                duration: "04:30"
+                duration: "04:30",
+                category: "شاملة",
+                src: "https://server8.mp3quran.net/afs/001.mp3"
             },
             {
+                id: 2,
                 title: "أواخر سورة البقرة والمعوذات",
                 reciter: "تلاوة هادئة لرد كيد الشيطان والتحصين",
-                duration: "05:15"
+                duration: "05:15",
+                category: "سكينة ونوم",
+                src: "https://server7.mp3quran.net/basit/002.mp3"
             },
             {
+                id: 3,
                 title: "آيات إبطال السحر والعين",
                 reciter: "تلاوة موجهة من سور يونس وطه والأعراف",
-                duration: "06:40"
+                duration: "06:40",
+                category: "عين وحسد",
+                src: "https://server12.mp3quran.net/maher/001.mp3"
             }
         ];
 
         let audioTracks = defaultTracks;
-        try {
-            const savedAudio = localStorage.getItem('roqia_audio_tracks');
-            if (savedAudio) {
-                const parsed = JSON.parse(savedAudio);
-                if (Array.isArray(parsed) && parsed.length > 0) audioTracks = parsed;
+        let currentTrackIdx = 0;
+        let isAudioPlaying = false;
+        const realAudio = new Audio();
+        realAudio.preload = "metadata";
+
+        function loadCachedAudioTracks() {
+            try {
+                const savedAudio = localStorage.getItem('roqia_audio_tracks');
+                if (savedAudio) {
+                    const parsed = JSON.parse(savedAudio);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        audioTracks = parsed;
+                    }
+                }
+            } catch (_) {}
+        }
+        loadCachedAudioTracks();
+
+        function formatAudioTime(seconds) {
+            if (isNaN(seconds) || seconds < 0) return "00:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function renderPlaylistButtons() {
+            const container = document.getElementById('playlistContainer');
+            if (!container) return;
+            container.innerHTML = audioTracks.map((track, idx) => `
+                <button onclick="selectTrack(${idx})" class="track-btn px-3 py-1.5 rounded-lg text-xs transition-all text-center truncate ${idx === currentTrackIdx ? 'bg-white/30 text-white font-bold border border-white/30 shadow-sm' : 'bg-white/10 text-sky-200 hover:bg-white/20'}" title="${track.title} - ${track.reciter}">
+                    ${idx + 1}. ${track.title}
+                </button>
+            `).join('');
+        }
+
+        function updateAudioUI() {
+            const track = audioTracks[currentTrackIdx];
+            if (!track) return;
+
+            const titleEl = document.getElementById('playerTrackTitle');
+            const reciterEl = document.getElementById('playerTrackReciter');
+            const totalDurationEl = document.getElementById('totalDuration');
+
+            if (titleEl) titleEl.textContent = track.title;
+            if (reciterEl) reciterEl.textContent = track.reciter;
+            if (totalDurationEl && track.duration && !realAudio.duration) {
+                totalDurationEl.textContent = track.duration;
             }
-        } catch (_) {}
+
+            // Highlight active playlist button
+            const buttons = document.querySelectorAll('.track-btn');
+            buttons.forEach((btn, idx) => {
+                if (idx === currentTrackIdx) {
+                    btn.className = "track-btn px-3 py-1.5 rounded-lg text-xs bg-white/30 text-white font-bold text-center truncate border border-white/30 shadow-sm transition-all";
+                } else {
+                    btn.className = "track-btn px-3 py-1.5 rounded-lg text-xs bg-white/10 text-sky-200 hover:bg-white/20 text-center truncate transition-all";
+                }
+            });
+
+            // Toggle play/pause icon
+            const playIcon = document.getElementById('playIcon');
+            if (playIcon) {
+                playIcon.setAttribute('data-lucide', isAudioPlaying ? 'pause' : 'play');
+                lucide.createIcons();
+            }
+        }
+
+        // --- Real HTML5 Audio Event Listeners ---
+        realAudio.addEventListener('timeupdate', () => {
+            if (!realAudio.duration) return;
+            const pct = (realAudio.currentTime / realAudio.duration) * 100;
+            const progressBar = document.getElementById('audioProgressBar');
+            if (progressBar) progressBar.style.width = pct + '%';
+
+            const curTimeEl = document.getElementById('currentTime');
+            if (curTimeEl) curTimeEl.textContent = formatAudioTime(realAudio.currentTime);
+        });
+
+        realAudio.addEventListener('loadedmetadata', () => {
+            const totalDurationEl = document.getElementById('totalDuration');
+            if (totalDurationEl && realAudio.duration) {
+                totalDurationEl.textContent = formatAudioTime(realAudio.duration);
+            }
+        });
+
+        realAudio.addEventListener('ended', () => {
+            nextTrack();
+        });
+
+        realAudio.addEventListener('play', () => {
+            isAudioPlaying = true;
+            updateAudioUI();
+        });
+
+        realAudio.addEventListener('pause', () => {
+            isAudioPlaying = false;
+            updateAudioUI();
+        });
+
+        realAudio.addEventListener('error', (e) => {
+            console.error('Audio playback error:', e);
+            isAudioPlaying = false;
+            updateAudioUI();
+            simulateToast('تعذر تحميل هذا المقطع الصوتي أو أن الرابط غير متاح');
+        });
+
+        async function toggleAudio() {
+            const track = audioTracks[currentTrackIdx];
+            if (!track) return;
+
+            if (!realAudio.src || realAudio.src === "" || realAudio.src === window.location.href) {
+                if (track.src) {
+                    realAudio.src = track.src;
+                } else {
+                    simulateToast('هذا المقطع لا يحتوي على رابط ملف صوتي');
+                    return;
+                }
+            }
+
+            if (realAudio.paused) {
+                try {
+                    await realAudio.play();
+                    isAudioPlaying = true;
+                    simulateToast(`جاري الاستماع إلى: ${track.title}`);
+                } catch (err) {
+                    console.error('Audio play error:', err);
+                    simulateToast('انقر مرة أخرى للسماح بتشغيل الصوت في المتصفح');
+                }
+            } else {
+                realAudio.pause();
+                isAudioPlaying = false;
+            }
+            updateAudioUI();
+        }
+
+        function selectTrack(index) {
+            if (index < 0 || index >= audioTracks.length) return;
+            currentTrackIdx = index;
+            const track = audioTracks[currentTrackIdx];
+
+            if (track.src) {
+                realAudio.src = track.src;
+                realAudio.play().then(() => {
+                    isAudioPlaying = true;
+                    updateAudioUI();
+                }).catch((err) => {
+                    console.warn('Auto-play blocked or waiting for user gesture:', err);
+                    isAudioPlaying = false;
+                    updateAudioUI();
+                });
+                simulateToast(`تم الانتقال إلى: ${track.title}`);
+            } else {
+                simulateToast('هذا المقطع لا يحتوي على رابط ملف صوتي');
+            }
+            updateAudioUI();
+        }
+
+        function nextTrack() {
+            if (audioTracks.length === 0) return;
+            const nextIdx = (currentTrackIdx + 1) % audioTracks.length;
+            selectTrack(nextIdx);
+        }
+
+        function prevTrack() {
+            if (audioTracks.length === 0) return;
+            const prevIdx = (currentTrackIdx - 1 + audioTracks.length) % audioTracks.length;
+            selectTrack(prevIdx);
+        }
+
+        function seekAudio(e) {
+            if (!realAudio.duration) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            // Since layout is dir="rtl", calculate distance from the right edge
+            const clickFromRight = rect.right - e.clientX;
+            const pct = Math.max(0, Math.min(1, clickFromRight / rect.width));
+            realAudio.currentTime = pct * realAudio.duration;
+        }
 
         async function loadAudioLibrary() {
+            renderPlaylistButtons();
+            updateAudioUI();
             try {
                 const res = await apiCall('/audio');
                 if (res && res.data && res.data.length > 0) {
                     audioTracks = res.data;
                     localStorage.setItem('roqia_audio_tracks', JSON.stringify(audioTracks));
+                    renderPlaylistButtons();
                     updateAudioUI();
                 }
             } catch (_) {}
         }
         loadAudioLibrary();
-
-        let currentTrackIdx = 0;
-        let isAudioPlaying = false;
-        let audioProgress = 30; // percentage
-        let progressInterval = null;
-
-        function updateAudioUI() {
-            const track = audioTracks[currentTrackIdx];
-            document.getElementById('playerTrackTitle').textContent = track.title;
-            document.getElementById('playerTrackReciter').textContent = track.reciter;
-            document.getElementById('totalDuration').textContent = track.duration;
-            
-            // Highlight playlist buttons
-            const buttons = document.querySelectorAll('.track-btn');
-            buttons.forEach((btn, idx) => {
-                if (idx === currentTrackIdx) {
-                    btn.className = "track-btn px-2 py-1.5 rounded-lg text-xs bg-white/30 text-white font-bold text-center truncate border border-white/30";
-                } else {
-                    btn.className = "track-btn px-2 py-1.5 rounded-lg text-xs bg-white/10 text-sky-200 hover:bg-white/20 text-center truncate";
-                }
-            });
-
-            // Icon toggle
-            const playIcon = document.getElementById('playIcon');
-            if (isAudioPlaying) {
-                playIcon.setAttribute('data-lucide', 'pause');
-            } else {
-                playIcon.setAttribute('data-lucide', 'play');
-            }
-            lucide.createIcons();
-        }
-
-        function toggleAudio() {
-            isAudioPlaying = !isAudioPlaying;
-            if (isAudioPlaying) {
-                simulateToast(`جاري تشغيل: ${audioTracks[currentTrackIdx].title}`);
-                startProgress();
-            } else {
-                stopProgress();
-            }
-            updateAudioUI();
-        }
-
-        function startProgress() {
-            if (progressInterval) clearInterval(progressInterval);
-            progressInterval = setInterval(() => {
-                if (audioProgress >= 100) {
-                    nextTrack();
-                } else {
-                    audioProgress += 1;
-                    document.getElementById('audioProgressBar').style.width = audioProgress + '%';
-                }
-            }, 1000);
-        }
-
-        function stopProgress() {
-            if (progressInterval) clearInterval(progressInterval);
-        }
-
-        function selectTrack(index) {
-            currentTrackIdx = index;
-            audioProgress = 0;
-            document.getElementById('audioProgressBar').style.width = '0%';
-            isAudioPlaying = true;
-            startProgress();
-            updateAudioUI();
-            simulateToast(`تم الانتقال إلى: ${audioTracks[currentTrackIdx].title}`);
-        }
-
-        function nextTrack() {
-            currentTrackIdx = (currentTrackIdx + 1) % audioTracks.length;
-            selectTrack(currentTrackIdx);
-        }
-
-        function prevTrack() {
-            currentTrackIdx = (currentTrackIdx - 1 + audioTracks.length) % audioTracks.length;
-            selectTrack(currentTrackIdx);
-        }
-
-        function seekAudio(e) {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const clickPos = (e.clientX - rect.left) / rect.width;
-            audioProgress = Math.floor((1 - clickPos) * 100); // RTL inverted
-            document.getElementById('audioProgressBar').style.width = audioProgress + '%';
-        }
 
         // ══════════════════════════════════════════════════════════════════════
         // 3. Blog API Integration
