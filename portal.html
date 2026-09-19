@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة المستفيد والسكينة | منصة الرقية الشرعية</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        .pattern-bg {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#0284c7 0.5px, transparent 0.5px), radial-gradient(#0284c7 0.5px, #f8fafc 0.5px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            background-opacity: 0.04;
+        }
+        .pulse-subtle {
+            animation: pulse-soft 3s infinite ease-in-out;
+        }
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.015); opacity: 0.95; }
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-sky-100 selection:text-sky-900">
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="fixed bottom-6 left-6 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none max-w-md">
+        <i data-lucide="info" id="toastIcon" class="w-5 h-5 text-sky-400 flex-shrink-0"></i>
+        <span id="toastMessage" class="text-sm font-medium">رسالة إشعار</span>
+    </div>
+
+    <!-- Top Navigation -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-sky-100 transition-all shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo & Title -->
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="flex items-center gap-3 group">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-600 to-sky-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform">
+                            <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <span class="text-lg font-black text-sky-950 block leading-tight tracking-tight">بوابة السكينة للمستفيد</span>
+                            <span class="text-xs text-sky-600 font-medium">منصة الرقية الشرعية المعتمدة</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex items-center gap-3">
+                    <!-- Quick Back to Main Site -->
+                    <a href="index.html" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-600 hover:text-sky-700 hover:bg-sky-50 rounded-xl border border-slate-200 transition-colors">
+                        <i data-lucide="home" class="w-4 h-4"></i>
+                        <span>الموقع الرئيسي</span>
+                    </a>
+
+                    <!-- Member Badge -->
+                    <div class="flex items-center gap-2 bg-sky-50/80 border border-sky-200/80 rounded-2xl px-3.5 py-1.5">
+                        <div class="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                            <span id="navUserInitial">م</span>
+                        </div>
+                        <div class="text-right hidden md:block">
+                            <div id="navUserName" class="text-xs font-bold text-sky-950 truncate max-w-[140px]">جاري التحميل...</div>
+                            <div class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                مستفيد موثّق
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logout Button -->
+                    <button onclick="handleLogout()" title="تسجيل الخروج" class="p-2.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors border border-transparent hover:border-rose-200">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Welcome Spiritual Banner -->
+        <div class="relative overflow-hidden bg-gradient-to-l from-sky-900 via-sky-800 to-sky-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-sky-900/10 mb-8">
+            <div class="absolute -top-20 -left-20 w-60 h-60 bg-sky-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -right-20 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-sky-200 text-xs font-semibold backdrop-blur-sm border border-white/10 mb-3">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+                        <span>﴿ وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ ﴾</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">
+                        أهلاً بك، <span id="welcomeUserName">أخي المستفيد</span>
+                    </h1>
+                    <p class="text-sky-100/80 text-sm max-w-2xl leading-relaxed">
+                        هذه مساحتك الشخصية الآمنة لمتابعة جلساتك الخاصة مع الرقاة المعتمدين، والتواصل المباشر، والاستماع لأوراد التحصين والرقية الشرعية اليومية.
+                    </p>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button onclick="switchTab('book')" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-sky-900 hover:bg-sky-50 font-bold text-sm shadow-md active:scale-95 transition-all">
+                        <i data-lucide="calendar-plus" class="w-4 h-4 text-sky-600"></i>
+                        <span>طلب جلسة جديدة</span>
+                    </button>
+                    <button onclick="switchTab('audio')" class="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm backdrop-blur-sm border border-white/15 transition-all">
+                        <i data-lucide="headphones" class="w-4 h-4 text-sky-300"></i>
+                        <span>تلاوات التحصين</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-white/10">
+                <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
+                    <span class="text-xs text-sky-200/70 block mb-1">المواعيد القادمة</span>
+                    <span id="statUpcoming" class="text-xl font-extrabold text-white">0</span>
+                </div>
+                <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
+                    <span class="text-xs text-sky-200/70 block mb-1">الجلسات المكتملة</span>
+                    <span id="statCompleted" class="text-xl font-extrabold text-white">0</span>
+                </div>
+                <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
+                    <span class="text-xs text-sky-200/70 block mb-1">الرقاة المعتمدون</span>
+                    <span id="statRaqis" class="text-xl font-extrabold text-white">4</span>
+                </div>
+                <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
+                    <span class="text-xs text-sky-200/70 block mb-1">حالة الحساب</span>
+                    <span class="text-xs font-bold text-emerald-300 flex items-center gap-1 mt-1">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        نشط ومحمي
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex items-center gap-2 p-1.5 bg-white border border-slate-200/80 rounded-2xl shadow-xs mb-8 overflow-x-auto">
+            <button id="tabBtn-sessions" onclick="switchTab('sessions')" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-sky-600 text-white shadow-sm">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                <span>مواعيدي وجلساتي</span>
+            </button>
+            <button id="tabBtn-book" onclick="switchTab('book')" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>حجز جلسة خاصة</span>
+            </button>
+            <button id="tabBtn-audio" onclick="switchTab('audio')" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
+                <i data-lucide="headphones" class="w-4 h-4"></i>
+                <span>زاد التحصين والرقية</span>
+            </button>
+            <button id="tabBtn-account" onclick="switchTab('account')" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
+                <i data-lucide="user-cog" class="w-4 h-4"></i>
+                <span>الملف الشخصي والأمان</span>
+            </button>
+        </div>
+
+        <!-- ================= TAB 1: SESSIONS ================= -->
+        <div id="tabContent-sessions" class="tab-content space-y-8">
+            
+            <!-- Hero Section: Next Active / Upcoming Session -->
+            <div id="upcomingHeroContainer">
+                <div class="animate-pulse bg-white border border-slate-200 rounded-3xl p-8 h-56 flex items-center justify-center text-slate-400">
+                    جاري فحص المواعيد القادمة...
+                </div>
+            </div>
+
+            <!-- Pre-session Etiquette / Guidelines Card -->
+            <div class="bg-gradient-to-br from-sky-50/80 to-blue-50/50 border border-sky-100 rounded-3xl p-6 sm:p-8">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-sky-600/15">
+                        <i data-lucide="book-open-check" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-base sm:text-lg font-bold text-sky-950 mb-1">إرشادات وضوابط ما قبل جلسة الرقية</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-4">للحصول على أقصى درجات النفع والسكينة، يوصى بالالتزام بهذه الآداب الشرعية والعملية:</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                            <div class="bg-white/80 border border-sky-100 rounded-2xl p-4 flex items-start gap-3">
+                                <span class="w-7 h-7 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+                                <div class="text-xs text-slate-700 leading-relaxed">
+                                    <strong class="text-sky-950 block mb-0.5">الطهارة والوضوء</strong>
+                                    استحضار نية التداوي بكلام الله والجلوس على طهارة تامة.
+                                </div>
+                            </div>
+                            <div class="bg-white/80 border border-sky-100 rounded-2xl p-4 flex items-start gap-3">
+                                <span class="w-7 h-7 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+                                <div class="text-xs text-slate-700 leading-relaxed">
+                                    <strong class="text-sky-950 block mb-0.5">سماعات الأذن ومكان هادئ</strong>
+                                    الانعزال في غرفة هادئة واستخدام سماعات للاستماع بتركيز.
+                                </div>
+                            </div>
+                            <div class="bg-white/80 border border-sky-100 rounded-2xl p-4 flex items-start gap-3">
+                                <span class="w-7 h-7 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+                                <div class="text-xs text-slate-700 leading-relaxed">
+                                    <strong class="text-sky-950 block mb-0.5">المحرم للأخوات</strong>
+                                    يشترط تواجد محرم شرعي أثناء الجلسات المرئية للأخوات الفضليات.
+                                </div>
+                            </div>
+                            <div class="bg-white/80 border border-sky-100 rounded-2xl p-4 flex items-start gap-3">
+                                <span class="w-7 h-7 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
+                                <div class="text-xs text-slate-700 leading-relaxed">
+                                    <strong class="text-sky-950 block mb-0.5">ماء وزيت الزيتون</strong>
+                                    تجهيز كوب ماء نقي وزيت زيتون لمن يرغب بالنفث عليه بعد الجلسة.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sessions History / All Bookings Table & Cards -->
+            <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-sky-950">سجل المواعيد والجلسات</h2>
+                        <p class="text-xs text-slate-500">تاريخ جميع طلبات الرقية السابقة والمكتملة والملغاة</p>
+                    </div>
+
+                    <!-- Filter pills -->
+                    <div class="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl text-xs font-semibold">
+                        <button onclick="filterBookings('ALL')" id="filterBtn-ALL" class="filter-btn px-3 py-1.5 rounded-lg bg-white text-sky-800 shadow-xs">الكل</button>
+                        <button onclick="filterBookings('PENDING')" id="filterBtn-PENDING" class="filter-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-sky-700">بانتظار التأكيد</button>
+                        <button onclick="filterBookings('CONFIRMED')" id="filterBtn-CONFIRMED" class="filter-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-sky-700">مؤكد</button>
+                        <button onclick="filterBookings('COMPLETED')" id="filterBtn-COMPLETED" class="filter-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-sky-700">مكتمل</button>
+                        <button onclick="filterBookings('CANCELLED')" id="filterBtn-CANCELLED" class="filter-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-sky-700">ملغي</button>
+                    </div>
+                </div>
+
+                <!-- Bookings List Container -->
+                <div id="bookingsListContainer" class="space-y-3">
+                    <div class="text-center py-12 text-slate-400">جاري تحميل سجل المواعيد...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: BOOK SESSION ================= -->
+        <div id="tabContent-book" class="tab-content hidden space-y-6">
+            <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-xs max-w-4xl mx-auto">
+                <div class="text-center max-w-xl mx-auto mb-8">
+                    <div class="w-14 h-14 rounded-2xl bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center mx-auto mb-3 shadow-xs">
+                        <i data-lucide="calendar-check" class="w-7 h-7"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-sky-950">حجز جلسة رقية خاصة ومباشرة</h2>
+                    <p class="text-sm text-slate-600 mt-1">
+                        اختر الخدمة المناسبة والراقي المعتمد، وسيتم حجز موعدك بسرية تامة ومنهج شرعي منضبط.
+                    </p>
+                </div>
+
+                <form id="portalBookingForm" onsubmit="handlePortalBooking(event)" class="space-y-6">
+                    <!-- Step 1: Select Service -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">1. نوع الخدمة أو الاستشارة</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="serviceOptionsGrid">
+                            <label class="relative flex items-center p-4 rounded-2xl border-2 border-sky-500 bg-sky-50/50 cursor-pointer transition">
+                                <input type="radio" name="serviceType" value="جلسة رقية فردية مباشرة" checked class="hidden service-radio">
+                                <div class="flex-grow">
+                                    <div class="font-bold text-sm text-sky-950">جلسة رقية فردية مباشرة</div>
+                                    <div class="text-xs text-slate-500 mt-0.5">تلاوة وتشخيص عبر مكالمة مرئية خاصة (45 دقيقة)</div>
+                                </div>
+                                <i data-lucide="check-circle-2" class="w-5 h-5 text-sky-600 service-check"></i>
+                            </label>
+                            <label class="relative flex items-center p-4 rounded-2xl border border-slate-200 hover:border-sky-300 bg-white cursor-pointer transition">
+                                <input type="radio" name="serviceType" value="رقية الأطفال والتحصين المنزلي" class="hidden service-radio">
+                                <div class="flex-grow">
+                                    <div class="font-bold text-sm text-slate-800">رقية الأطفال والتحصين المنزلي</div>
+                                    <div class="text-xs text-slate-500 mt-0.5">رقية لطيفة خاصة بالأطفال وطرد العوارض (45 دقيقة)</div>
+                                </div>
+                                <i data-lucide="check-circle-2" class="w-5 h-5 text-transparent service-check"></i>
+                            </label>
+                            <label class="relative flex items-center p-4 rounded-2xl border border-slate-200 hover:border-sky-300 bg-white cursor-pointer transition">
+                                <input type="radio" name="serviceType" value="استشارة تشخيصية وتوجيه" class="hidden service-radio">
+                                <div class="flex-grow">
+                                    <div class="font-bold text-sm text-slate-800">استشارة تشخيصية وتوجيه</div>
+                                    <div class="text-xs text-slate-500 mt-0.5">تقييم الأعراض وتوجيه بالبرنامج العلاجي (30 دقيقة)</div>
+                                </div>
+                                <i data-lucide="check-circle-2" class="w-5 h-5 text-transparent service-check"></i>
+                            </label>
+                            <label class="relative flex items-center p-4 rounded-2xl border border-slate-200 hover:border-sky-300 bg-white cursor-pointer transition">
+                                <input type="radio" name="serviceType" value="رقية مسجلة مخصصة" class="hidden service-radio">
+                                <div class="flex-grow">
+                                    <div class="font-bold text-sm text-slate-800">رقية مسجلة مخصصة</div>
+                                    <div class="text-xs text-slate-500 mt-0.5">تسجيل صوتي خاص بحالتك للاستماع اليومي</div>
+                                </div>
+                                <i data-lucide="check-circle-2" class="w-5 h-5 text-transparent service-check"></i>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Select Raqi -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">2. اختيار الشيخ الراقي المعتمد</label>
+                        <select id="portalRaqiSelect" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+                            <option value="">جاري تحميل قائمة الرقاة المتاحين...</option>
+                        </select>
+                    </div>
+
+                    <!-- Step 3: Date & Period -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-800 mb-2">3. تاريخ الجلسة</label>
+                            <input type="date" id="portalDateInput" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-800 mb-2">4. الفترة الزمنية المفضلة</label>
+                            <select id="portalTimePeriod" class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+                                <option value="morning">الفترة الصباحية (09:00 ص - 12:00 م)</option>
+                                <option value="afternoon">فترة بعد الظهر والمساء (03:00 م - 06:00 م)</option>
+                                <option value="evening" selected>الفترة الليلية (07:00 م - 10:00 م)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Notes & Symptoms -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2">5. ملاحظات أو أعراض مختصرة (اختياري وبسرية تامة)</label>
+                        <textarea id="portalNotesInput" rows="3" placeholder="اكتب بإيجاز ما تشكو منه أو أي تفاصيل تفيد الشيخ الراقي أثناء الجلسة..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-4 rounded-2xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+                        <div class="text-xs text-slate-500 flex items-center gap-1.5">
+                            <i data-lucide="lock" class="w-4 h-4 text-emerald-600"></i>
+                            <span>بياناتك وتفاصيل جلستك مشفرة ومحمية بخصوصية شرعية كاملة</span>
+                        </div>
+                        <button type="submit" id="portalBookingSubmitBtn" class="px-7 py-3.5 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-md shadow-sky-600/20 active:scale-95 transition-all flex items-center gap-2">
+                            <span>إرسال طلب الحجز</span>
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: DAILY FORTIFICATION & AUDIO ================= -->
+        <div id="tabContent-audio" class="tab-content hidden space-y-8">
+            <div class="bg-gradient-to-tr from-sky-900 via-sky-800 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-sky-950/10">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+                    <div class="lg:w-1/2 text-right">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-sky-200 text-xs font-semibold mb-3 border border-white/10">
+                            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-sky-300"></i>
+                            <span>زاد المؤمن للشفاء والطمأنينة</span>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-black mb-3">مشغل الرقية الشرعية والأوراد اليومية</h2>
+                        <p class="text-sm text-sky-150 leading-relaxed text-sky-100/80 mb-6">
+                            استمع إلى رقى شرعية مسجلة بأصوات نخبة من القراء المجازين، خالية من أي مؤثرات أو إضافات، وفق هدي المصطفى ﷺ. يوصى بالاستماع إليها يومياً بين الجلسات.
+                        </p>
+                        
+                        <!-- Mini Active Track Info -->
+                        <div class="bg-white/10 border border-white/15 rounded-2xl p-4 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-sky-500 text-white flex items-center justify-center shadow-md">
+                                <i data-lucide="disc" class="w-6 h-6 animate-spin" id="activeTrackSpinIcon"></i>
+                            </div>
+                            <div>
+                                <div id="activeTrackTitle" class="font-bold text-sm text-white">الرقية الشرعية الشاملة لعلاج السحر والحسد</div>
+                                <div id="activeTrackReciter" class="text-xs text-sky-200">بصوت الشيخ مشاري العفاسي</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audio Player Controls Component -->
+                    <div class="lg:w-1/2 w-full bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-6">
+                        <audio id="portalAudioElement" class="w-full hidden" preload="none"></audio>
+                        
+                        <!-- Time & Progress Bar -->
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-xs text-sky-200 font-mono">
+                                <span id="portalAudioCurrentTime">00:00</span>
+                                <span id="portalAudioDuration">--:--</span>
+                            </div>
+                            <input type="range" id="portalAudioSeek" min="0" max="100" value="0" class="w-full accent-sky-400 cursor-pointer">
+                        </div>
+
+                        <!-- Main Controls -->
+                        <div class="flex items-center justify-center gap-6">
+                            <button onclick="changeTrack(-1)" title="المقطع السابق" class="p-2 text-sky-200 hover:text-white transition">
+                                <i data-lucide="skip-forward" class="w-5 h-5"></i>
+                            </button>
+                            <button id="portalAudioPlayBtn" onclick="togglePortalAudio()" class="w-14 h-14 rounded-2xl bg-white text-sky-900 flex items-center justify-center hover:scale-105 active:scale-95 transition shadow-lg">
+                                <i data-lucide="play" id="portalPlayIcon" class="w-6 h-6 text-sky-800 ml-0.5"></i>
+                            </button>
+                            <button onclick="changeTrack(1)" title="المقطع التالي" class="p-2 text-sky-200 hover:text-white transition">
+                                <i data-lucide="skip-back" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Library Tracks List -->
+            <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
+                <h3 class="text-lg font-black text-sky-950 mb-4 flex items-center gap-2">
+                    <i data-lucide="list-music" class="w-5 h-5 text-sky-600"></i>
+                    <span>قائمة التلاوات المعتمدة</span>
+                </h3>
+                <div id="audioTracksContainer" class="space-y-2.5">
+                    <div class="text-center py-8 text-slate-400">جاري تحميل المقاطع الصوتية...</div>
+                </div>
+            </div>
+
+            <!-- Essential Daily Prophetic Adhkar Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white border border-sky-100 rounded-2xl p-5 shadow-xs">
+                    <span class="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold mb-2">الصباح والمساء</span>
+                    <h4 class="font-bold text-sm text-sky-950 mb-1">سيد الاستغفار</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed font-serif">
+                        «اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ...»
+                    </p>
+                </div>
+                <div class="bg-white border border-sky-100 rounded-2xl p-5 shadow-xs">
+                    <span class="inline-block px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 text-xs font-bold mb-2">عند الخوف والفزع</span>
+                    <h4 class="font-bold text-sm text-sky-950 mb-1">كلمات الله التامات</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed font-serif">
+                        «أَعُوذُ بِكَلِمَاتِ اللهِ التَّامَّاتِ مِنْ غَضَبِهِ وَعِقَابِهِ وَشَرِّ عِبَادِهِ، وَمِنْ هَمَزَاتِ الشَّيَاطِينِ وَأَنْ يَحْضُرُونِ»
+                    </p>
+                </div>
+                <div class="bg-white border border-sky-100 rounded-2xl p-5 shadow-xs">
+                    <span class="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-xs font-bold mb-2">للحماية والتحصين</span>
+                    <h4 class="font-bold text-sm text-sky-950 mb-1">بسم الله الذي لا يضر</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed font-serif">
+                        «بِسْمِ اللهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ» (ثلاث مرات صباحاً ومساءً)
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: ACCOUNT & PRIVACY ================= -->
+        <div id="tabContent-account" class="tab-content hidden space-y-6 max-w-3xl mx-auto">
+            
+            <!-- Personal Profile Info -->
+            <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
+                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-sky-950">بيانات الحساب الشخصي</h3>
+                        <p class="text-xs text-slate-500">تحديث معلومات التواصل المعتمدة لدى الرقاة وإدارة المنصة</p>
+                    </div>
+                </div>
+
+                <form id="profileUpdateForm" onsubmit="handleProfileUpdate(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الكامل</label>
+                        <input type="text" id="accName" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني (غير قابل للتعديل)</label>
+                        <input type="email" id="accEmail" disabled class="w-full bg-slate-100 border border-slate-200 text-slate-400 px-4 py-2.5 rounded-xl text-sm cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف للتواصل وتأكيد المواعيد (WhatsApp)</label>
+                        <input type="tel" id="accPhone" placeholder="+966xxxxxxxxx" class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+                    </div>
+
+                    <div class="pt-3 flex justify-end">
+                        <button type="submit" id="profileSaveBtn" class="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-sm transition">
+                            حفظ التعديلات
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
+                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                        <i data-lucide="key-round" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-sky-950">تغيير كلمة المرور</h3>
+                        <p class="text-xs text-slate-500">حماية حسابك وخصوصية جلساتك واستشاراتك</p>
+                    </div>
+                </div>
+
+                <form id="passwordChangeForm" onsubmit="handlePasswordChange(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور الحالية</label>
+                        <input type="password" id="currentPassword" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور الجديدة</label>
+                        <input type="password" id="newPassword" required placeholder="8 أحرف على الأقل، تشمل حرفاً كبيراً ورقماً" class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+                    </div>
+
+                    <div class="pt-3 flex justify-end">
+                        <button type="submit" id="passwordSaveBtn" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs shadow-sm transition">
+                            تحديث كلمة المرور
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Privacy & Security Guarantee -->
+            <div class="bg-emerald-50/70 border border-emerald-200 rounded-3xl p-6 flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div class="text-xs text-emerald-950 leading-relaxed">
+                    <h4 class="font-extrabold text-sm text-emerald-900 mb-1">التزام الأمان والسرية الشرعية</h4>
+                    جميع تفاصيل جلسات الرقية والملاحظات الطبية أو الروحية التي تشاركها مشفرة بشكل صارم. لا يطلع عليها إلا الشيخ الراقي المباشر لجلسة الرقية، ولا يتم تسجيل المكالمات أو مشاركة أرقام الهواتف مع أي جهة خارجية.
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Cancel Booking Confirmation Modal -->
+    <div id="cancelBookingModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 text-right">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center mb-4">
+                <i data-lucide="calendar-x" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-lg font-black text-slate-900 mb-2">تأكيد إلغاء الموعد</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-6">
+                هل أنت متأكد من رغبتك في إلغاء هذا الموعد؟ سيتيح هذا الموعد لمستفيد آخر، ويمكنك دائماً طلب موعد بديل في وقت لاحق.
+            </p>
+            <div class="flex items-center gap-3">
+                <button onclick="confirmCancelBooking()" id="confirmCancelBtn" class="flex-1 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition shadow-sm">
+                    نعم، إلغاء الموعد
+                </button>
+                <button onclick="closeCancelModal()" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                    تراجع
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200/80 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>منصة الرقية الشرعية أونلاين © <span id="portalYear">2026</span> • منهج نبوي موثوق وسكينة تامة</div>
+            <div class="flex items-center gap-4 text-slate-400">
+                <a href="index.html#services" class="hover:text-sky-600">الخدمات</a>
+                <span>•</span>
+                <a href="index.html#blog" class="hover:text-sky-600">المدونة</a>
+                <span>•</span>
+                <a href="index.html#forum" class="hover:text-sky-600">المجتمع</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Portal Client-side Logic Script -->
+    <script>
+        const API_URL = '/api';
+        let authToken = localStorage.getItem('ruqyah_token') || null;
+        let currentUser = null;
+        let myBookings = [];
+        let availableRaqis = [];
+        let audioTracks = [];
+        let activeTrackIndex = 0;
+        let bookingToCancelId = null;
+        let currentFilter = 'ALL';
+
+        // 1. Authentication & Route Guard
+        async function initPortal() {
+            lucide.createIcons();
+            document.getElementById('portalYear').textContent = new Date().getFullYear();
+
+            if (!authToken) {
+                // Not authenticated -> redirect to main page login
+                window.location.href = 'index.html?auth=login';
+                return;
+            }
+
+            try {
+                // Verify token and fetch fresh user profile
+                const res = await apiCall('/auth/me');
+                if (res && res.user) {
+                    currentUser = res.user;
+                    renderUserProfile();
+                } else {
+                    handleLogout();
+                    return;
+                }
+            } catch (err) {
+                console.error('[Portal Auth] Invalid token:', err);
+                handleLogout();
+                return;
+            }
+
+            // Load primary data
+            await Promise.allSettled([
+                loadMyBookings(),
+                loadAvailableRaqis(),
+                loadAudioTracks()
+            ]);
+
+            // Set min date on date input to today
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('portalDateInput');
+            if (dateInput) {
+                dateInput.min = today;
+                dateInput.value = today;
+            }
+
+            setupRadioServiceSelection();
+            setupAudioPlayerEvents();
+        }
+
+        // Generic authenticated API call
+        async function apiCall(endpoint, options = {}) {
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
+            const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                const validationMsg = data.errors && data.errors.length ? data.errors.map(e => e.message).join('، ') : null;
+                throw new Error(validationMsg || data.message || `خطأ ${res.status}`);
+            }
+            return data;
+        }
+
+        function renderUserProfile() {
+            if (!currentUser) return;
+            const initial = currentUser.name ? currentUser.name.trim().charAt(0) : 'م';
+            document.getElementById('navUserInitial').textContent = initial;
+            document.getElementById('navUserName').textContent = currentUser.name;
+            document.getElementById('welcomeUserName').textContent = currentUser.name;
+
+            // Pre-fill profile tab
+            const accName = document.getElementById('accName');
+            const accEmail = document.getElementById('accEmail');
+            const accPhone = document.getElementById('accPhone');
+            if (accName) accName.value = currentUser.name || '';
+            if (accEmail) accEmail.value = currentUser.email || '';
+            if (accPhone) accPhone.value = currentUser.phone || '';
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('ruqyah_token');
+            localStorage.removeItem('ruqyah_user');
+            window.location.href = 'index.html';
+        }
+
+        // 2. Tab Navigation
+        function switchTab(tabId) {
+            // Update Tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50";
+            });
+            const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-sky-600 text-white shadow-sm";
+            }
+
+            // Update Tab contents
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            const activeContent = document.getElementById(`tabContent-${tabId}`);
+            if (activeContent) activeContent.classList.remove('hidden');
+
+            lucide.createIcons();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 3. Bookings & Sessions Management
+        async function loadMyBookings() {
+            try {
+                const res = await apiCall('/bookings/my?limit=50');
+                if (res && res.data) {
+                    myBookings = res.data;
+                    renderBookings();
+                }
+            } catch (err) {
+                console.error('[Bookings] Error loading:', err.message);
+                document.getElementById('bookingsListContainer').innerHTML = `
+                    <div class="p-6 text-center text-rose-600 text-xs">تعذر جلب سجل المواعيد. يرجى إعادة المحاولة.</div>
+                `;
+            }
+        }
+
+        function renderBookings() {
+            const now = new Date();
+            // Find next upcoming active session (PENDING or CONFIRMED where endTime > now)
+            const activeSessions = myBookings
+                .filter(b => (b.status === 'CONFIRMED' || b.status === 'PENDING') && new Date(b.endTime) >= now)
+                .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+            const nextSession = activeSessions[0] || null;
+
+            // Update quick stats
+            const upcomingCount = activeSessions.length;
+            const completedCount = myBookings.filter(b => b.status === 'COMPLETED').length;
+            document.getElementById('statUpcoming').textContent = upcomingCount;
+            document.getElementById('statCompleted').textContent = completedCount;
+
+            renderUpcomingHero(nextSession);
+            renderBookingsList();
+        }
+
+        function renderUpcomingHero(session) {
+            const container = document.getElementById('upcomingHeroContainer');
+            if (!container) return;
+
+            if (!session) {
+                // Warm Empty State
+                container.innerHTML = `
+                    <div class="bg-white border border-sky-100 rounded-3xl p-8 text-center shadow-xs">
+                        <div class="w-16 h-16 rounded-2xl bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="calendar-heart" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-sky-950 mb-2">لا توجد لديك جلسات قادمة محجوزة حالياً</h3>
+                        <p class="text-sm text-slate-600 max-w-md mx-auto mb-6">
+                            نسأل الله لك ولأهلك دوام العافية والسكينة. إذا كنت تشعر بحاجة لجلسة رقية شرعية خاصة أو استشارة موجهة، يمكنك اختيار الراقي المناسب وحجز موعدك الآن.
+                        </p>
+                        <div class="flex items-center justify-center gap-3">
+                            <button onclick="switchTab('book')" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-md shadow-sky-600/20 active:scale-95 transition">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                <span>حجز جلسة رقية خاصة</span>
+                            </button>
+                            <button onclick="switchTab('audio')" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition">
+                                <i data-lucide="headphones" class="w-4 h-4"></i>
+                                <span>الاستماع للتحصين</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const isConfirmed = session.status === 'CONFIRMED';
+            const startDate = new Date(session.startTime);
+            const dateStr = startDate.toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const timeStr = startDate.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+            const raqiName = session.raqi?.user?.name || 'الشيخ الراقي';
+
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-white via-sky-50/40 to-white border-2 ${isConfirmed ? 'border-emerald-300 shadow-emerald-500/5' : 'border-sky-200 shadow-sky-500/5'} rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <span class="px-3 py-1 rounded-full text-xs font-black ${isConfirmed ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'} inline-flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full ${isConfirmed ? 'bg-emerald-500 animate-ping' : 'bg-amber-500'}"></span>
+                                    ${isConfirmed ? 'تم تأكيد الموعد من الراقي' : 'طلب الحجز قيد المراجعة والاعتماد'}
+                                </span>
+                                <span class="text-xs text-sky-800 font-bold bg-sky-100/70 px-3 py-1 rounded-full border border-sky-200">
+                                    ${escapeHtml(session.serviceType)}
+                                </span>
+                            </div>
+
+                            <h2 class="text-xl sm:text-2xl font-black text-sky-950">
+                                موعدك القادم مع: <span class="text-sky-700">${escapeHtml(raqiName)}</span>
+                            </h2>
+
+                            <div class="flex items-center gap-4 text-xs sm:text-sm text-slate-600 flex-wrap">
+                                <div class="flex items-center gap-1.5">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-sky-600"></i>
+                                    <span>${dateStr}</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 font-mono">
+                                    <i data-lucide="clock" class="w-4 h-4 text-sky-600"></i>
+                                    <span>${timeStr} (بتوقيت مكة المكرمة)</span>
+                                </div>
+                            </div>
+
+                            ${session.notes ? `
+                                <div class="text-xs text-slate-500 bg-white/80 border border-slate-200/80 rounded-xl p-3 max-w-xl">
+                                    <span class="font-bold text-slate-700">ملاحظاتك المسجلة:</span> ${escapeHtml(session.notes)}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Action side -->
+                        <div class="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[220px]">
+                            ${isConfirmed && session.sessionLink ? `
+                                <a href="${escapeHtml(session.sessionLink)}" target="_blank" class="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-600/20 active:scale-95 transition flex items-center justify-center gap-2 pulse-subtle">
+                                    <i data-lucide="video" class="w-5 h-5"></i>
+                                    <span>الانضمام إلى الجلسة المرئية</span>
+                                </a>
+                                <button onclick="copySessionLink('${escapeHtml(session.sessionLink)}')" class="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-600 transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    <span>نسخ رابط الجلسة</span>
+                                </button>
+                            ` : isConfirmed ? `
+                                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 leading-relaxed text-center font-medium">
+                                    <i data-lucide="check-circle" class="w-5 h-5 mx-auto mb-1 text-emerald-600"></i>
+                                    الموعد مؤكد. سيضع الشيخ الراقي رابط الجلسة المباشرة هنا قبل الموعد بقليل.
+                                </div>
+                            ` : `
+                                <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-800 leading-relaxed text-center font-medium">
+                                    <i data-lucide="hourglass" class="w-5 h-5 mx-auto mb-1 text-amber-600"></i>
+                                    طلبك وصل بنجاح وسيتواصل معك الراقي لتأكيد الموعد وإرسال الرابط.
+                                </div>
+                            `}
+
+                            <button onclick="promptCancelBooking('${session.id}')" class="px-4 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition border border-transparent hover:border-rose-200">
+                                إلغاء الموعد إذا طرأ عذر
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderBookingsList() {
+            const listEl = document.getElementById('bookingsListContainer');
+            if (!listEl) return;
+
+            let filtered = myBookings;
+            if (currentFilter !== 'ALL') {
+                filtered = myBookings.filter(b => b.status === currentFilter);
+            }
+
+            if (!filtered.length) {
+                listEl.innerHTML = `
+                    <div class="text-center py-12 text-slate-400 text-xs">
+                        لا توجد مواعيد مسجلة ضمن هذا التصنيف.
+                    </div>
+                `;
+                return;
+            }
+
+            const statusMap = {
+                'PENDING':   { label: 'قيد المراجعة', class: 'bg-amber-50 text-amber-700 border-amber-200' },
+                'CONFIRMED': { label: 'مؤكد', class: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                'COMPLETED': { label: 'مكتمل', class: 'bg-sky-50 text-sky-700 border-sky-200' },
+                'CANCELLED': { label: 'ملغي', class: 'bg-slate-100 text-slate-500 border-slate-200' }
+            };
+
+            listEl.innerHTML = filtered.map(b => {
+                const startDate = new Date(b.startTime);
+                const dateStr = startDate.toLocaleDateString('ar-SA', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                const timeStr = startDate.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+                const st = statusMap[b.status] || { label: b.status, class: 'bg-slate-100 text-slate-600' };
+                const raqiName = b.raqi?.user?.name || 'الشيخ الراقي';
+
+                return `
+                    <div class="bg-slate-50/70 hover:bg-sky-50/40 border border-slate-200/80 rounded-2xl p-4 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-xs font-bold text-sky-950">${escapeHtml(b.serviceType)}</span>
+                                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${st.class}">${st.label}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 flex items-center gap-3">
+                                <span>الراقي: <strong class="text-slate-700">${escapeHtml(raqiName)}</strong></span>
+                                <span>•</span>
+                                <span>${dateStr} (${timeStr})</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            ${b.status === 'CONFIRMED' && b.sessionLink ? `
+                                <a href="${escapeHtml(b.sessionLink)}" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5">
+                                    <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                                    <span>رابط الجلسة</span>
+                                </a>
+                            ` : ''}
+
+                            ${b.status === 'PENDING' || b.status === 'CONFIRMED' ? `
+                                <button onclick="promptCancelBooking('${b.id}')" title="إلغاء الموعد" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function filterBookings(status) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "filter-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-sky-700";
+            });
+            const activeBtn = document.getElementById(`filterBtn-${status}`);
+            if (activeBtn) activeBtn.className = "filter-btn px-3 py-1.5 rounded-lg bg-white text-sky-800 shadow-xs";
+            renderBookingsList();
+        }
+
+        function promptCancelBooking(bookingId) {
+            bookingToCancelId = bookingId;
+            document.getElementById('cancelBookingModal').classList.remove('hidden');
+        }
+
+        function closeCancelModal() {
+            bookingToCancelId = null;
+            document.getElementById('cancelBookingModal').classList.add('hidden');
+        }
+
+        async function confirmCancelBooking() {
+            if (!bookingToCancelId) return;
+            const btn = document.getElementById('confirmCancelBtn');
+            btn.disabled = true;
+            btn.textContent = 'جاري الإلغاء...';
+
+            try {
+                await apiCall(`/bookings/${bookingToCancelId}/cancel`, { method: 'PATCH' });
+                showToast('تم إلغاء الموعد بنجاح.');
+                closeCancelModal();
+                await loadMyBookings();
+            } catch (err) {
+                showToast(err.message || 'تعذر إلغاء الموعد.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'نعم، إلغاء الموعد';
+            }
+        }
+
+        function copySessionLink(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('تم نسخ رابط الجلسة بنجاح.');
+            }).catch(() => {
+                showToast('الرابط: ' + link);
+            });
+        }
+
+        // 4. Booking Wizard in Portal
+        async function loadAvailableRaqis() {
+            try {
+                const res = await apiCall('/bookings/raqis');
+                if (res && res.data) {
+                    availableRaqis = res.data;
+                    document.getElementById('statRaqis').textContent = availableRaqis.length || 4;
+                    const select = document.getElementById('portalRaqiSelect');
+                    if (select) {
+                        select.innerHTML = availableRaqis.map(r => `
+                            <option value="${r.id}">
+                                ${escapeHtml(r.name)} (${r.specialties && r.specialties.length ? r.specialties.join('، ') : 'رقية عامة واستشارات'})
+                            </option>
+                        `).join('');
+                    }
+                }
+            } catch (err) {
+                console.error('[Raqis] Failed to load:', err);
+            }
+        }
+
+        function setupRadioServiceSelection() {
+            const labels = document.querySelectorAll('#serviceOptionsGrid label');
+            labels.forEach(label => {
+                const radio = label.querySelector('.service-radio');
+                radio.addEventListener('change', () => {
+                    labels.forEach(l => {
+                        l.classList.remove('border-sky-500', 'bg-sky-50/50');
+                        l.classList.add('border-slate-200', 'bg-white');
+                        const check = l.querySelector('.service-check');
+                        if (check) check.classList.add('text-transparent');
+                    });
+                    if (radio.checked) {
+                        label.classList.add('border-sky-500', 'bg-sky-50/50');
+                        label.classList.remove('border-slate-200', 'bg-white');
+                        const check = label.querySelector('.service-check');
+                        if (check) check.classList.remove('text-transparent');
+                    }
+                });
+            });
+        }
+
+        async function handlePortalBooking(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('portalBookingSubmitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'جاري الإرسال...';
+
+            const raqiSelect = document.getElementById('portalRaqiSelect');
+            const raqiId = raqiSelect.value || (availableRaqis[0]?.id);
+            const serviceType = document.querySelector('input[name="serviceType"]:checked')?.value || 'جلسة رقية فردية مباشرة';
+            const dateVal = document.getElementById('portalDateInput').value;
+            const period = document.getElementById('portalTimePeriod').value;
+            const notes = document.getElementById('portalNotesInput').value.trim();
+
+            if (!dateVal) {
+                showToast('يرجى تحديد تاريخ الجلسة.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
+
+            const timeMap = {
+                'morning':   'T09:00:00.000Z',
+                'afternoon': 'T15:00:00.000Z',
+                'evening':   'T19:00:00.000Z',
+            };
+            const startTime = `${dateVal}${timeMap[period] || 'T19:00:00.000Z'}`;
+
+            try {
+                const data = await apiCall('/bookings', {
+                    method: 'POST',
+                    body: JSON.stringify({ raqiId, serviceType, startTime, notes })
+                });
+                showToast(data.message || 'تم إرسال طلب الحجز بنجاح!');
+                e.target.reset();
+                await loadMyBookings();
+                switchTab('sessions');
+            } catch (err) {
+                showToast(err.message || 'فشل إرسال طلب الحجز.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // 5. Audio Player & Spiritual Library
+        async function loadAudioTracks() {
+            try {
+                const res = await apiCall('/audio');
+                if (res && res.data && res.data.length) {
+                    audioTracks = res.data;
+                } else {
+                    // Fallback reliable spiritual tracks
+                    audioTracks = [
+                        { id: '1', title: 'الرقية الشرعية الشاملة لعلاج السحر والحسد', reciter: 'الشيخ مشاري العفاسي', duration: '32:40', src: 'https://server8.mp3quran.net/afs/001.mp3' },
+                        { id: '2', title: 'رقية السكينة وطرد القلق والوساوس', reciter: 'الشيخ ماهر المعيقلي', duration: '28:15', src: 'https://server12.mp3quran.net/maher/002.mp3' },
+                        { id: '3', title: 'آيات الشفاء والتحصين للأطفال والمنزل', reciter: 'الشيخ ياسر الدوسري', duration: '24:50', src: 'https://server11.mp3quran.net/yasser/003.mp3' },
+                        { id: '4', title: 'أذكار الصباح والمساء للوقاية والحفظ', reciter: 'الشيخ سعد الغامدي', duration: '18:30', src: 'https://server7.mp3quran.net/s_gmd/001.mp3' },
+                    ];
+                }
+                renderAudioList();
+                setTrack(0, false);
+            } catch (err) {
+                console.warn('[Audio] Using fallback tracks:', err);
+            }
+        }
+
+        function renderAudioList() {
+            const container = document.getElementById('audioTracksContainer');
+            if (!container) return;
+
+            container.innerHTML = audioTracks.map((t, idx) => `
+                <div onclick="setTrack(${idx}, true)" class="track-item p-3.5 rounded-2xl border ${idx === activeTrackIndex ? 'border-sky-500 bg-sky-50/60' : 'border-slate-100 bg-slate-50/60 hover:bg-sky-50/30'} flex items-center justify-between cursor-pointer transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl ${idx === activeTrackIndex ? 'bg-sky-600 text-white' : 'bg-white text-slate-500'} flex items-center justify-center text-xs font-bold shadow-xs">
+                            ${idx + 1}
+                        </div>
+                        <div>
+                            <div class="text-xs sm:text-sm font-bold text-sky-950">${escapeHtml(t.title)}</div>
+                            <div class="text-[11px] text-slate-500">${escapeHtml(t.reciter || 'تلاوة مباركة')}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-mono text-slate-400">${t.duration || ''}</span>
+                        <i data-lucide="${idx === activeTrackIndex ? 'volume-2' : 'play-circle'}" class="w-5 h-5 ${idx === activeTrackIndex ? 'text-sky-600' : 'text-slate-400'}"></i>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function setTrack(idx, autoPlay = true) {
+            if (!audioTracks[idx]) return;
+            activeTrackIndex = idx;
+            const t = audioTracks[idx];
+            document.getElementById('activeTrackTitle').textContent = t.title;
+            document.getElementById('activeTrackReciter').textContent = t.reciter || 'تلاوة مباركة';
+
+            const audio = document.getElementById('portalAudioElement');
+            if (t.src) audio.src = t.src;
+
+            renderAudioList();
+            if (autoPlay) {
+                audio.play().then(() => {
+                    updatePlayBtnUI(true);
+                }).catch(() => {
+                    updatePlayBtnUI(false);
+                });
+            } else {
+                updatePlayBtnUI(false);
+            }
+        }
+
+        function togglePortalAudio() {
+            const audio = document.getElementById('portalAudioElement');
+            if (audio.paused) {
+                audio.play();
+                updatePlayBtnUI(true);
+            } else {
+                audio.pause();
+                updatePlayBtnUI(false);
+            }
+        }
+
+        function changeTrack(direction) {
+            let next = activeTrackIndex + direction;
+            if (next < 0) next = audioTracks.length - 1;
+            if (next >= audioTracks.length) next = 0;
+            setTrack(next, true);
+        }
+
+        function updatePlayBtnUI(isPlaying) {
+            const icon = document.getElementById('portalPlayIcon');
+            const spin = document.getElementById('activeTrackSpinIcon');
+            if (icon) {
+                icon.setAttribute('data-lucide', isPlaying ? 'pause' : 'play');
+                lucide.createIcons();
+            }
+            if (spin) {
+                if (isPlaying) spin.classList.add('animate-spin');
+                else spin.classList.remove('animate-spin');
+            }
+        }
+
+        function setupAudioPlayerEvents() {
+            const audio = document.getElementById('portalAudioElement');
+            const seek = document.getElementById('portalAudioSeek');
+            const cur = document.getElementById('portalAudioCurrentTime');
+            const dur = document.getElementById('portalAudioDuration');
+
+            audio.addEventListener('timeupdate', () => {
+                if (audio.duration) {
+                    seek.value = (audio.currentTime / audio.duration) * 100;
+                    cur.textContent = formatTime(audio.currentTime);
+                    dur.textContent = formatTime(audio.duration);
+                }
+            });
+
+            seek.addEventListener('input', () => {
+                if (audio.duration) {
+                    audio.currentTime = (seek.value / 100) * audio.duration;
+                }
+            });
+
+            audio.addEventListener('ended', () => {
+                changeTrack(1);
+            });
+        }
+
+        function formatTime(secs) {
+            const m = Math.floor(secs / 60);
+            const s = Math.floor(secs % 60);
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // 6. Profile & Password Management
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            const btn = document.getElementById('profileSaveBtn');
+            btn.disabled = true;
+            btn.textContent = 'جاري الحفظ...';
+
+            const name = document.getElementById('accName').value.trim();
+            const phone = document.getElementById('accPhone').value.trim();
+
+            try {
+                const res = await apiCall('/auth/me', {
+                    method: 'PUT',
+                    body: JSON.stringify({ name, phone: phone || null })
+                });
+                if (res && res.user) {
+                    currentUser = res.user;
+                    localStorage.setItem('ruqyah_user', JSON.stringify(res.user));
+                    renderUserProfile();
+                    showToast(res.message || 'تم تحديث بياناتك بنجاح.');
+                }
+            } catch (err) {
+                showToast(err.message || 'تعذر تحديث الملف الشخصي.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'حفظ التعديلات';
+            }
+        }
+
+        async function handlePasswordChange(e) {
+            e.preventDefault();
+            const btn = document.getElementById('passwordSaveBtn');
+            btn.disabled = true;
+            btn.textContent = 'جاري التحديث...';
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+
+            if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+                showToast('كلمة المرور يجب أن تكون 8 أحرف على الأقل، وتحتوي على حرف كبير ورقم.');
+                btn.disabled = false;
+                btn.textContent = 'تحديث كلمة المرور';
+                return;
+            }
+
+            try {
+                const res = await apiCall('/auth/change-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+                showToast(res.message || 'تم تغيير كلمة المرور بنجاح.');
+                e.target.reset();
+            } catch (err) {
+                showToast(err.message || 'تعذر تغيير كلمة المرور.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'تحديث كلمة المرور';
+            }
+        }
+
+        // Utility: Toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.textContent = message;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3500);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Run on DOM load
+        document.addEventListener('DOMContentLoaded', initPortal);
+    </script>
+</body>
+</html>

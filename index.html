@@ -116,12 +116,12 @@
                         <i data-lucide="user" class="w-4 h-4"></i>
                         <span>تسجيل الدخول</span>
                     </button>
-                    <a href="admin.html" target="_blank" title="لوحة تحكم الإدارة" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all duration-200">
-                        <i data-lucide="shield" class="w-3.5 h-3.5 text-sky-600"></i>
-                        <span>لوحة الإدارة</span>
-                    </a>
                     <div id="userNavInfo" class="hidden items-center gap-2">
-                        <span id="userNavName" class="text-xs sm:text-sm font-bold text-sky-900 bg-sky-100/70 px-3 py-1.5 rounded-xl border border-sky-200"></span>
+                        <a href="portal.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-sky-800 bg-sky-100 hover:bg-sky-200 border border-sky-300 transition-all duration-200 shadow-xs">
+                            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-sky-600"></i>
+                            <span>بوابة المستفيد</span>
+                        </a>
+                        <span id="userNavName" class="text-xs sm:text-sm font-bold text-sky-900 bg-sky-50 px-3 py-1.5 rounded-xl border border-sky-200"></span>
                         <button onclick="clearAuth()" title="تسجيل الخروج" class="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
                             <i data-lucide="log-out" class="w-4 h-4"></i>
                         </button>
@@ -140,6 +140,10 @@
 
         <!-- Mobile Navigation Drawer -->
         <div id="mobileMenu" class="hidden md:hidden bg-white border-b border-sky-100 px-4 pt-2 pb-6 space-y-1">
+            <a href="portal.html" id="mobilePortalLink" class="hidden items-center gap-2 px-3 py-2.5 rounded-xl text-base font-bold text-sky-800 bg-sky-50 border border-sky-200 mb-2">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 text-sky-600"></i>
+                <span>بوابة المستفيد ومواعيدي</span>
+            </a>
             <a href="#hero" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-base font-medium text-sky-900 hover:bg-sky-50">الرئيسية</a>
             <a href="#how-it-works" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:bg-sky-50">كيف تعمل الرقية؟</a>
             <a href="#services" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:bg-sky-50">الجلسات والخدمات</a>
@@ -974,13 +978,19 @@
             const loginBtn = document.getElementById('loginNavBtn');
             const userInfo = document.getElementById('userNavInfo');
             const userNavName = document.getElementById('userNavName');
+            const mobilePortalLink = document.getElementById('mobilePortalLink');
             if (currentUser) {
                 if (loginBtn) loginBtn.classList.add('hidden');
                 if (userInfo) userInfo.classList.remove('hidden');
                 if (userNavName) userNavName.textContent = `أهلاً، ${currentUser.name}`;
+                if (mobilePortalLink) mobilePortalLink.classList.remove('hidden', '!hidden');
             } else {
                 if (loginBtn) loginBtn.classList.remove('hidden');
                 if (userInfo) userInfo.classList.add('hidden');
+                if (mobilePortalLink) mobilePortalLink.classList.add('hidden');
+            }
+            if (window.lucide && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
             }
         }
 
