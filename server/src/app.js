@@ -16,7 +16,7 @@ function createApp() {
   const app = express();
 
   // ── Security Headers ────────────────────────────────────────────────────
-  app.use(helmet());
+  app.use(helmet({ contentSecurityPolicy: false }));
 
   // ── CORS ────────────────────────────────────────────────────────────────
   // Allows your frontend (served via Live Server or any dev server) to call
@@ -48,6 +48,11 @@ function createApp() {
 
   // ── API Routes ──────────────────────────────────────────────────────────
   app.use('/api', apiRouter);
+
+  // ── Static Frontend Files ───────────────────────────────────────────────
+  const path = require('path');
+  const staticRoot = path.resolve(__dirname, '../../');
+  app.use(express.static(staticRoot));
 
   // ── 404 Handler ─────────────────────────────────────────────────────────
   app.use((req, res) => {

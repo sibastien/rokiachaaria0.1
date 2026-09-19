@@ -921,7 +921,7 @@
         // ══════════════════════════════════════════════════════════════════════
         // API CONFIGURATION
         // ══════════════════════════════════════════════════════════════════════
-        const API_BASE = '/api';
+        const API_URL = '/api';
 
         // Auth token stored in localStorage
         let authToken = localStorage.getItem('ruqyah_token') || null;
@@ -933,16 +933,17 @@
             if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
 
             try {
-                const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
-                const data = await res.json();
+                const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+                const data = await res.json().catch(() => ({}));
                 if (!res.ok) {
-                    throw new Error(data.message || `خطأ ${res.status}`);
+                    const validationMsg = data.errors && data.errors.length ? data.errors.map(e => e.message).join('، ') : null;
+                    throw new Error(validationMsg || data.message || `خطأ ${res.status}`);
                 }
                 return data;
             } catch (err) {
                 console.error(`[API Error] ${options.method || 'GET'} ${endpoint}:`, err);
                 if (err.name === 'TypeError') {
-                    simulateToast('تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مجدداً.');
+                    simulateToast('تعذر الاتصال بالخادم. يرجى التحقق من تشغيل السيرفر والمحاولة مجدداً.');
                 } else {
                     simulateToast(err.message);
                 }
@@ -1000,23 +1001,29 @@
             const tabRegister = document.getElementById('authTabRegister');
             const title = document.getElementById('authModalTitle');
             const nameField = document.getElementById('authNameField');
+            const authNameInput = document.getElementById('authName');
             const phoneField = document.getElementById('authPhoneField');
             const submitBtn = document.getElementById('authSubmitBtn');
+            const hintText = document.getElementById('authHintText');
 
             if (mode === 'register') {
                 tabRegister.className = "py-2 rounded-xl bg-white text-sky-700 shadow-sm transition";
                 tabLogin.className = "py-2 rounded-xl text-slate-600 hover:text-sky-700 transition";
                 title.textContent = 'إنشاء حساب جديد';
                 nameField.classList.remove('hidden');
+                if (authNameInput) authNameInput.required = true;
                 phoneField.classList.remove('hidden');
                 submitBtn.textContent = 'إنشاء الحساب الآن';
+                if (hintText) hintText.textContent = 'كلمة المرور: 8 أحرف على الأقل، وتحتوي على حرف كبير ورقم';
             } else {
                 tabLogin.className = "py-2 rounded-xl bg-white text-sky-700 shadow-sm transition";
                 tabRegister.className = "py-2 rounded-xl text-slate-600 hover:text-sky-700 transition";
                 title.textContent = 'تسجيل الدخول إلى حسابك';
                 nameField.classList.add('hidden');
+                if (authNameInput) authNameInput.required = false;
                 phoneField.classList.add('hidden');
                 submitBtn.textContent = 'تسجيل الدخول';
+                if (hintText) hintText.textContent = 'بياناتك مشفرة ومحمية بخصوصية شرعية وأمان كامل';
             }
         }
 
@@ -1031,6 +1038,21 @@
             const password = document.getElementById('authPassword').value;
             const name = document.getElementById('authName').value.trim();
             const phone = document.getElementById('authPhone').value.trim();
+
+            if (currentAuthMode === 'register') {
+                if (!name || name.length < 2) {
+                    simulateToast('يرجى إدخال الاسم الكريم (حرفين على الأقل).');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    return;
+                }
+                if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+                    simulateToast('كلمة المرور يجب أن تكون 8 أحرف على الأقل، وتحتوي على حرف كبير ورقم.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    return;
+                }
+            }
 
             try {
                 if (currentAuthMode === 'register') {

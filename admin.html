@@ -82,7 +82,7 @@
           <label class="block text-sm font-medium text-slate-300 mb-1">البريد الإلكتروني للإدارة</label>
           <div class="relative">
             <i data-lucide="mail" class="w-5 h-5 text-slate-500 absolute right-3 top-3"></i>
-            <input type="email" id="loginEmail" required placeholder="admin@roqia.com"
+            <input type="email" id="loginEmail" required placeholder="admin@ruqyah-online.com"
                    class="w-full bg-slate-950/60 border border-slate-800 text-slate-200 pr-10 pl-4 py-2.5 rounded-xl focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all text-sm">
           </div>
         </div>
@@ -990,7 +990,8 @@
               toast('انتهت صلاحية الجلسة، الرجاء تسجيل الدخول مجدداً', 'warning');
             }
           }
-          throw new Error(data.message || data.error || (data.errors && data.errors[0]?.message) || `خطأ في الخادم (${res.status})`);
+          const validationMsg = data.errors && data.errors.length ? data.errors.map(e => e.message).join('، ') : null;
+          throw new Error(validationMsg || data.message || data.error || `خطأ في الخادم (${res.status})`);
         }
         return data;
       } catch (err) {
@@ -1050,7 +1051,7 @@
         toast('تم تسجيل الدخول بنجاح، مرحباً بك!', 'success');
         checkAuthAndInit();
       } catch (err) {
-        toast(err.message || 'فشل تسجيل الدخول، تأكد من البيانات وعنوان السيرفر', 'error');
+        toast(err.message || 'فشل تسجيل الدخول، يرجى التأكد من صحة البريد وكلمة المرور', 'error');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;

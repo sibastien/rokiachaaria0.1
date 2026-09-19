@@ -24,7 +24,7 @@ const registerRules = [
     .matches(/[0-9]/).withMessage('كلمة المرور يجب أن تحتوي على رقم واحد على الأقل.'),
 
   body('phone')
-    .optional()
+    .optional({ values: 'falsy' })
     .trim()
     .matches(/^\+?[0-9\s\-]{7,20}$/).withMessage('رقم الهاتف غير صالح.'),
 ];
