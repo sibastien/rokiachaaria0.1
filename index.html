@@ -111,27 +111,29 @@
                 </nav>
 
                 <!-- Actions / CTA -->
-                <div class="flex items-center gap-3">
-                    <button id="loginNavBtn" onclick="openAuthModal()" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-all duration-200">
+                <div class="flex items-center gap-1.5 sm:gap-3">
+                    <button id="loginNavBtn" onclick="openAuthModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-all duration-200">
                         <i data-lucide="user" class="w-4 h-4"></i>
                         <span>تسجيل الدخول</span>
                     </button>
-                    <div id="userNavInfo" class="hidden items-center gap-2">
-                        <a href="/dashboard" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-sky-800 bg-sky-100 hover:bg-sky-200 border border-sky-300 transition-all duration-200 shadow-xs">
-                            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-sky-600"></i>
-                            <span>بوابة المستفيد</span>
+                    <div id="userNavInfo" class="hidden items-center gap-1 sm:gap-2">
+                        <a href="/dashboard" class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-sky-900 bg-sky-50 hover:bg-sky-100 border border-sky-200/90 transition-all shadow-2xs max-w-[120px] sm:max-w-[200px]" title="بوابة المستفيد ومواعيدي">
+                            <div class="w-6 h-6 rounded-lg bg-sky-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0 shadow-2xs">
+                                <span id="userNavInitial">م</span>
+                            </div>
+                            <span id="userNavName" class="truncate">المستفيد</span>
                         </a>
-                        <span id="userNavName" class="text-xs sm:text-sm font-bold text-sky-900 bg-sky-50 px-3 py-1.5 rounded-xl border border-sky-200"></span>
-                        <button onclick="clearAuth()" title="تسجيل الخروج" class="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
+                        <button onclick="clearAuth()" title="تسجيل الخروج" class="p-1.5 sm:p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors shrink-0">
                             <i data-lucide="log-out" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <button onclick="openBookingModal()" class="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-sky-600 hover:bg-sky-500 shadow-md shadow-sky-600/20 active:scale-95 transition-all duration-200">
-                        <i data-lucide="calendar" class="w-4 h-4"></i>
-                        <span>حجز جلسة خاصة</span>
+                    <button onclick="openBookingModal()" class="relative inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-sky-600 hover:bg-sky-500 shadow-md shadow-sky-600/20 active:scale-95 transition-all duration-200 shrink-0">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                        <span class="hidden sm:inline">حجز جلسة خاصة</span>
+                        <span class="sm:hidden">حجز جلسة</span>
                     </button>
                     <!-- Mobile Hamburger Toggle -->
-                    <button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl text-slate-600 hover:bg-sky-50 focus:outline-none">
+                    <button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl text-slate-600 hover:bg-sky-50 focus:outline-none shrink-0">
                         <i data-lucide="menu" id="menuIcon" class="w-6 h-6"></i>
                     </button>
                 </div>
@@ -139,11 +141,41 @@
         </div>
 
         <!-- Mobile Navigation Drawer -->
-        <div id="mobileMenu" class="hidden md:hidden bg-white border-b border-sky-100 px-4 pt-2 pb-6 space-y-1">
-            <a href="/dashboard" id="mobilePortalLink" class="hidden items-center gap-2 px-3 py-2.5 rounded-xl text-base font-bold text-sky-800 bg-sky-50 border border-sky-200 mb-2">
-                <i data-lucide="layout-dashboard" class="w-4 h-4 text-sky-600"></i>
-                <span>بوابة المستفيد ومواعيدي</span>
-            </a>
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-b border-sky-100 px-4 pt-3 pb-6 space-y-1">
+            <!-- Mobile Authenticated Card -->
+            <div id="mobileUserCard" class="hidden p-3.5 mb-3 rounded-2xl bg-gradient-to-l from-sky-50 via-sky-50/70 to-blue-50/50 border border-sky-200">
+                <div class="flex items-center justify-between gap-3 mb-2.5">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+                            <span id="mobileUserInitial">م</span>
+                        </div>
+                        <div class="min-w-0">
+                            <div id="mobileUserName" class="text-sm font-extrabold text-sky-950 truncate">مستفيد</div>
+                            <div id="mobileUserRole" class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                مستفيد موثّق
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="clearAuth()" class="flex items-center gap-1 px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-100/60 rounded-xl transition" title="تسجيل الخروج">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span class="text-[11px] font-bold">خروج</span>
+                    </button>
+                </div>
+                <a href="/dashboard" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow-xs transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>دخول بوابة المستفيد ومواعيدي</span>
+                </a>
+            </div>
+
+            <!-- Mobile Guest Card -->
+            <div id="mobileGuestCard" class="mb-3">
+                <button onclick="openAuthModal('login'); toggleMobileMenu();" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold transition">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    <span>تسجيل الدخول / إنشاء حساب</span>
+                </button>
+            </div>
+
             <a href="#hero" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-base font-medium text-sky-900 hover:bg-sky-50">الرئيسية</a>
             <a href="#how-it-works" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:bg-sky-50">كيف تعمل الرقية؟</a>
             <a href="#services" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:bg-sky-50">الجلسات والخدمات</a>
@@ -978,16 +1010,40 @@
             const loginBtn = document.getElementById('loginNavBtn');
             const userInfo = document.getElementById('userNavInfo');
             const userNavName = document.getElementById('userNavName');
-            const mobilePortalLink = document.getElementById('mobilePortalLink');
-            if (currentUser) {
+            const userNavInitial = document.getElementById('userNavInitial');
+            const mobileUserCard = document.getElementById('mobileUserCard');
+            const mobileGuestCard = document.getElementById('mobileGuestCard');
+            const mobileUserName = document.getElementById('mobileUserName');
+            const mobileUserInitial = document.getElementById('mobileUserInitial');
+
+            if (currentUser && currentUser.name) {
+                const initial = currentUser.name.trim().charAt(0) || 'م';
                 if (loginBtn) loginBtn.classList.add('hidden');
-                if (userInfo) userInfo.classList.remove('hidden');
-                if (userNavName) userNavName.textContent = `أهلاً، ${currentUser.name}`;
-                if (mobilePortalLink) mobilePortalLink.classList.remove('hidden', '!hidden');
+                if (userInfo) {
+                    userInfo.classList.remove('hidden');
+                    userInfo.classList.add('flex');
+                }
+                if (userNavName) userNavName.textContent = currentUser.name;
+                if (userNavInitial) userNavInitial.textContent = initial;
+
+                if (mobileUserCard) {
+                    mobileUserCard.classList.remove('hidden');
+                    mobileUserCard.classList.add('block');
+                }
+                if (mobileGuestCard) mobileGuestCard.classList.add('hidden');
+                if (mobileUserName) mobileUserName.textContent = currentUser.name;
+                if (mobileUserInitial) mobileUserInitial.textContent = initial;
             } else {
                 if (loginBtn) loginBtn.classList.remove('hidden');
-                if (userInfo) userInfo.classList.add('hidden');
-                if (mobilePortalLink) mobilePortalLink.classList.add('hidden');
+                if (userInfo) {
+                    userInfo.classList.add('hidden');
+                    userInfo.classList.remove('flex');
+                }
+                if (mobileUserCard) {
+                    mobileUserCard.classList.add('hidden');
+                    mobileUserCard.classList.remove('block');
+                }
+                if (mobileGuestCard) mobileGuestCard.classList.remove('hidden');
             }
             if (window.lucide && typeof lucide.createIcons === 'function') {
                 lucide.createIcons();
