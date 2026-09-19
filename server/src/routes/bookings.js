@@ -33,15 +33,14 @@ router.post('/', createBookingRules, createBooking);
 // My bookings list
 router.get('/my', getMyBookings);
 
+// All bookings (raqi sees own; admin sees all) - MUST be before /:id to prevent shadowing
+router.get('/all', requireRole('RAQI', 'ADMIN'), getAllBookings);
+
 // Single booking detail (owner or admin/raqi)
 router.get('/:id', getBooking);
 
 // Cancel a booking (owner or admin)
 router.patch('/:id/cancel', cancelBooking);
-
-// ── Raqi / Admin routes ───────────────────────────────────────────────────────
-// All bookings (raqi sees own; admin sees all)
-router.get('/all', requireRole('RAQI', 'ADMIN'), getAllBookings);
 
 // Update booking status + add session link
 router.patch('/:id/status', requireRole('RAQI', 'ADMIN'), updateBookingStatus);
