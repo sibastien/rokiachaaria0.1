@@ -49,6 +49,11 @@ function createApp() {
   // ── API Routes ──────────────────────────────────────────────────────────
   app.use('/api', apiRouter);
 
+  // ── SEO & Search Engine Discovery ─────────────────────────────────────────
+  const { getSitemap, getIndexNowKey } = require('./controllers/seo.controller');
+  app.get('/sitemap.xml', getSitemap);
+  app.get('/c03fa41f17e04505bf775083a2169572.txt', getIndexNowKey);
+
   // ── Clean Frontend Application Routes ──────────────────────────────────
   const path = require('path');
   const staticRoot = path.resolve(__dirname, '../../');

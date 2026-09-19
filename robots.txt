@@ -1,0 +1,61 @@
+# Robots.txt for الرقية الشرعية أونلاين (Ruqyah Online Platform)
+
+User-agent: *
+Allow: /
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api/
+
+# Explicitly Allow AI Search & Generative Engine Crawlers
+User-agent: OAI-SearchBot
+Allow: /
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api/
+
+User-agent: Claude-SearchBot
+Allow: /
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api/
+
+User-agent: Claude-User
+Allow: /
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api/
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api/
+
+User-agent: Google-Extended
+Allow: /
+Allow: /llms.txt
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://roqiaonline.com/sitemap.xml
