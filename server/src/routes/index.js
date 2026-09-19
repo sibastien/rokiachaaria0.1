@@ -24,5 +24,7 @@ router.use('/auth',     require('./auth'));      // Step 2
 router.use('/bookings', require('./bookings'));  // Step 3
 router.use('/articles', require('./articles')); // Step 4
 router.use('/forum',    require('./forum'));     // Step 5
+router.use('/settings', require('./settings'));  // CMS Settings
+router.use('/audio',    require('./audio'));     // Audio Recitations
 
 module.exports = router;

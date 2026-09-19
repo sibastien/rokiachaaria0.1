@@ -116,6 +116,10 @@
                         <i data-lucide="user" class="w-4 h-4"></i>
                         <span>تسجيل الدخول</span>
                     </button>
+                    <a href="admin.html" target="_blank" title="لوحة تحكم الإدارة" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all duration-200">
+                        <i data-lucide="shield" class="w-3.5 h-3.5 text-sky-600"></i>
+                        <span>لوحة الإدارة</span>
+                    </a>
                     <div id="userNavInfo" class="hidden items-center gap-2">
                         <span id="userNavName" class="text-xs sm:text-sm font-bold text-sky-900 bg-sky-100/70 px-3 py-1.5 rounded-xl border border-sky-200"></span>
                         <button onclick="clearAuth()" title="تسجيل الخروج" class="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
@@ -1067,6 +1071,46 @@
         // Set dynamic Year
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
+        // Load CMS Site Settings from API with LocalStorage fallback
+        async function applySiteSettings() {
+            let s = null;
+            try {
+                const res = await apiCall('/settings');
+                if (res && res.data) {
+                    s = res.data;
+                    localStorage.setItem('roqia_site_settings', JSON.stringify(s));
+                }
+            } catch (_) {}
+
+            if (!s) {
+                try {
+                    const saved = localStorage.getItem('roqia_site_settings');
+                    if (saved) s = JSON.parse(saved);
+                } catch (_) {}
+            }
+
+            if (!s) return;
+            
+            // Top announcement bar
+            const topBanner = document.querySelector('body > div.bg-gradient-to-r');
+            if (topBanner) {
+                if (s.bannerActive === false) {
+                    topBanner.style.display = 'none';
+                } else {
+                    topBanner.style.display = '';
+                    const spanText = topBanner.querySelector('span:nth-child(2)');
+                    if (spanText && s.bannerText) spanText.textContent = s.bannerText;
+                }
+            }
+            
+            // Hero title and subtitle
+            const heroTitle = document.querySelector('#hero h1');
+            if (heroTitle && s.heroTitle) heroTitle.textContent = s.heroTitle;
+            const heroSubtitle = document.querySelector('#hero p');
+            if (heroSubtitle && s.heroSubtitle) heroSubtitle.textContent = s.heroSubtitle;
+        }
+        applySiteSettings();
+
         // 1. Interactive 'How it works' Step Switcher Data
         const stepData = {
             1: {
@@ -1136,7 +1180,7 @@
         switchStep(1);
 
         // 2. Audio Recitation Player Simulator
-        const audioTracks = [
+        const defaultTracks = [
             {
                 title: "سورة الفاتحة وآية الكرسي",
                 reciter: "تلاوة خاشعة مرتلة بنية الشفاء",
@@ -1153,6 +1197,27 @@
                 duration: "06:40"
             }
         ];
+
+        let audioTracks = defaultTracks;
+        try {
+            const savedAudio = localStorage.getItem('roqia_audio_tracks');
+            if (savedAudio) {
+                const parsed = JSON.parse(savedAudio);
+                if (Array.isArray(parsed) && parsed.length > 0) audioTracks = parsed;
+            }
+        } catch (_) {}
+
+        async function loadAudioLibrary() {
+            try {
+                const res = await apiCall('/audio');
+                if (res && res.data && res.data.length > 0) {
+                    audioTracks = res.data;
+                    localStorage.setItem('roqia_audio_tracks', JSON.stringify(audioTracks));
+                    updateAudioUI();
+                }
+            } catch (_) {}
+        }
+        loadAudioLibrary();
 
         let currentTrackIdx = 0;
         let isAudioPlaying = false;

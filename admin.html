@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم الإدارة | منصة الرقية الشرعية</title>
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #0b0f19;
+      color: #e2e8f0;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#0b0f19] text-slate-200 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- ================= NOTIFICATION TOAST ================= -->
+  <div id="toastContainer" class="fixed bottom-5 left-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- ================= LOGIN VIEW (Shown when unauthenticated or not ADMIN) ================= -->
+  <div id="loginView" class="min-h-screen flex items-center justify-center p-4 bg-radial from-slate-900 to-[#0b0f19]">
+    <div class="w-full max-w-md bg-slate-900/95 border border-slate-800 backdrop-blur-xl p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+      <!-- Glow effect -->
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-sky-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="text-center mb-8 relative">
+        <div class="w-16 h-16 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-sky-500/10">
+          <i data-lucide="shield-check" class="w-9 h-9"></i>
+        </div>
+        <h1 class="text-2xl font-black text-white">لوحة تحكم المدير العام</h1>
+        <p class="text-slate-400 text-sm mt-1">منصة الرقية الشرعية والاستشارات القرآنية</p>
+      </div>
+
+      <!-- Server API URL Setting -->
+      <div class="mb-5 bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+        <label class="block text-xs font-semibold text-slate-400 mb-1 flex items-center justify-between">
+          <span>عنوان الخادم (API URL)</span>
+          <button type="button" onclick="resetApiUrl()" class="text-[10px] text-sky-400 hover:underline">إعادة تعيين الافتراضي</button>
+        </label>
+        <input type="text" id="apiUrlInput" value="http://localhost:3001/api" 
+               class="w-full bg-slate-900 border border-slate-700/70 text-xs text-slate-200 px-3 py-1.5 rounded-lg focus:outline-none focus:border-sky-500 dir-ltr text-left">
+        <p class="text-[10px] text-slate-500 mt-1">إذا قمت بنشر التطبيق على سيرفر VPS، اكتب عنوان السيرفر هنا (مثال: http://YOUR_IP:3001/api).</p>
+      </div>
+
+      <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">البريد الإلكتروني للإدارة</label>
+          <div class="relative">
+            <i data-lucide="mail" class="w-5 h-5 text-slate-500 absolute right-3 top-3"></i>
+            <input type="email" id="loginEmail" required placeholder="admin@roqia.com"
+                   class="w-full bg-slate-950/60 border border-slate-800 text-slate-200 pr-10 pl-4 py-2.5 rounded-xl focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">كلمة المرور</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-5 h-5 text-slate-500 absolute right-3 top-3"></i>
+            <input type="password" id="loginPassword" required placeholder="••••••••"
+                   class="w-full bg-slate-950/60 border border-slate-800 text-slate-200 pr-10 pl-4 py-2.5 rounded-xl focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all text-sm">
+          </div>
+        </div>
+
+        <button type="submit" id="loginSubmitBtn"
+                class="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-sky-500/25 transition-all flex items-center justify-center gap-2 mt-2">
+          <span>تسجيل الدخول للمدير</span>
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+        </button>
+      </form>
+      
+      <div class="mt-6 pt-4 border-t border-slate-800/80 text-center">
+        <a href="code_artifact.html" class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-sky-400 transition-colors">
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          <span>العودة إلى واجهة الموقع الرئيسية</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN DASHBOARD SHELL ================= -->
+  <div id="dashboardApp" class="hidden min-h-screen flex">
+    
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 border-l border-slate-800/80 flex flex-col fixed inset-y-0 right-0 z-30 shadow-2xl">
+      <!-- Brand Header -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center shadow-inner">
+            <i data-lucide="shield" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="font-black text-base text-white leading-tight">لوحة الإدارة</h2>
+            <span class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              مدير النظام متصل
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto" id="sidebarNav">
+        <button onclick="switchTab('stats')" data-tab="stats"
+                class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-300 hover:bg-slate-800/60 hover:text-white">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-sky-400"></i>
+          <span>نظرة عامة وإحصائيات</span>
+        </button>
+
+        <button onclick="switchTab('bookings')" data-tab="bookings"
+                class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-300 hover:bg-slate-800/60 hover:text-white">
+          <div class="flex items-center gap-3">
+            <i data-lucide="calendar" class="w-4 h-4 text-emerald-400"></i>
+            <span>إدارة الحجوزات والجلسات</span>
+          </div>
+          <span id="navBookingsBadge" class="bg-amber-500/20 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
+        </button>
+
+        <button onclick="switchTab('raqis')" data-tab="raqis"
+                class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-300 hover:bg-slate-800/60 hover:text-white">
+          <i data-lucide="users" class="w-4 h-4 text-indigo-400"></i>
+          <span>الرقاة والمعالجون</span>
+        </button>
+
+        <button onclick="switchTab('articles')" data-tab="articles"
+                class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-300 hover:bg-slate-800/60 hover:text-white">
+          <i data-lucide="file-text" class="w-4 h-4 text-purple-400"></i>
+          <span>المقالات والتوعية</span>
+        </button>
+
+        <button onclick="switchTab('forum')" data-tab="forum"
+                class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-300 hover:bg-slate-800/60 hover:text-white">
+          <div class="flex items-center gap-3">
+            <i data-lucide="message-square" class="w-4 h-4 text-amber-400"></i>
+            <span>منتدى الاستفسارات</span>
+          </div>
+          <span id="navForumBadge" class="bg-red-500/20 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
+        </button>
+
+        <button onclick="switchTab('audio')" data-tab="audio"
+                class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-300 hover:bg-slate-800/60 hover:text-white">
+          <i data-lucide="headphones" class="w-4 h-4 text-pink-400"></i>
+          <span>المكتبة الصوتية</span>
+        </button>
+
+        <button onclick="switchTab('settings')" data-tab="settings"
+                class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-300 hover:bg-slate-800/60 hover:text-white">
+          <i data-lucide="sliders" class="w-4 h-4 text-cyan-400"></i>
+          <span>نصوص ومحتوى الموقع (CMS)</span>
+        </button>
+
+        <button onclick="switchTab('users')" data-tab="users"
+                class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-300 hover:bg-slate-800/60 hover:text-white">
+          <i data-lucide="user-check" class="w-4 h-4 text-rose-400"></i>
+          <span>المستخدمين والأدوار</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="p-3 border-t border-slate-800 space-y-2">
+        <a href="code_artifact.html" target="_blank"
+           class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 hover:text-sky-400 hover:bg-slate-800/50 rounded-lg transition-colors">
+          <span class="flex items-center gap-2">
+            <i data-lucide="external-link" class="w-4 h-4"></i>
+            <span>فتح الموقع الحي</span>
+          </span>
+          <i data-lucide="arrow-up-left" class="w-3.5 h-3.5"></i>
+        </a>
+
+        <button onclick="handleLogout()"
+                class="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>تسجيل الخروج</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- CONTENT WRAPPER -->
+    <div class="flex-1 mr-64 flex flex-col min-h-screen">
+      
+      <!-- TOP HEADER -->
+      <header class="h-16 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-8 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center gap-4">
+          <h2 id="pageTitle" class="text-lg font-black text-white">نظرة عامة وإحصائيات</h2>
+          <span id="apiStatusBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono border border-slate-700">API: متصل</span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button onclick="refreshCurrentTab()" title="تحديث البيانات" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Admin Profile Badge -->
+          <div class="flex items-center gap-3 pr-3 border-r border-slate-800">
+            <div class="w-9 h-9 rounded-full bg-sky-500/20 border border-sky-500/40 text-sky-300 flex items-center justify-center font-bold text-sm" id="adminAvatar">
+              A
+            </div>
+            <div class="text-right">
+              <div class="text-xs font-bold text-white" id="adminName">المدير العام</div>
+              <div class="text-[10px] text-slate-400 font-mono" id="adminEmail">admin@roqia.com</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- TAB CONTENT PANES -->
+      <main class="flex-1 p-8 overflow-y-auto">
+        
+        <!-- ================= 1. STATS TAB ================= -->
+        <section id="tab-stats" class="tab-pane space-y-8">
+          <!-- Stat Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-semibold text-slate-400 mb-1">إجمالي الحجوزات</p>
+                  <h3 class="text-2xl font-black text-white" id="statTotalBookings">-</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center">
+                  <i data-lucide="calendar-check" class="w-6 h-6"></i>
+                </div>
+              </div>
+              <div class="mt-3 flex items-center gap-2 text-[11px] text-slate-400 font-medium">
+                <span class="text-emerald-400 font-bold" id="statConfirmedBookings">0 مؤكدة</span>
+                <span>•</span>
+                <span class="text-amber-400 font-bold" id="statPendingBookings">0 قيد الانتظار</span>
+              </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-semibold text-slate-400 mb-1">الرقاة المعتمدون</p>
+                  <h3 class="text-2xl font-black text-white" id="statTotalRaqis">-</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                  <i data-lucide="user-check" class="w-6 h-6"></i>
+                </div>
+              </div>
+              <div class="mt-3 text-[11px] text-slate-400 font-medium">
+                رقاة مؤهلون ومجازون شرعياً
+              </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-semibold text-slate-400 mb-1">المقالات المنشورة</p>
+                  <h3 class="text-2xl font-black text-white" id="statTotalArticles">-</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+                  <i data-lucide="file-text" class="w-6 h-6"></i>
+                </div>
+              </div>
+              <div class="mt-3 text-[11px] text-slate-400 font-medium">
+                مقالات توعوية وإرشادية
+              </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-semibold text-slate-400 mb-1">استفسارات بانتظار المراجعة</p>
+                  <h3 class="text-2xl font-black text-amber-400" id="statPendingForum">-</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+                  <i data-lucide="help-circle" class="w-6 h-6"></i>
+                </div>
+              </div>
+              <div class="mt-3 text-[11px] text-slate-400 font-medium">
+                تحتاج موافقة أو إجابة من الراقي
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Activity Split View -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Recent Bookings Widget -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-base text-white flex items-center gap-2">
+                  <i data-lucide="calendar" class="w-5 h-5 text-sky-400"></i>
+                  <span>أحدث الحجوزات</span>
+                </h3>
+                <button onclick="switchTab('bookings')" class="text-xs text-sky-400 hover:underline">عرض الكل</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                  <thead class="text-slate-400 border-b border-slate-800 font-semibold">
+                    <tr>
+                      <th class="py-2.5">المستفيد</th>
+                      <th class="py-2.5">التاريخ والوقت</th>
+                      <th class="py-2.5">الحالة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="statsRecentBookings" class="divide-y divide-slate-800/60">
+                    <tr><td colspan="3" class="text-center py-4 text-slate-500">جاري تحميل البيانات...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Recent Inquiries Widget -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-base text-white flex items-center gap-2">
+                  <i data-lucide="message-square" class="w-5 h-5 text-amber-400"></i>
+                  <span>أحدث استفسارات المنتدى</span>
+                </h3>
+                <button onclick="switchTab('forum')" class="text-xs text-sky-400 hover:underline">إدارة المنتدى</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                  <thead class="text-slate-400 border-b border-slate-800 font-semibold">
+                    <tr>
+                      <th class="py-2.5">السؤال</th>
+                      <th class="py-2.5">التصنيف</th>
+                      <th class="py-2.5">الحالة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="statsRecentForum" class="divide-y divide-slate-800/60">
+                    <tr><td colspan="3" class="text-center py-4 text-slate-500">جاري تحميل البيانات...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= 2. BOOKINGS TAB ================= -->
+        <section id="tab-bookings" class="tab-pane hidden space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-bold text-white">إدارة الحجوزات والجلسات المباشرة</h3>
+              <p class="text-xs text-slate-400 mt-0.5">تحديث الحالات، إضافة روابط الجلسات (Google Meet / Zoom)، ومتابعة المستفيدين</p>
+            </div>
+            <!-- Status Filter -->
+            <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs">
+              <button onclick="filterBookings('ALL')" class="booking-filter-btn px-3 py-1.5 rounded-lg font-bold bg-sky-500 text-white" data-filter="ALL">الكل</button>
+              <button onclick="filterBookings('PENDING')" class="booking-filter-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" data-filter="PENDING">قيد الانتظار</button>
+              <button onclick="filterBookings('CONFIRMED')" class="booking-filter-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" data-filter="CONFIRMED">مؤكدة</button>
+              <button onclick="filterBookings('COMPLETED')" class="booking-filter-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" data-filter="COMPLETED">مكتملة</button>
+              <button onclick="filterBookings('CANCELLED')" class="booking-filter-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white" data-filter="CANCELLED">ملغية</button>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead class="bg-slate-950/70 text-slate-400 font-bold border-b border-slate-800">
+                  <tr>
+                    <th class="p-4">رقم الحجز</th>
+                    <th class="p-4">المستفيد</th>
+                    <th class="p-4">الراقي المعالج</th>
+                    <th class="p-4">الموعد والتوقيت</th>
+                    <th class="p-4">نوع الجلسة</th>
+                    <th class="p-4">الحالة</th>
+                    <th class="p-4">رابط الجلسة</th>
+                    <th class="p-4 text-center">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="bookingsTableBody" class="divide-y divide-slate-800/60">
+                  <tr><td colspan="8" class="text-center py-8 text-slate-500">جاري جلب الحجوزات...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= 3. RAQIS TAB ================= -->
+        <section id="tab-raqis" class="tab-pane hidden space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-white">الرقاة والمعالجون المعتمدون</h3>
+              <p class="text-xs text-slate-400 mt-0.5">إدارة قائمة المشايخ والرقاة المعروضين للحجز في الواجهة الرئيسية</p>
+            </div>
+            <button onclick="openRaqiModal()" class="bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>إضافة راقٍ جديد</span>
+            </button>
+          </div>
+
+          <div id="raqisGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="text-center py-10 col-span-full text-slate-500">جاري تحميل قائمة الرقاة...</div>
+          </div>
+        </section>
+
+        <!-- ================= 4. ARTICLES TAB ================= -->
+        <section id="tab-articles" class="tab-pane hidden space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-white">المقالات والتوعية الشرعية (مدونة الشفاء)</h3>
+              <p class="text-xs text-slate-400 mt-0.5">إنشاء وتعديل ونشر مقالات الرقية الشرعية المعتمدة بالقرآن والسنة</p>
+            </div>
+            <button onclick="openArticleModal()" class="bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>كتابة مقال جديد</span>
+            </button>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead class="bg-slate-950/70 text-slate-400 font-bold border-b border-slate-800">
+                  <tr>
+                    <th class="p-4">العنوان</th>
+                    <th class="p-4">التصنيف</th>
+                    <th class="p-4">الكاتب</th>
+                    <th class="p-4">وقت القراءة</th>
+                    <th class="p-4">تاريخ النشر</th>
+                    <th class="p-4 text-center">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="articlesTableBody" class="divide-y divide-slate-800/60">
+                  <tr><td colspan="6" class="text-center py-8 text-slate-500">جاري جلب المقالات...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= 5. FORUM TAB ================= -->
+        <section id="tab-forum" class="tab-pane hidden space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-white">منتدى استفسارات الرقية والأسئلة (مجتمع السكينة)</h3>
+              <p class="text-xs text-slate-400 mt-0.5">مراجعة أسئلة الزوار والموافقة عليها وكتابة الرد الرسمي المثبت</p>
+            </div>
+            <!-- Forum Subtabs -->
+            <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs">
+              <button onclick="switchForumSubtab('pending')" id="subtabForumPending" class="px-3 py-1.5 rounded-lg font-bold bg-amber-500 text-white">قيد المراجعة (<span id="forumPendingCount">0</span>)</button>
+              <button onclick="switchForumSubtab('approved')" id="subtabForumApproved" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white">المعتمدة والمنشورة</button>
+            </div>
+          </div>
+
+          <div id="forumListContainer" class="space-y-4">
+            <div class="text-center py-10 text-slate-500">جاري تحميل الاستفسارات...</div>
+          </div>
+        </section>
+
+        <!-- ================= 6. AUDIO TAB ================= -->
+        <section id="tab-audio" class="tab-pane hidden space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-white">إدارة المكتبة الصوتية (المقاطع والرقية)</h3>
+              <p class="text-xs text-slate-400 mt-0.5">التحكم في قائمة المقاطع الصوتية المعروضة في مشغل الرقية بالصفحة الرئيسية للموقع</p>
+            </div>
+            <button onclick="openAudioModal()" class="bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>إضافة مقطع صوتي</span>
+            </button>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead class="bg-slate-950/70 text-slate-400 font-bold border-b border-slate-800">
+                  <tr>
+                    <th class="p-4">#</th>
+                    <th class="p-4">عنوان المقطع</th>
+                    <th class="p-4">القارئ / الشيخ</th>
+                    <th class="p-4">المدة</th>
+                    <th class="p-4">التصنيف</th>
+                    <th class="p-4">معاينة واستماع</th>
+                    <th class="p-4 text-center">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="audioTableBody" class="divide-y divide-slate-800/60">
+                  <!-- Generated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= 7. SITE SETTINGS TAB ================= -->
+        <section id="tab-settings" class="tab-pane hidden space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-white">إعدادات ونصوص الواجهة الرئيسية (CMS)</h3>
+              <p class="text-xs text-slate-400 mt-0.5">التحكم في البانر العلوي، العناوين الرئيسية، أرقام التواصل، والسياسات</p>
+            </div>
+            <button onclick="saveSiteSettings()" class="bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-500/20">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>حفظ جميع التغييرات</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Announcement Banner Settings -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <h4 class="font-bold text-sm text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
+                <span>شريط الإعلانات العلوي (Announcement Bar)</span>
+              </h4>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-slate-300 font-medium">تفعيل ظهور الشريط</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="settingBannerActive" class="sr-only peer" checked>
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
+                </label>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">نص الإعلان</label>
+                <input type="text" id="settingBannerText" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+              </div>
+            </div>
+
+            <!-- Hero Section Settings -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <h4 class="font-bold text-sm text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="sparkles" class="w-4 h-4 text-sky-400"></i>
+                <span>الواجهة البارزة (Hero Section)</span>
+              </h4>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">العنوان الرئيسي البارز</label>
+                <input type="text" id="settingHeroTitle" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">الوصف الفرعي</label>
+                <textarea id="settingHeroSubtitle" rows="2" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs p-2.5 rounded-xl focus:outline-none focus:border-sky-500"></textarea>
+              </div>
+            </div>
+
+            <!-- Contact & Social Details -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <h4 class="font-bold text-sm text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="phone" class="w-4 h-4 text-emerald-400"></i>
+                <span>بيانات التواصل والواتساب</span>
+              </h4>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">رقم الواتساب المباشر</label>
+                <input type="text" id="settingWhatsapp" placeholder="+966500000000" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs p-2.5 rounded-xl focus:outline-none focus:border-sky-500 dir-ltr text-left">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">البريد الإلكتروني للدعم</label>
+                <input type="email" id="settingSupportEmail" placeholder="support@roqia.com" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs p-2.5 rounded-xl focus:outline-none focus:border-sky-500 dir-ltr text-left">
+              </div>
+            </div>
+
+            <!-- Booking Settings -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <h4 class="font-bold text-sm text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="calendar" class="w-4 h-4 text-indigo-400"></i>
+                <span>سياسة الجلسات والاستشارات</span>
+              </h4>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">مدة الجلسة الافتراضية (بالدقائق)</label>
+                <input type="number" id="settingSessionDuration" value="45" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">ملاحظة شروط الجلسات</label>
+                <input type="text" id="settingBookingNotice" value="يجب تواجد محرم للنساء أثناء الجلسة المرئية" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= 8. USERS & ROLES TAB ================= -->
+        <section id="tab-users" class="tab-pane hidden space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-white">إدارة الحسابات والمستخدمين</h3>
+              <p class="text-xs text-slate-400 mt-0.5">عرض المستخدمين المسجلين، تعليق أو تفعيل الحسابات، وصلاحيات النظام</p>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead class="bg-slate-950/70 text-slate-400 font-bold border-b border-slate-800">
+                  <tr>
+                    <th class="p-4">المستخدم</th>
+                    <th class="p-4">البريد الإلكتروني</th>
+                    <th class="p-4">رقم الهاتف</th>
+                    <th class="p-4">الدور / الصلاحية</th>
+                    <th class="p-4">حالة الحساب</th>
+                    <th class="p-4">تاريخ الانضمام</th>
+                    <th class="p-4 text-center">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody" class="divide-y divide-slate-800/60">
+                  <tr><td colspan="7" class="text-center py-8 text-slate-500">جاري جلب الحسابات...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. BOOKING MANAGEMENT MODAL -->
+  <div id="bookingModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i data-lucide="calendar-cog" class="w-5 h-5 text-sky-400"></i>
+          <span>إدارة بيانات الحجز والجلسة</span>
+        </h3>
+        <button onclick="closeModal('bookingModal')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="modalBookingId">
+
+      <div class="space-y-4 text-xs">
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 grid grid-cols-2 gap-3">
+          <div>
+            <span class="text-slate-400 block text-[11px]">اسم المستفيد:</span>
+            <span id="modalBookingClient" class="font-bold text-slate-200"></span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">الهاتف:</span>
+            <span id="modalBookingPhone" class="font-mono text-slate-200 dir-ltr text-right inline-block"></span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">الراقي المطلوب:</span>
+            <span id="modalBookingRaqi" class="font-semibold text-sky-400"></span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">تاريخ الموعد:</span>
+            <span id="modalBookingDate" class="text-slate-200 font-medium"></span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">حالة الحجز</label>
+          <select id="modalBookingStatus" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+            <option value="PENDING">قيد الانتظار (PENDING)</option>
+            <option value="CONFIRMED">مؤكد ومجدول (CONFIRMED)</option>
+            <option value="COMPLETED">تمت الجلسة بنجاح (COMPLETED)</option>
+            <option value="CANCELLED">ملغي (CANCELLED)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">رابط الجلسة المباشرة (Google Meet / Zoom)</label>
+          <div class="relative">
+            <input type="url" id="modalBookingLink" placeholder="https://meet.google.com/xyz-abcd-efg"
+                   class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500 dir-ltr text-left">
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">سيتمكن المستفيد من النقر على الرابط والدخول للجلسة مباشرة من حسابه.</p>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+        <button onclick="closeModal('bookingModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">إلغاء</button>
+        <button onclick="submitBookingUpdate()" class="px-5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-colors">حفظ التغييرات</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ARTICLE CREATE / EDIT MODAL -->
+  <div id="articleModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+        <h3 id="articleModalTitle" class="font-bold text-base text-white flex items-center gap-2">
+          <i data-lucide="file-edit" class="w-5 h-5 text-purple-400"></i>
+          <span>مقال جديد</span>
+        </h3>
+        <button onclick="closeModal('articleModal')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="articleForm" onsubmit="saveArticle(event)" class="space-y-4 overflow-y-auto flex-1 pr-1 text-xs">
+        <input type="hidden" id="articleId">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">عنوان المقال *</label>
+            <input type="text" id="articleTitle" required placeholder="مثال: الفرق بين الرقية الشرعية والكهانة" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">الكاتب أو الشيخ *</label>
+            <input type="text" id="articleAuthor" required placeholder="الشيخ / د. ..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">التصنيف الشرعي *</label>
+            <select id="articleCategoryKey" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+              <option value="sunnah">السنة النبوية (sunnah)</option>
+              <option value="hasad">العين والحسد (hasad)</option>
+              <option value="adhkar">الأذكار والتحصين (adhkar)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">وقت القراءة المقدر (بالدقائق) *</label>
+            <input type="number" id="articleReadTime" value="5" min="1" max="60" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">المقتطف المختصر (Excerpt) *</label>
+          <textarea id="articleExcerpt" rows="2" required placeholder="موجز أو ملخص قصير يظهر في البطاقة الرئيسية للمقال..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">محتوى المقال كاملاً *</label>
+          <textarea id="articleContent" rows="7" required placeholder="اكتب نص المقال الكامل والأدلة من القرآن والسنة هنا..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500 leading-relaxed"></textarea>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+          <button type="button" onclick="closeModal('articleModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">إلغاء</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-colors">حفظ المقال</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. FORUM REPLY / MODERATE MODAL -->
+  <div id="forumModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i data-lucide="message-square" class="w-5 h-5 text-amber-400"></i>
+          <span>الرد على استفسار المنتدى</span>
+        </h3>
+        <button onclick="closeModal('forumModal')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="modalForumId">
+
+      <div class="space-y-4 text-xs">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] mb-2">
+            <span id="modalForumAuthor" class="font-semibold text-slate-300"></span>
+            <span id="modalForumCategory" class="px-2 py-0.5 bg-slate-800 rounded-md"></span>
+          </div>
+          <h4 id="modalForumTitle" class="text-white font-bold text-sm mb-1"></h4>
+          <p id="modalForumContent" class="text-slate-300 text-xs leading-relaxed"></p>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">الرد الشرعي الرسمي المثبت</label>
+          <textarea id="modalForumReply" rows="5" placeholder="اكتب رد الشيخ أو الإدارة هنا..."
+                    class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-3 rounded-xl focus:outline-none focus:border-sky-500 leading-relaxed"></textarea>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button onclick="rejectForumItem()" class="px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10">رفض</button>
+          <button onclick="approveForumWithoutReply()" class="px-3 py-2 rounded-xl text-xs font-semibold text-emerald-400 hover:bg-emerald-500/10">موافقة ونشر</button>
+        </div>
+        <button onclick="submitForumReply()" class="px-5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-colors">حفظ ونشر الرد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. AUDIO TRACK MODAL -->
+  <div id="audioModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+        <h3 id="audioModalTitle" class="font-bold text-base text-white flex items-center gap-2">
+          <i data-lucide="music" class="w-5 h-5 text-pink-400"></i>
+          <span>إضافة مقطع صوتي</span>
+        </h3>
+        <button onclick="closeModal('audioModal')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="audioForm" onsubmit="saveAudioTrack(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="audioId">
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">عنوان المقطع الصوتي *</label>
+          <input type="text" id="audioTitleInput" required placeholder="مثال: سورة الفاتحة وآية الكرسي"
+                 class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">القارئ / الشيخ *</label>
+            <input type="text" id="audioReciterInput" required placeholder="مثال: تلاوة خاشعة مرتلة بنية الشفاء"
+                   class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">المدة</label>
+            <input type="text" id="audioDurationInput" placeholder="مثال: 04:30"
+                   class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500 dir-ltr text-right">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">التصنيف</label>
+          <select id="audioCategoryInput" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+            <option value="شاملة">رقية شاملة</option>
+            <option value="عين وحسد">علاج العين والحسد</option>
+            <option value="سحر ومس">علاج السحر والمس</option>
+            <option value="سكينة ونوم">سكينة ونوم وهدوء</option>
+            <option value="أطفال">رقية الأطفال والتحصين</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">رابط ملف الصوت (MP3 URL)</label>
+          <input type="url" id="audioSrcInput" placeholder="https://server8.mp3quran.net/afs/001.mp3"
+                 class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500 dir-ltr text-left">
+          <p class="text-[11px] text-slate-500 mt-1">اختياري: يمكنك وضع رابط MP3 مباشر للبث الحي.</p>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+          <button type="button" onclick="closeModal('audioModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">إلغاء</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-colors">حفظ المقطع</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. RAQI MODAL -->
+  <div id="raqiModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-indigo-400"></i>
+          <span>إضافة راقٍ جديد</span>
+        </h3>
+        <button onclick="closeModal('raqiModal')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="raqiForm" onsubmit="saveRaqi(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">الاسم الكامل للشيخ *</label>
+          <input type="text" id="raqiNameInput" required placeholder="الشيخ / د. ..."
+                 class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">البريد الإلكتروني للراقي *</label>
+          <input type="email" id="raqiEmailInput" required placeholder="raqi@roqia.com"
+                 class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500 dir-ltr text-left">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">التخصصات والمجالات (مفصولة بفواصل) *</label>
+          <input type="text" id="raqiSpecialtiesInput" required placeholder="الرقية العامة, الرقية عن بعد, العين والحسد"
+                 class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">سعر الجلسة (ر.س)</label>
+          <input type="number" id="raqiRateInput" value="150" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">نبذة عن الشيخ والخبرة</label>
+          <textarea id="raqiBioInput" rows="3" placeholder="مختص بالرقية الشرعية منذ أكثر من 10 سنوات..."
+                    class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500"></textarea>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+          <button type="button" onclick="closeModal('raqiModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">إلغاء</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-colors">حفظ الراقي</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // --- STATE MANAGEMENT ---
+    let API_URL = localStorage.getItem('roqia_admin_api_url') || 'http://localhost:3001/api';
+    let token = localStorage.getItem('roqia_admin_token') || null;
+    let currentUser = JSON.parse(localStorage.getItem('roqia_admin_user') || 'null');
+
+    let currentTab = 'stats';
+    let cachedBookings = [];
+    let cachedRaqis = [];
+    let cachedArticles = [];
+    let cachedForum = [];
+    let cachedAudioTracks = [];
+
+    // Default audio tracks matching code_artifact.html
+    const DEFAULT_AUDIO_TRACKS = [
+      { id: 1, title: "سورة الفاتحة وآية الكرسي", reciter: "تلاوة خاشعة مرتلة بنية الشفاء", duration: "04:30", category: "شاملة", src: "https://server8.mp3quran.net/afs/001.mp3" },
+      { id: 2, title: "أواخر سورة البقرة والمعوذات", reciter: "تلاوة هادئة لرد كيد الشيطان والتحصين", duration: "05:15", category: "سكينة ونوم", src: "https://server7.mp3quran.net/basit/002.mp3" },
+      { id: 3, title: "آيات إبطال السحر والعين", reciter: "تلاوة موجهة من سور يونس وطه والأعراف", duration: "06:40", category: "عين وحسد", src: "https://server12.mp3quran.net/maher/001.mp3" }
+    ];
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('apiUrlInput').value = API_URL;
+      lucide.createIcons();
+      loadAudioTracks();
+      checkAuthAndInit();
+    });
+
+    function resetApiUrl() {
+      document.getElementById('apiUrlInput').value = 'http://localhost:3001/api';
+      toast('تمت استعادة الرابط الافتراضي للـ API', 'info');
+    }
+
+    // --- TOAST HELPER ---
+    function toast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      
+      const colors = {
+        success: 'bg-emerald-950/90 border-emerald-500 text-emerald-200',
+        error: 'bg-rose-950/90 border-rose-500 text-rose-200',
+        info: 'bg-sky-950/90 border-sky-500 text-sky-200',
+        warning: 'bg-amber-950/90 border-amber-500 text-amber-200'
+      };
+
+      const icons = {
+        success: 'check-circle-2',
+        error: 'alert-circle',
+        info: 'info',
+        warning: 'alert-triangle'
+      };
+
+      el.className = `pointer-events-auto p-4 rounded-xl border backdrop-blur-md shadow-2xl flex items-center gap-3 text-xs transition-all duration-300 translate-y-2 opacity-0 ${colors[type] || colors.info}`;
+      el.innerHTML = `
+        <i data-lucide="${icons[type] || 'info'}" class="w-5 h-5 shrink-0"></i>
+        <span class="flex-1 font-medium">${message}</span>
+      `;
+
+      container.appendChild(el);
+      lucide.createIcons({ root: el });
+
+      requestAnimationFrame(() => {
+        el.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 4000);
+    }
+
+    // --- API CLIENT ---
+    async function apiRequest(endpoint, options = {}) {
+      const url = `${API_URL}${endpoint}`;
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...options.headers
+      };
+
+      try {
+        const res = await fetch(url, { ...options, headers });
+        const data = await res.json().catch(() => ({}));
+        
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            if (endpoint !== '/auth/login') {
+              handleLogout();
+              toast('انتهت صلاحية الجلسة، الرجاء تسجيل الدخول مجدداً', 'warning');
+            }
+          }
+          throw new Error(data.message || data.error || (data.errors && data.errors[0]?.message) || `خطأ في الخادم (${res.status})`);
+        }
+        return data;
+      } catch (err) {
+        console.error(`API Error on ${endpoint}:`, err);
+        throw err;
+      }
+    }
+
+    // --- AUTHENTICATION ---
+    function checkAuthAndInit() {
+      if (token && currentUser && currentUser.role === 'ADMIN') {
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('dashboardApp').classList.remove('hidden');
+        
+        // Update user profile badge
+        document.getElementById('adminName').textContent = currentUser.name || 'المدير العام';
+        document.getElementById('adminEmail').textContent = currentUser.email;
+        document.getElementById('adminAvatar').textContent = (currentUser.name ? currentUser.name[0] : 'A').toUpperCase();
+
+        switchTab('stats');
+      } else {
+        document.getElementById('loginView').classList.remove('hidden');
+        document.getElementById('dashboardApp').classList.add('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const apiUrlVal = document.getElementById('apiUrlInput').value.trim().replace(/\/$/, '');
+
+      if (!apiUrlVal) {
+        toast('يرجى تحديد عنوان API الخادم', 'error');
+        return;
+      }
+
+      API_URL = apiUrlVal;
+      localStorage.setItem('roqia_admin_api_url', API_URL);
+
+      const submitBtn = document.getElementById('loginSubmitBtn');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>جاري التحقق...</span>`;
+
+      try {
+        const data = await apiRequest('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!data.token || !data.user) {
+          throw new Error('استجابة غير صالحة من الخادم');
+        }
+
+        if (data.user.role !== 'ADMIN') {
+          throw new Error('هذا الحساب ليس لديه صلاحيات الإدارة العليا (ADMIN)');
+        }
+
+        token = data.token;
+        currentUser = data.user;
+        localStorage.setItem('roqia_admin_token', token);
+        localStorage.setItem('roqia_admin_user', JSON.stringify(currentUser));
+
+        toast('تم تسجيل الدخول بنجاح، مرحباً بك!', 'success');
+        checkAuthAndInit();
+      } catch (err) {
+        toast(err.message || 'فشل تسجيل الدخول، تأكد من البيانات وعنوان السيرفر', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        lucide.createIcons();
+      }
+    }
+
+    function handleLogout() {
+      token = null;
+      currentUser = null;
+      localStorage.removeItem('roqia_admin_token');
+      localStorage.removeItem('roqia_admin_user');
+      checkAuthAndInit();
+      toast('تم تسجيل الخروج بنجاح', 'info');
+    }
+
+    // --- TAB SWITCHING ---
+    function switchTab(tabId) {
+      currentTab = tabId;
+
+      document.querySelectorAll('#sidebarNav .nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+          btn.classList.add('bg-sky-500/15', 'text-sky-400', 'border-r-2', 'border-sky-500');
+          btn.classList.remove('text-slate-300');
+        } else {
+          btn.classList.remove('bg-sky-500/15', 'text-sky-400', 'border-r-2', 'border-sky-500');
+          btn.classList.add('text-slate-300');
+        }
+      });
+
+      document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.add('hidden');
+      });
+      const activePane = document.getElementById(`tab-${tabId}`);
+      if (activePane) activePane.classList.remove('hidden');
+
+      const titles = {
+        stats: 'نظرة عامة وإحصائيات',
+        bookings: 'إدارة الحجوزات والجلسات المباشرة',
+        raqis: 'الرقاة والمعالجون المعتمدون',
+        articles: 'المقالات والتوعية الشرعية (مدونة الشفاء)',
+        forum: 'منتدى الاستفسارات والأسئلة (مجتمع السكينة)',
+        audio: 'المكتبة الصوتية ومقاطع الرقية',
+        settings: 'إعدادات ونصوص الواجهة (CMS)',
+        users: 'إدارة المستخدمين والأدوار'
+      };
+      document.getElementById('pageTitle').textContent = titles[tabId] || 'لوحة التحكم';
+
+      refreshCurrentTab();
+      lucide.createIcons();
+    }
+
+    function refreshCurrentTab() {
+      if (currentTab === 'stats') loadStats();
+      else if (currentTab === 'bookings') loadBookings();
+      else if (currentTab === 'raqis') loadRaqis();
+      else if (currentTab === 'articles') loadArticles();
+      else if (currentTab === 'forum') loadForum();
+      else if (currentTab === 'audio') renderAudioTable();
+      else if (currentTab === 'settings') loadSiteSettings();
+      else if (currentTab === 'users') loadUsers();
+    }
+
+    // --- 1. STATS LOGIC ---
+    async function loadStats() {
+      try {
+        const [bookingsRes, raqisRes, articlesRes, forumRes] = await Promise.all([
+          apiRequest('/bookings/all').catch(() => ({ data: [] })),
+          apiRequest('/bookings/raqis').catch(() => ({ data: [] })),
+          apiRequest('/articles?limit=100').catch(() => ({ data: [] })),
+          apiRequest('/forum/pending').catch(() => ({ data: [] }))
+        ]);
+
+        cachedBookings = bookingsRes.data || bookingsRes.bookings || [];
+        cachedRaqis = raqisRes.data || raqisRes.raqis || [];
+        cachedArticles = articlesRes.data || articlesRes.articles || [];
+        const pendingInquiries = forumRes.data || forumRes.inquiries || forumRes.posts || [];
+
+        document.getElementById('statTotalBookings').textContent = cachedBookings.length;
+        const confirmed = cachedBookings.filter(b => b.status === 'CONFIRMED').length;
+        const pending = cachedBookings.filter(b => b.status === 'PENDING').length;
+        document.getElementById('statConfirmedBookings').textContent = `${confirmed} مؤكدة`;
+        document.getElementById('statPendingBookings').textContent = `${pending} قيد الانتظار`;
+
+        document.getElementById('statTotalRaqis').textContent = cachedRaqis.length;
+        document.getElementById('statTotalArticles').textContent = cachedArticles.length;
+        document.getElementById('statPendingForum').textContent = pendingInquiries.length;
+
+        if (pending > 0) {
+          const badge = document.getElementById('navBookingsBadge');
+          badge.textContent = pending;
+          badge.classList.remove('hidden');
+        }
+        if (pendingInquiries.length > 0) {
+          const badge = document.getElementById('navForumBadge');
+          badge.textContent = pendingInquiries.length;
+          badge.classList.remove('hidden');
+        }
+
+        const recentBookingsTbody = document.getElementById('statsRecentBookings');
+        if (cachedBookings.length === 0) {
+          recentBookingsTbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-slate-500">لا توجد حجوزات مسجلة</td></tr>`;
+        } else {
+          recentBookingsTbody.innerHTML = cachedBookings.slice(0, 5).map(b => `
+            <tr>
+              <td class="py-2.5 font-medium text-slate-200">${b.user?.name || b.clientName || 'مستفيد'}</td>
+              <td class="py-2.5 text-slate-400 font-mono">${formatDate(b.startTime || b.sessionDate)}</td>
+              <td class="py-2.5">${renderStatusBadge(b.status)}</td>
+            </tr>
+          `).join('');
+        }
+
+        const recentForumTbody = document.getElementById('statsRecentForum');
+        if (pendingInquiries.length === 0) {
+          recentForumTbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-slate-500">لا توجد استفسارات معلقة</td></tr>`;
+        } else {
+          recentForumTbody.innerHTML = pendingInquiries.slice(0, 5).map(f => `
+            <tr>
+              <td class="py-2.5 font-medium text-slate-200 truncate max-w-[200px]">${f.title || f.question || f.content}</td>
+              <td class="py-2.5 text-slate-400">${f.badge || f.category || 'عام'}</td>
+              <td class="py-2.5">${renderStatusBadge(f.status || 'PENDING')}</td>
+            </tr>
+          `).join('');
+        }
+
+      } catch (err) {
+        console.error('Error loading stats:', err);
+      }
+    }
+
+    // --- 2. BOOKINGS LOGIC ---
+    async function loadBookings() {
+      const tbody = document.getElementById('bookingsTableBody');
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">جاري جلب الحجوزات...</td></tr>`;
+
+      try {
+        const res = await apiRequest('/bookings/all');
+        cachedBookings = res.data || res.bookings || [];
+        renderBookingsTable(cachedBookings);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-rose-400">فشل جلب الحجوزات: ${err.message}</td></tr>`;
+      }
+    }
+
+    function filterBookings(status) {
+      document.querySelectorAll('.booking-filter-btn').forEach(btn => {
+        if (btn.dataset.filter === status) {
+          btn.classList.add('bg-sky-500', 'text-white');
+          btn.classList.remove('text-slate-400');
+        } else {
+          btn.classList.remove('bg-sky-500', 'text-white');
+          btn.classList.add('text-slate-400');
+        }
+      });
+
+      if (status === 'ALL') {
+        renderBookingsTable(cachedBookings);
+      } else {
+        const filtered = cachedBookings.filter(b => b.status === status);
+        renderBookingsTable(filtered);
+      }
+    }
+
+    function renderBookingsTable(bookings) {
+      const tbody = document.getElementById('bookingsTableBody');
+      if (bookings.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">لا توجد أي حجوزات تطابق هذا التصنيف</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = bookings.map(b => {
+        const clientName = b.user?.name || b.clientName || 'مستفيد';
+        const clientPhone = b.user?.phone || b.clientPhone || '-';
+        const raqiName = b.raqi?.user?.name || b.raqi?.name || 'الشيخ المعتمد';
+        const dateStr = formatDate(b.startTime || b.sessionDate);
+
+        return `
+        <tr class="hover:bg-slate-800/40 transition-colors">
+          <td class="p-4 font-mono text-slate-400">#${b.id ? b.id.substring(0, 8) : '-'}</td>
+          <td class="p-4">
+            <div class="font-bold text-slate-200">${clientName}</div>
+            <div class="text-[11px] text-slate-400 font-mono dir-ltr text-right inline-block">${clientPhone}</div>
+          </td>
+          <td class="p-4 font-medium text-sky-400">${raqiName}</td>
+          <td class="p-4 font-mono text-slate-300">
+            <div>${dateStr}</div>
+          </td>
+          <td class="p-4 text-slate-300 font-medium">${b.serviceType || 'جلسة رقية مباشرة'}</td>
+          <td class="p-4">${renderStatusBadge(b.status)}</td>
+          <td class="p-4">
+            ${b.sessionLink ? `
+              <a href="${b.sessionLink}" target="_blank" class="inline-flex items-center gap-1 text-sky-400 hover:underline">
+                <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                <span class="truncate max-w-[120px]">رابط الجلسة</span>
+              </a>
+            ` : `<span class="text-slate-500 italic">غير محدد</span>`}
+          </td>
+          <td class="p-4 text-center">
+            <button onclick="openBookingModal('${b.id}')" 
+                    class="bg-slate-800 hover:bg-sky-500 hover:text-white text-slate-300 text-xs px-3 py-1.5 rounded-lg transition-all font-semibold">
+              إدارة
+            </button>
+          </td>
+        </tr>
+      `}).join('');
+      lucide.createIcons({ root: tbody });
+    }
+
+    function openBookingModal(bookingId) {
+      const b = cachedBookings.find(x => x.id === bookingId);
+      if (!b) return;
+
+      document.getElementById('modalBookingId').value = b.id;
+      document.getElementById('modalBookingClient').textContent = b.user?.name || b.clientName || 'مستفيد';
+      document.getElementById('modalBookingPhone').textContent = b.user?.phone || b.clientPhone || 'غير متوفر';
+      document.getElementById('modalBookingRaqi').textContent = b.raqi?.user?.name || b.raqi?.name || 'الشيخ المعتمد';
+      document.getElementById('modalBookingDate').textContent = formatDate(b.startTime || b.sessionDate);
+      document.getElementById('modalBookingStatus').value = b.status || 'PENDING';
+      document.getElementById('modalBookingLink').value = b.sessionLink || '';
+
+      openModal('bookingModal');
+    }
+
+    async function submitBookingUpdate() {
+      const id = document.getElementById('modalBookingId').value;
+      const status = document.getElementById('modalBookingStatus').value;
+      const sessionLink = document.getElementById('modalBookingLink').value.trim();
+
+      try {
+        await apiRequest(`/bookings/${id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status, sessionLink })
+        });
+
+        toast('تم تحديث بيانات الحجز بنجاح', 'success');
+        closeModal('bookingModal');
+        loadBookings();
+      } catch (err) {
+        toast(err.message || 'فشل تحديث الحجز', 'error');
+      }
+    }
+
+    // --- 3. RAQIS LOGIC ---
+    async function loadRaqis() {
+      const grid = document.getElementById('raqisGrid');
+      grid.innerHTML = `<div class="text-center py-10 col-span-full text-slate-500">جاري تحميل قائمة الرقاة...</div>`;
+
+      try {
+        const res = await apiRequest('/bookings/raqis');
+        cachedRaqis = res.data || res.raqis || [];
+
+        if (cachedRaqis.length === 0) {
+          grid.innerHTML = `<div class="text-center py-10 col-span-full text-slate-500">لا يوجد رقاة مسجلون حالياً</div>`;
+          return;
+        }
+
+        grid.innerHTML = cachedRaqis.map(r => `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+            <div>
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold text-lg">
+                    ${r.name ? r.name[0] : 'ر'}
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-base text-white">${r.name}</h4>
+                    <span class="text-xs text-slate-400 font-mono">${r.certifications || 'معتمد في الرقية الشرعية'}</span>
+                  </div>
+                </div>
+                <span class="text-xs font-bold px-2 py-0.5 rounded-full ${r.isAvailable !== false ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}">
+                  ${r.isAvailable !== false ? 'متاح للحجز' : 'غير متاح'}
+                </span>
+              </div>
+
+              <div class="text-xs text-slate-300 mb-3 line-clamp-2">
+                ${r.bio || 'راقٍ معتمد ومجاز في الرقية الشرعية والأدعية النبوية الصحيحة.'}
+              </div>
+
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                ${(Array.isArray(r.specialties) ? r.specialties : (r.specialties ? [r.specialties] : ['رقية شرعية شاملة'])).map(s => `
+                  <span class="bg-slate-950 text-slate-400 text-[10px] px-2 py-0.5 rounded-md border border-slate-800">${s}</span>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+              <span class="text-slate-400">سعر الجلسة: <strong class="text-white">${r.sessionPrice || r.hourlyRate || 150} ر.س</strong></span>
+              <span class="text-amber-400 flex items-center gap-1 font-bold">
+                <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i>
+                5.0
+              </span>
+            </div>
+          </div>
+        `).join('');
+
+        lucide.createIcons({ root: grid });
+      } catch (err) {
+        grid.innerHTML = `<div class="text-center py-10 col-span-full text-rose-400">فشل جلب الرقاة: ${err.message}</div>`;
+      }
+    }
+
+    function openRaqiModal() {
+      document.getElementById('raqiForm').reset();
+      openModal('raqiModal');
+    }
+
+    async function saveRaqi(e) {
+      e.preventDefault();
+      toast('بيانات الرقاة يتم إضافتها عبر جدول المستخدمين بتعيين دور RAQI', 'info');
+      closeModal('raqiModal');
+    }
+
+    // --- 4. ARTICLES LOGIC ---
+    async function loadArticles() {
+      const tbody = document.getElementById('articlesTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">جاري جلب المقالات...</td></tr>`;
+
+      try {
+        const res = await apiRequest('/articles?limit=100');
+        cachedArticles = res.data || res.articles || [];
+
+        if (cachedArticles.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">لا توجد أي مقالات حتى الآن</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = cachedArticles.map(a => `
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="p-4">
+              <div class="font-bold text-slate-200 text-sm">${a.title}</div>
+              <div class="text-[11px] text-slate-500 truncate max-w-xs">${a.excerpt || ''}</div>
+            </td>
+            <td class="p-4">
+              <span class="bg-purple-500/10 text-purple-300 border border-purple-500/20 text-[11px] px-2.5 py-1 rounded-lg font-medium">${a.categoryName || a.category || 'عام'}</span>
+            </td>
+            <td class="p-4 text-slate-300">${a.author || 'الشيخ المشرف'}</td>
+            <td class="p-4 text-slate-400 font-mono">${a.readTime || '5 دقائق'}</td>
+            <td class="p-4 text-slate-400 font-mono">${formatDate(a.publishedAt || a.createdAt)}</td>
+            <td class="p-4 text-center">
+              <div class="flex items-center justify-center gap-2">
+                <button onclick="editArticle('${a.id}')" title="تعديل" class="p-1.5 bg-slate-800 hover:bg-sky-500 hover:text-white text-slate-300 rounded-lg transition-colors">
+                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                </button>
+                <button onclick="deleteArticle('${a.id}')" title="حذف" class="p-1.5 bg-slate-800 hover:bg-rose-500 hover:text-white text-rose-400 rounded-lg transition-colors">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+        lucide.createIcons({ root: tbody });
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-rose-400">فشل جلب المقالات: ${err.message}</td></tr>`;
+      }
+    }
+
+    function openArticleModal() {
+      document.getElementById('articleForm').reset();
+      document.getElementById('articleId').value = '';
+      document.getElementById('articleAuthor').value = currentUser?.name || 'المدير العام';
+      document.getElementById('articleModalTitle').innerHTML = `
+        <i data-lucide="file-plus" class="w-5 h-5 text-purple-400"></i>
+        <span>كتابة مقال جديد</span>
+      `;
+      openModal('articleModal');
+      lucide.createIcons();
+    }
+
+    function editArticle(id) {
+      const a = cachedArticles.find(x => x.id === id);
+      if (!a) return;
+
+      document.getElementById('articleId').value = a.id;
+      document.getElementById('articleTitle').value = a.title || '';
+      document.getElementById('articleAuthor').value = a.author || '';
+      document.getElementById('articleCategoryKey').value = a.categoryKey || 'sunnah';
+      document.getElementById('articleReadTime').value = parseInt(a.readTime) || 5;
+      document.getElementById('articleExcerpt').value = a.excerpt || '';
+      document.getElementById('articleContent').value = a.content || '';
+
+      document.getElementById('articleModalTitle').innerHTML = `
+        <i data-lucide="file-edit" class="w-5 h-5 text-purple-400"></i>
+        <span>تعديل المقال</span>
+      `;
+      openModal('articleModal');
+      lucide.createIcons();
+    }
+
+    async function saveArticle(e) {
+      e.preventDefault();
+      const id = document.getElementById('articleId').value;
+      const title = document.getElementById('articleTitle').value.trim();
+      const author = document.getElementById('articleAuthor').value.trim();
+      const categoryKey = document.getElementById('articleCategoryKey').value;
+      const readTimeNum = document.getElementById('articleReadTime').value || 5;
+      const readTime = `${readTimeNum} دقائق`;
+      const excerpt = document.getElementById('articleExcerpt').value.trim();
+      const content = document.getElementById('articleContent').value.trim();
+
+      const catMap = {
+        sunnah: 'السنة النبوية',
+        hasad: 'العين والحسد',
+        adhkar: 'الأذكار والتحصين'
+      };
+      const categoryName = catMap[categoryKey] || 'الرقية الشرعية';
+
+      const payload = {
+        title,
+        excerpt,
+        content,
+        categoryKey,
+        categoryName,
+        author,
+        readTime
+      };
+
+      try {
+        if (id) {
+          await apiRequest(`/articles/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+          });
+          toast('تم تحديث المقال بنجاح', 'success');
+        } else {
+          await apiRequest('/articles', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          toast('تم إنشاء ونشر المقال بنجاح في مدونة الشفاء', 'success');
+        }
+        closeModal('articleModal');
+        loadArticles();
+      } catch (err) {
+        toast(err.message || 'فشل حفظ المقال', 'error');
+      }
+    }
+
+    async function deleteArticle(id) {
+      if (!confirm('هل أنت متأكد من حذف هذا المقال نهائياً من الموقع؟')) return;
+
+      try {
+        await apiRequest(`/articles/${id}`, { method: 'DELETE' });
+        toast('تم حذف المقال بنجاح', 'success');
+        loadArticles();
+      } catch (err) {
+        toast(err.message || 'فشل حذف المقال', 'error');
+      }
+    }
+
+    // --- 5. FORUM MODERATION LOGIC ---
+    let currentForumSubtab = 'pending';
+
+    async function loadForum() {
+      switchForumSubtab(currentForumSubtab);
+    }
+
+    async function switchForumSubtab(tab) {
+      currentForumSubtab = tab;
+      const container = document.getElementById('forumListContainer');
+      container.innerHTML = `<div class="text-center py-10 text-slate-500">جاري تحميل الاستفسارات...</div>`;
+
+      if (tab === 'pending') {
+        document.getElementById('subtabForumPending').className = 'px-3 py-1.5 rounded-lg font-bold bg-amber-500 text-white';
+        document.getElementById('subtabForumApproved').className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white';
+      } else {
+        document.getElementById('subtabForumApproved').className = 'px-3 py-1.5 rounded-lg font-bold bg-sky-500 text-white';
+        document.getElementById('subtabForumPending').className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white';
+      }
+
+      try {
+        const endpoint = tab === 'pending' ? '/forum/pending' : '/forum';
+        const res = await apiRequest(endpoint);
+        cachedForum = res.data || res.inquiries || res.posts || [];
+
+        if (tab === 'pending') {
+          document.getElementById('forumPendingCount').textContent = cachedForum.length;
+        }
+
+        if (cachedForum.length === 0) {
+          container.innerHTML = `<div class="text-center py-10 text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">لا توجد استفسارات في هذا القسم حالياً</div>`;
+          return;
+        }
+
+        container.innerHTML = cachedForum.map(f => `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-white">${f.authorName || 'سائل مجهول'}</span>
+                <span class="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-md">${f.badge || 'استفسار شرعي'}</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-[11px] text-slate-500 font-mono">${formatDate(f.createdAt)}</span>
+                ${renderStatusBadge(f.status || (tab === 'pending' ? 'PENDING' : 'APPROVED'))}
+              </div>
+            </div>
+
+            <h4 class="text-white font-bold text-sm">${f.title}</h4>
+            <p class="text-slate-300 text-xs leading-relaxed">${f.content}</p>
+
+            ${f.officialReply ? `
+              <div class="bg-slate-950 p-3.5 rounded-xl border border-sky-500/20 text-xs mt-2">
+                <span class="text-sky-400 font-bold block mb-1">الرد الشرعي الرسمي المثبت:</span>
+                <p class="text-slate-300">${f.officialReply}</p>
+              </div>
+            ` : ''}
+
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-end gap-2">
+              <button onclick="openForumModal('${f.id}')" class="bg-sky-500 hover:bg-sky-400 text-white text-xs px-3.5 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                <span>${f.officialReply ? 'تعديل الرد الرسمي' : 'مراجعة والرد'}</span>
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        lucide.createIcons({ root: container });
+      } catch (err) {
+        container.innerHTML = `<div class="text-center py-10 text-rose-400">فشل جلب استفسارات المنتدى: ${err.message}</div>`;
+      }
+    }
+
+    function openForumModal(id) {
+      const f = cachedForum.find(x => x.id === id);
+      if (!f) return;
+
+      document.getElementById('modalForumId').value = f.id;
+      document.getElementById('modalForumAuthor').textContent = `السائل: ${f.authorName || 'زائر'}`;
+      document.getElementById('modalForumCategory').textContent = f.badge || 'استفسار شرعي';
+      document.getElementById('modalForumTitle').textContent = f.title || '';
+      document.getElementById('modalForumContent').textContent = f.content || '';
+      document.getElementById('modalForumReply').value = f.officialReply || '';
+
+      openModal('forumModal');
+    }
+
+    async function submitForumReply() {
+      const id = document.getElementById('modalForumId').value;
+      const reply = document.getElementById('modalForumReply').value.trim();
+
+      if (!reply) {
+        toast('يرجى كتابة نص الرد قبل الحفظ', 'warning');
+        return;
+      }
+
+      try {
+        await apiRequest(`/forum/${id}/reply`, {
+          method: 'PATCH',
+          body: JSON.stringify({ officialReply: reply })
+        });
+
+        // Also approve if pending
+        await apiRequest(`/forum/${id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'APPROVED' })
+        }).catch(() => {});
+
+        toast('تم حفظ ونشر الرد الرسمي في المنتدى بنجاح', 'success');
+        closeModal('forumModal');
+        loadForum();
+      } catch (err) {
+        toast(err.message || 'فشل حفظ الرد', 'error');
+      }
+    }
+
+    async function approveForumWithoutReply() {
+      const id = document.getElementById('modalForumId').value;
+      try {
+        await apiRequest(`/forum/${id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'APPROVED' })
+        });
+        toast('تمت الموافقة على السؤال ونشره في المنتدى', 'success');
+        closeModal('forumModal');
+        loadForum();
+      } catch (err) {
+        toast(err.message || 'فشل تحديث الحالة', 'error');
+      }
+    }
+
+    async function rejectForumItem() {
+      const id = document.getElementById('modalForumId').value;
+      if (!confirm('هل تريد بالتأكيد رفض هذه المشاركة؟')) return;
+
+      try {
+        await apiRequest(`/forum/${id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'REJECTED' })
+        });
+        toast('تم رفض المشاركة بنجاح', 'info');
+        closeModal('forumModal');
+        loadForum();
+      } catch (err) {
+        toast(err.message || 'فشل الرفض', 'error');
+      }
+    }
+
+    // --- 6. AUDIO TRACKS LOGIC ---
+    async function loadAudioTracks() {
+      try {
+        const res = await apiRequest('/audio');
+        if (res && res.data && res.data.length > 0) {
+          cachedAudioTracks = res.data;
+          localStorage.setItem('roqia_audio_tracks', JSON.stringify(cachedAudioTracks));
+        } else {
+          loadAudioTracksFromStorage();
+        }
+      } catch (err) {
+        loadAudioTracksFromStorage();
+      }
+      renderAudioTable();
+    }
+
+    function loadAudioTracksFromStorage() {
+      const saved = localStorage.getItem('roqia_audio_tracks');
+      if (saved) {
+        try { cachedAudioTracks = JSON.parse(saved); } catch { cachedAudioTracks = DEFAULT_AUDIO_TRACKS; }
+      } else {
+        cachedAudioTracks = DEFAULT_AUDIO_TRACKS;
+      }
+    }
+
+    function renderAudioTable() {
+      const tbody = document.getElementById('audioTableBody');
+      if (!cachedAudioTracks || cachedAudioTracks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-500">لا توجد مقاطع صوتية مسجلة</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = cachedAudioTracks.map((t, index) => `
+        <tr class="hover:bg-slate-800/40 transition-colors">
+          <td class="p-4 font-mono text-slate-500">${index + 1}</td>
+          <td class="p-4 font-bold text-slate-200">${t.title}</td>
+          <td class="p-4 text-sky-400 font-medium">${t.reciter}</td>
+          <td class="p-4 font-mono text-slate-400 dir-ltr text-right">${t.duration || '--:--'}</td>
+          <td class="p-4">
+            <span class="bg-pink-500/10 text-pink-300 border border-pink-500/20 text-[10px] px-2.5 py-0.5 rounded-full font-medium">${t.category || 'شاملة'}</span>
+          </td>
+          <td class="p-4">
+            ${t.src ? `<audio controls class="h-8 max-w-[180px]" src="${t.src}"></audio>` : '<span class="text-slate-500 italic">بدون ملف صوتي</span>'}
+          </td>
+          <td class="p-4 text-center">
+            <div class="flex items-center justify-center gap-2">
+              <button onclick="editAudioTrack('${t.id}')" class="p-1.5 bg-slate-800 hover:bg-sky-500 hover:text-white text-slate-300 rounded-lg transition-colors" title="تعديل">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              </button>
+              <button onclick="deleteAudioTrack('${t.id}')" class="p-1.5 bg-slate-800 hover:bg-rose-500 hover:text-white text-rose-400 rounded-lg transition-colors" title="حذف">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      lucide.createIcons({ root: tbody });
+    }
+
+    function openAudioModal() {
+      document.getElementById('audioForm').reset();
+      document.getElementById('audioId').value = '';
+      document.getElementById('audioModalTitle').innerHTML = `
+        <i data-lucide="music" class="w-5 h-5 text-pink-400"></i>
+        <span>إضافة مقطع صوتي جديد</span>
+      `;
+      openModal('audioModal');
+      lucide.createIcons();
+    }
+
+    function editAudioTrack(id) {
+      const t = cachedAudioTracks.find(x => String(x.id) === String(id));
+      if (!t) return;
+
+      document.getElementById('audioId').value = t.id;
+      document.getElementById('audioTitleInput').value = t.title;
+      document.getElementById('audioReciterInput').value = t.reciter;
+      document.getElementById('audioDurationInput').value = t.duration || '';
+      document.getElementById('audioCategoryInput').value = t.category || 'شاملة';
+      document.getElementById('audioSrcInput').value = t.src || '';
+
+      document.getElementById('audioModalTitle').innerHTML = `
+        <i data-lucide="edit-3" class="w-5 h-5 text-pink-400"></i>
+        <span>تعديل المقطع الصوتي</span>
+      `;
+      openModal('audioModal');
+      lucide.createIcons();
+    }
+
+    async function saveAudioTrack(e) {
+      e.preventDefault();
+      const id = document.getElementById('audioId').value;
+      const title = document.getElementById('audioTitleInput').value.trim();
+      const reciter = document.getElementById('audioReciterInput').value.trim();
+      const duration = document.getElementById('audioDurationInput').value.trim();
+      const category = document.getElementById('audioCategoryInput').value;
+      const src = document.getElementById('audioSrcInput').value.trim();
+
+      const payload = { title, reciter, duration: duration || '05:00', category, src };
+
+      try {
+        if (id && isNaN(Number(id))) {
+          await apiRequest(`/audio/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+          });
+        } else {
+          await apiRequest('/audio', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+        }
+        toast('تم حفظ المقطع الصوتي بنجاح في قاعدة البيانات والسيرفر', 'success');
+      } catch (err) {
+        if (id) {
+          const idx = cachedAudioTracks.findIndex(x => String(x.id) === String(id));
+          if (idx !== -1) cachedAudioTracks[idx] = { ...cachedAudioTracks[idx], ...payload };
+        } else {
+          cachedAudioTracks.push({ id: Date.now(), ...payload });
+        }
+        localStorage.setItem('roqia_audio_tracks', JSON.stringify(cachedAudioTracks));
+        toast('تم حفظ المقطع الصوتي محلياً', 'info');
+      }
+
+      closeModal('audioModal');
+      loadAudioTracks();
+    }
+
+    async function deleteAudioTrack(id) {
+      if (!confirm('هل أنت متأكد من حذف هذا المقطع الصوتي؟')) return;
+      try {
+        if (isNaN(Number(id))) {
+          await apiRequest(`/audio/${id}`, { method: 'DELETE' });
+        }
+        toast('تم حذف المقطع بنجاح من قاعدة البيانات', 'success');
+      } catch (err) {
+        toast('تم حذف المقطع محلياً', 'info');
+      }
+      cachedAudioTracks = cachedAudioTracks.filter(x => String(x.id) !== String(id));
+      localStorage.setItem('roqia_audio_tracks', JSON.stringify(cachedAudioTracks));
+      renderAudioTable();
+    }
+
+    // --- 7. SITE SETTINGS LOGIC ---
+    async function loadSiteSettings() {
+      let s = {};
+      try {
+        const res = await apiRequest('/settings');
+        if (res && res.data) {
+          s = res.data;
+          localStorage.setItem('roqia_site_settings', JSON.stringify(s));
+        }
+      } catch (err) {
+        const saved = localStorage.getItem('roqia_site_settings');
+        if (saved) {
+          try { s = JSON.parse(saved); } catch {}
+        }
+      }
+
+      document.getElementById('settingBannerActive').checked = s.bannerActive !== false;
+      document.getElementById('settingBannerText').value = s.bannerText || 'جميع الرقاة لدينا معتمدون ومجازون في قراءة القرآن الكريم والسنة النبوية الصحيحة بلا بدع';
+      document.getElementById('settingHeroTitle').value = s.heroTitle || 'منصة الرقية الشرعية المعتمدة أونلاين';
+      document.getElementById('settingHeroSubtitle').value = s.heroSubtitle || 'تواصل مباشرة بالصوت والصورة مع نخبة من الرقاة والمشايخ المعتمدين والمجازين شرعياً في سرية وأمان تام';
+      document.getElementById('settingWhatsapp').value = s.whatsapp || '+966500000000';
+      document.getElementById('settingSupportEmail').value = s.supportEmail || 'support@roqia.com';
+      document.getElementById('settingSessionDuration').value = s.sessionDuration || 45;
+      document.getElementById('settingBookingNotice').value = s.bookingNotice || 'يجب تواجد محرم للنساء أثناء الجلسة المرئية';
+    }
+
+    async function saveSiteSettings() {
+      const s = {
+        bannerActive: document.getElementById('settingBannerActive').checked,
+        bannerText: document.getElementById('settingBannerText').value.trim(),
+        heroTitle: document.getElementById('settingHeroTitle').value.trim(),
+        heroSubtitle: document.getElementById('settingHeroSubtitle').value.trim(),
+        whatsapp: document.getElementById('settingWhatsapp').value.trim(),
+        supportEmail: document.getElementById('settingSupportEmail').value.trim(),
+        sessionDuration: parseInt(document.getElementById('settingSessionDuration').value, 10) || 45,
+        bookingNotice: document.getElementById('settingBookingNotice').value.trim(),
+      };
+
+      try {
+        await apiRequest('/settings', {
+          method: 'PUT',
+          body: JSON.stringify(s)
+        });
+        localStorage.setItem('roqia_site_settings', JSON.stringify(s));
+        toast('تم حفظ جميع إعدادات ونصوص الموقع في قاعدة البيانات والسيرفر بنجاح!', 'success');
+      } catch (err) {
+        localStorage.setItem('roqia_site_settings', JSON.stringify(s));
+        toast('تم حفظ الإعدادات محلياً (تعذر الاتصال بالسيرفر)', 'warning');
+      }
+    }
+
+    // --- 8. USERS LOGIC ---
+    async function loadUsers() {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-500">جاري جلب قائمة المستخدمين...</td></tr>`;
+
+      try {
+        const res = await apiRequest('/auth/users').catch(() => null);
+        let users = [];
+        
+        if (res && res.data) {
+          users = res.data;
+        } else if (res && res.users) {
+          users = res.users;
+        } else {
+          // Fallback initial admin and raqi users
+          users = [
+            { id: currentUser?.id || 'admin-1', name: currentUser?.name || 'المدير العام', email: currentUser?.email || 'admin@roqia.com', phone: '+966501112233', role: 'ADMIN', isActive: true, createdAt: new Date() }
+          ];
+        }
+
+        tbody.innerHTML = users.map(u => `
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="p-4">
+              <div class="font-bold text-slate-200">${u.name || 'مستخدم'}</div>
+              <div class="text-[10px] text-slate-500 font-mono">ID: ${u.id ? u.id.substring(0, 8) : '-'}</div>
+            </td>
+            <td class="p-4 font-mono text-slate-300 dir-ltr text-right">${u.email}</td>
+            <td class="p-4 font-mono text-slate-400 dir-ltr text-right">${u.phone || '-'}</td>
+            <td class="p-4">${renderRoleBadge(u.role)}</td>
+            <td class="p-4">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${u.isActive !== false ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">
+                ${u.isActive !== false ? 'نشط' : 'معلق'}
+              </span>
+            </td>
+            <td class="p-4 text-slate-400 font-mono">${formatDate(u.createdAt)}</td>
+            <td class="p-4 text-center">
+              <button onclick="toggleUserStatus('${u.id}', ${u.isActive !== false})" 
+                      class="text-xs ${u.isActive !== false ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-300' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300'} px-3 py-1 rounded-lg transition-colors font-medium">
+                ${u.isActive !== false ? 'تعليق الحساب' : 'تفعيل الحساب'}
+              </button>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-400">فشل جلب المستخدمين: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function toggleUserStatus(userId, currentActive) {
+      try {
+        await apiRequest(`/auth/users/${userId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ isActive: !currentActive })
+        });
+        toast(!currentActive ? 'تم تفعيل الحساب بنجاح' : 'تم تعليق الحساب بنجاح', 'success');
+        loadUsers();
+      } catch (err) {
+        toast(err.message || 'فشل تحديث حالة المستخدم', 'error');
+      }
+    }
+
+    // --- MODAL HELPERS ---
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) {
+        modal.classList.remove('hidden');
+        lucide.createIcons({ root: modal });
+      }
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    // --- BADGE & FORMAT HELPERS ---
+    function renderStatusBadge(status) {
+      const map = {
+        CONFIRMED: { label: 'مؤكد', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+        PENDING: { label: 'قيد الانتظار', cls: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
+        COMPLETED: { label: 'مكتمل', cls: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
+        CANCELLED: { label: 'ملغي', cls: 'bg-rose-500/20 text-rose-300 border-rose-500/30' },
+        APPROVED: { label: 'معتمد', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+        REJECTED: { label: 'مرفوض', cls: 'bg-rose-500/20 text-rose-300 border-rose-500/30' }
+      };
+
+      const s = map[status] || { label: status || 'غير معروف', cls: 'bg-slate-800 text-slate-400 border-slate-700' };
+      return `<span class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${s.cls}">${s.label}</span>`;
+    }
+
+    function renderRoleBadge(role) {
+      const map = {
+        ADMIN: { label: 'مدير عام', cls: 'bg-rose-500/20 text-rose-400 border-rose-500/30' },
+        RAQI: { label: 'راقٍ معتمد', cls: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' },
+        USER: { label: 'مستفيد / زائر', cls: 'bg-slate-800 text-slate-400 border-slate-700' }
+      };
+
+      const r = map[role] || { label: role || 'مستخدم', cls: 'bg-slate-800 text-slate-400 border-slate-700' };
+      return `<span class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${r.cls}">${r.label}</span>`;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      try {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+      } catch {
+        return dateStr;
+      }
+    }
+  </script>
+</body>
+</html>

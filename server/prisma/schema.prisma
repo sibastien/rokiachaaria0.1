@@ -211,3 +211,43 @@ model PostLike {
   @@id([userId, postId])
   @@map("post_likes")
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SITE SETTINGS & CMS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Global site content and settings managed by ADMIN.
+model SiteSetting {
+  id              String   @id @default("default")
+  bannerActive    Boolean  @default(true) @map("banner_active")
+  bannerText      String   @default("جميع الرقاة لدينا معتمدون ومجازون في قراءة القرآن الكريم والسنة النبوية الصحيحة بلا بدع") @map("banner_text")
+  heroTitle       String   @default("منصة الرقية الشرعية المعتمدة أونلاين") @map("hero_title")
+  heroSubtitle    String   @default("تواصل مباشرة بالصوت والصورة مع نخبة من الرقاة والمشايخ المعتمدين والمجازين شرعياً في سرية وأمان تام") @map("hero_subtitle")
+  whatsapp        String   @default("+966500000000")
+  supportEmail    String   @default("support@roqia.com") @map("support_email")
+  sessionDuration Int      @default(45) @map("session_duration")
+  bookingNotice   String   @default("يجب تواجد محرم للنساء أثناء الجلسة المرئية") @map("booking_notice")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AUDIO TRACKS / RECITATION LIBRARY
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Audio recitations for player.
+model AudioTrack {
+  id          String   @id @default(cuid())
+  title       String
+  reciter     String
+  duration    String?
+  category    String   @default("شاملة")
+  src         String?
+  orderIndex  Int      @default(0) @map("order_index")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  @@map("audio_tracks")
+}
+
