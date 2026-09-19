@@ -1,0 +1,23 @@
+# Environment Variables — NEVER commit these!
+.env
+.env.local
+.env.production
+
+# Node Modules
+node_modules/
+
+# Prisma generated client (re-generated on install)
+node_modules/.prisma/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
