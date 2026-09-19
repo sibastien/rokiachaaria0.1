@@ -43,13 +43,6 @@
         body {
             font-family: 'Cairo', sans-serif;
         }
-        .pattern-bg {
-            background-color: #f8fafc;
-            background-image: radial-gradient(#0284c7 0.5px, transparent 0.5px), radial-gradient(#0284c7 0.5px, #f8fafc 0.5px);
-            background-size: 24px 24px;
-            background-position: 0 0, 12px 12px;
-            background-opacity: 0.04;
-        }
         .pulse-subtle {
             animation: pulse-soft 3s infinite ease-in-out;
         }
@@ -81,7 +74,7 @@
         <span id="toastMessage" class="text-sm font-medium">رسالة إشعار</span>
     </div>
 
-    <!-- Top Navigation -->
+    <!-- Top Navigation Header -->
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-sky-100 transition-all shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
@@ -99,26 +92,33 @@
                 </div>
 
                 <!-- Navigation Controls -->
-                <div class="flex items-center gap-3">
-                    <!-- Quick Back to Main Site -->
-                    <a href="/" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-600 hover:text-sky-700 hover:bg-sky-50 rounded-xl border border-slate-200 transition-colors">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <a href="/" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 hover:text-sky-700 hover:bg-sky-50 rounded-xl border border-slate-200 transition-colors">
                         <i data-lucide="home" class="w-4 h-4"></i>
                         <span>الموقع الرئيسي</span>
                     </a>
+                    <button onclick="switchTab('forum')" class="hidden md:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 hover:text-sky-700 hover:bg-sky-50 rounded-xl border border-slate-200 transition-colors">
+                        <i data-lucide="messages-square" class="w-4 h-4"></i>
+                        <span>المجتمع</span>
+                    </button>
+                    <button onclick="switchTab('articles')" class="hidden md:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 hover:text-sky-700 hover:bg-sky-50 rounded-xl border border-slate-200 transition-colors">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>المدونة</span>
+                    </button>
 
                     <!-- Member Badge -->
-                    <div class="flex items-center gap-2 bg-sky-50/80 border border-sky-200/80 rounded-2xl px-3.5 py-1.5">
+                    <button onclick="switchTab('account')" title="إعدادات الحساب" class="flex items-center gap-2 bg-sky-50/80 hover:bg-sky-100/80 border border-sky-200/80 rounded-2xl px-3 py-1.5 transition">
                         <div class="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
                             <span id="navUserInitial">م</span>
                         </div>
-                        <div class="text-right hidden md:block">
-                            <div id="navUserName" class="text-xs font-bold text-sky-950 truncate max-w-[140px]">جاري التحميل...</div>
+                        <div class="text-right hidden sm:block">
+                            <div id="navUserName" class="text-xs font-bold text-sky-950 truncate max-w-[120px]">جاري التحميل...</div>
                             <div class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 مستفيد موثّق
                             </div>
                         </div>
-                    </div>
+                    </button>
 
                     <!-- Logout Button -->
                     <button onclick="handleLogout()" title="تسجيل الخروج" class="p-2.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors border border-transparent hover:border-rose-200">
@@ -147,7 +147,7 @@
                         أهلاً بك، <span id="welcomeUserName">أخي المستفيد</span>
                     </h1>
                     <p class="text-sky-100/80 text-sm max-w-2xl leading-relaxed">
-                        هذه مساحتك الشخصية الآمنة لمتابعة جلساتك الخاصة مع الرقاة المعتمدين، والتواصل المباشر، والاستماع لأوراد التحصين والرقية الشرعية اليومية.
+                        مساحتك المتكاملة للتداوي بالقرآن والسنة: تابع جلساتك، شارك استفساراتك في المجتمع، واطّلع على توجيهات الرقاة المعتمدين.
                     </p>
                 </div>
 
@@ -155,11 +155,11 @@
                 <div class="flex items-center gap-3 flex-wrap">
                     <button onclick="switchTab('book')" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-sky-900 hover:bg-sky-50 font-bold text-sm shadow-md active:scale-95 transition-all">
                         <i data-lucide="calendar-plus" class="w-4 h-4 text-sky-600"></i>
-                        <span>طلب جلسة جديدة</span>
+                        <span>حجز جلسة جديدة</span>
                     </button>
-                    <button onclick="switchTab('audio')" class="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm backdrop-blur-sm border border-white/15 transition-all">
-                        <i data-lucide="headphones" class="w-4 h-4 text-sky-300"></i>
-                        <span>تلاوات التحصين</span>
+                    <button onclick="switchTab('forum')" class="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm backdrop-blur-sm border border-white/15 transition-all">
+                        <i data-lucide="message-circle-plus" class="w-4 h-4 text-sky-300"></i>
+                        <span>طرح استفسار</span>
                     </button>
                 </div>
             </div>
@@ -175,40 +175,45 @@
                     <span id="statCompleted" class="text-xl font-extrabold text-white">0</span>
                 </div>
                 <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
-                    <span class="text-xs text-sky-200/70 block mb-1">الرقاة المعتمدون</span>
-                    <span id="statRaqis" class="text-xl font-extrabold text-white">4</span>
+                    <span class="text-xs text-sky-200/70 block mb-1">مقالات الشفاء</span>
+                    <span id="statArticlesCount" class="text-xl font-extrabold text-white">3</span>
                 </div>
                 <div class="bg-white/5 rounded-2xl p-3 backdrop-blur-xs">
-                    <span class="text-xs text-sky-200/70 block mb-1">حالة الحساب</span>
-                    <span class="text-xs font-bold text-emerald-300 flex items-center gap-1 mt-1">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                        نشط ومحمي
-                    </span>
+                    <span class="text-xs text-sky-200/70 block mb-1">الرقاة المعتمدون</span>
+                    <span id="statRaqis" class="text-xl font-extrabold text-white">4</span>
                 </div>
             </div>
         </div>
 
-        <!-- Navigation Tabs -->
-        <div class="flex items-center gap-2 p-1.5 bg-white border border-slate-200/80 rounded-2xl shadow-xs mb-8 overflow-x-auto">
-            <button id="tabBtn-sessions" onclick="switchTab('sessions')" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-sky-600 text-white shadow-sm">
-                <i data-lucide="calendar" class="w-4 h-4"></i>
+        <!-- Navigation Tabs Bar -->
+        <div class="flex items-center gap-1.5 p-1.5 bg-white border border-slate-200/80 rounded-2xl shadow-xs mb-8 overflow-x-auto">
+            <button id="tabBtn-sessions" onclick="switchTab('sessions')" class="tab-btn flex-1 min-w-[130px] py-3 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-sky-600 text-white shadow-sm">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                 <span>مواعيدي وجلساتي</span>
             </button>
-            <button id="tabBtn-book" onclick="switchTab('book')" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
-                <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                <span>حجز جلسة خاصة</span>
+            <button id="tabBtn-forum" onclick="switchTab('forum')" class="tab-btn flex-1 min-w-[130px] py-3 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
+                <i data-lucide="messages-square" class="w-4 h-4"></i>
+                <span>مجتمع السكينة</span>
             </button>
-            <button id="tabBtn-audio" onclick="switchTab('audio')" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
+            <button id="tabBtn-articles" onclick="switchTab('articles')" class="tab-btn flex-1 min-w-[130px] py-3 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span>مدونة الشفاء</span>
+            </button>
+            <button id="tabBtn-book" onclick="switchTab('book')" class="tab-btn flex-1 min-w-[130px] py-3 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
+                <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                <span>حجز جلسة</span>
+            </button>
+            <button id="tabBtn-audio" onclick="switchTab('audio')" class="tab-btn flex-1 min-w-[130px] py-3 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
                 <i data-lucide="headphones" class="w-4 h-4"></i>
-                <span>زاد التحصين والرقية</span>
+                <span>زاد التحصين</span>
             </button>
-            <button id="tabBtn-account" onclick="switchTab('account')" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
+            <button id="tabBtn-account" onclick="switchTab('account')" class="tab-btn flex-1 min-w-[130px] py-3 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50">
                 <i data-lucide="user-cog" class="w-4 h-4"></i>
-                <span>الملف الشخصي والأمان</span>
+                <span>الملف الشخصي</span>
             </button>
         </div>
 
-        <!-- ================= TAB 1: SESSIONS ================= -->
+        <!-- ================= TAB 1: SESSIONS & DASHBOARD (/dashboard) ================= -->
         <div id="tabContent-sessions" class="tab-content space-y-8">
             
             <!-- Hero Section: Next Active / Upcoming Session -->
@@ -218,7 +223,7 @@
                 </div>
             </div>
 
-            <!-- Pre-session Etiquette / Guidelines Card -->
+            <!-- Pre-session Guidelines Checklist -->
             <div class="bg-gradient-to-br from-sky-50/80 to-blue-50/50 border border-sky-100 rounded-3xl p-6 sm:p-8">
                 <div class="flex items-start gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-sky-600/15">
@@ -262,7 +267,7 @@
                 </div>
             </div>
 
-            <!-- Sessions History / All Bookings Table & Cards -->
+            <!-- Sessions History / All Bookings Table -->
             <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
                     <div>
@@ -287,7 +292,82 @@
             </div>
         </div>
 
-        <!-- ================= TAB 2: BOOK SESSION ================= -->
+        <!-- ================= TAB 2: FORUM (/forum) ================= -->
+        <div id="tabContent-forum" class="tab-content hidden space-y-6">
+            <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-bold mb-2">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                            <span>استفسارات منضبطة بالمنهج النبوي وبإشراف الرقاة</span>
+                        </div>
+                        <h2 class="text-xl font-black text-sky-950">منتدى مجتمع السكينة والرقية</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">اطرح استفسارك بسرية، وتصفّح الردود الشرعية المعتمدة من المشايخ والرقاة</p>
+                    </div>
+
+                    <button onclick="openNewPostModal()" class="px-5 py-3 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-md shadow-sky-600/20 active:scale-95 transition flex items-center justify-center gap-2 self-start md:self-auto">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>طرح استفسار جديد</span>
+                    </button>
+                </div>
+
+                <!-- Category Filters & Search -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6">
+                    <div class="flex items-center gap-1.5 flex-wrap w-full sm:w-auto text-xs font-bold">
+                        <button onclick="filterForum('ALL')" id="forumFilter-ALL" class="forum-filter-btn px-3 py-1.5 rounded-xl bg-sky-600 text-white shadow-xs">الكل</button>
+                        <button onclick="filterForum('استفسار شرعي')" id="forumFilter-استفسار شرعي" class="forum-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700">استفسارات شرعية</button>
+                        <button onclick="filterForum('تجربة شفاء')" id="forumFilter-تجربة شفاء" class="forum-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700">تجارب شفاء</button>
+                        <button onclick="filterForum('نصائح وتحصين')" id="forumFilter-نصائح وتحصين" class="forum-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700">نصائح وتحصين</button>
+                    </div>
+                    
+                    <div class="relative w-full sm:w-64">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3 top-3"></i>
+                        <input type="text" id="forumSearchInput" oninput="handleForumSearch(this.value)" placeholder="بحث في المنتدى..." class="w-full bg-slate-50 border border-slate-200 text-slate-700 pr-9 pl-4 py-2 rounded-xl text-xs focus:outline-none focus:border-sky-500">
+                    </div>
+                </div>
+
+                <!-- Forum Posts List -->
+                <div id="forumPostsContainer" class="space-y-4 pt-6">
+                    <div class="text-center py-12 text-slate-400 text-xs">جاري تحميل استفسارات ومشاركات المجتمع...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: ARTICLES (/articles) ================= -->
+        <div id="tabContent-articles" class="tab-content hidden space-y-6">
+            <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-2">
+                            <i data-lucide="book-marked" class="w-3.5 h-3.5"></i>
+                            <span>تأصيل علمي شرعي مبني على الكتاب والسنة</span>
+                        </div>
+                        <h2 class="text-xl font-black text-sky-950">مدونة الشفاء والمقالات الإرشادية</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">مقالات ودلائل توعوية كتبها نخبة من المشايخ لبيان أحكام الرقية والتحصين ودحض البدع</p>
+                    </div>
+
+                    <div class="relative w-full md:w-72">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3 top-3"></i>
+                        <input type="text" id="articleSearchInput" oninput="handleArticleSearch(this.value)" placeholder="ابحث في المقالات والتأصيلات..." class="w-full bg-slate-50 border border-slate-200 text-slate-700 pr-9 pl-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-sky-500">
+                    </div>
+                </div>
+
+                <!-- Category Filters -->
+                <div id="articleCategoriesContainer" class="flex items-center gap-2 pt-6 flex-wrap text-xs font-bold">
+                    <button onclick="filterArticles('all')" id="artCat-all" class="art-cat-btn px-4 py-2 rounded-xl bg-sky-600 text-white shadow-xs">جميع المقالات</button>
+                    <button onclick="filterArticles('sunnah')" id="artCat-sunnah" class="art-cat-btn px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700">السنة النبوية</button>
+                    <button onclick="filterArticles('hasad')" id="artCat-hasad" class="art-cat-btn px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700">العين والحسد</button>
+                    <button onclick="filterArticles('adhkar')" id="artCat-adhkar" class="art-cat-btn px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700">أذكار وتحصين</button>
+                </div>
+
+                <!-- Articles Grid -->
+                <div id="articlesGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
+                    <div class="col-span-full text-center py-12 text-slate-400 text-xs">جاري تحميل المقالات...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: BOOK SESSION ================= -->
         <div id="tabContent-book" class="tab-content hidden space-y-6">
             <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-xs max-w-4xl mx-auto">
                 <div class="text-center max-w-xl mx-auto mb-8">
@@ -364,7 +444,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 4: Notes & Symptoms -->
+                    <!-- Step 4: Notes -->
                     <div>
                         <label class="block text-sm font-bold text-slate-800 mb-2">5. ملاحظات أو أعراض مختصرة (اختياري وبسرية تامة)</label>
                         <textarea id="portalNotesInput" rows="3" placeholder="اكتب بإيجاز ما تشكو منه أو أي تفاصيل تفيد الشيخ الراقي أثناء الجلسة..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-4 rounded-2xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition"></textarea>
@@ -385,7 +465,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 3: DAILY FORTIFICATION & AUDIO ================= -->
+        <!-- ================= TAB 5: AUDIO & FORTIFICATION ================= -->
         <div id="tabContent-audio" class="tab-content hidden space-y-8">
             <div class="bg-gradient-to-tr from-sky-900 via-sky-800 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-sky-950/10">
                 <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
@@ -395,8 +475,8 @@
                             <span>زاد المؤمن للشفاء والطمأنينة</span>
                         </div>
                         <h2 class="text-2xl sm:text-3xl font-black mb-3">مشغل الرقية الشرعية والأوراد اليومية</h2>
-                        <p class="text-sm text-sky-150 leading-relaxed text-sky-100/80 mb-6">
-                            استمع إلى رقى شرعية مسجلة بأصوات نخبة من القراء المجازين، خالية من أي مؤثرات أو إضافات، وفق هدي المصطفى ﷺ. يوصى بالاستماع إليها يومياً بين الجلسات.
+                        <p class="text-sm text-sky-100/80 leading-relaxed mb-6">
+                            استمع إلى رقى شرعية مسجلة بأصوات نخبة من القراء المجازين، خالية من أي مؤثرات أو إضافات، وفق هدي المصطفى ﷺ.
                         </p>
                         
                         <!-- Mini Active Track Info -->
@@ -405,7 +485,7 @@
                                 <i data-lucide="disc" class="w-6 h-6 animate-spin" id="activeTrackSpinIcon"></i>
                             </div>
                             <div>
-                                <div id="activeTrackTitle" class="font-bold text-sm text-white">الرقية الشرعية الشاملة لعلاج السحر والحسد</div>
+                                <div id="activeTrackTitle" class="font-bold text-sm text-white">الرقية الشرعية الشاملة</div>
                                 <div id="activeTrackReciter" class="text-xs text-sky-200">بصوت الشيخ مشاري العفاسي</div>
                             </div>
                         </div>
@@ -450,34 +530,9 @@
                     <div class="text-center py-8 text-slate-400">جاري تحميل المقاطع الصوتية...</div>
                 </div>
             </div>
-
-            <!-- Essential Daily Prophetic Adhkar Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white border border-sky-100 rounded-2xl p-5 shadow-xs">
-                    <span class="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold mb-2">الصباح والمساء</span>
-                    <h4 class="font-bold text-sm text-sky-950 mb-1">سيد الاستغفار</h4>
-                    <p class="text-xs text-slate-600 leading-relaxed font-serif">
-                        «اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ...»
-                    </p>
-                </div>
-                <div class="bg-white border border-sky-100 rounded-2xl p-5 shadow-xs">
-                    <span class="inline-block px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 text-xs font-bold mb-2">عند الخوف والفزع</span>
-                    <h4 class="font-bold text-sm text-sky-950 mb-1">كلمات الله التامات</h4>
-                    <p class="text-xs text-slate-600 leading-relaxed font-serif">
-                        «أَعُوذُ بِكَلِمَاتِ اللهِ التَّامَّاتِ مِنْ غَضَبِهِ وَعِقَابِهِ وَشَرِّ عِبَادِهِ، وَمِنْ هَمَزَاتِ الشَّيَاطِينِ وَأَنْ يَحْضُرُونِ»
-                    </p>
-                </div>
-                <div class="bg-white border border-sky-100 rounded-2xl p-5 shadow-xs">
-                    <span class="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-xs font-bold mb-2">للحماية والتحصين</span>
-                    <h4 class="font-bold text-sm text-sky-950 mb-1">بسم الله الذي لا يضر</h4>
-                    <p class="text-xs text-slate-600 leading-relaxed font-serif">
-                        «بِسْمِ اللهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ» (ثلاث مرات صباحاً ومساءً)
-                    </p>
-                </div>
-            </div>
         </div>
 
-        <!-- ================= TAB 4: ACCOUNT & PRIVACY ================= -->
+        <!-- ================= TAB 6: ACCOUNT & PROFILE (/profile) ================= -->
         <div id="tabContent-account" class="tab-content hidden space-y-6 max-w-3xl mx-auto">
             
             <!-- Personal Profile Info -->
@@ -558,6 +613,137 @@
 
     </main>
 
+    <!-- ================= MODALS ================= -->
+
+    <!-- Post Detail / Discussion Modal -->
+    <div id="forumPostModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 flex flex-col max-h-[90vh] overflow-hidden text-right">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between gap-4 bg-slate-50/50">
+                <div>
+                    <span id="postModalBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800 border border-sky-200"></span>
+                    <h3 id="postModalTitle" class="text-lg font-black text-sky-950 mt-1">عنوان الموضوع</h3>
+                    <div class="text-xs text-slate-500 mt-0.5">الكاتب: <span id="postModalAuthor" class="font-bold text-slate-700"></span> • <span id="postModalDate"></span></div>
+                </div>
+                <button onclick="closePostModal()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 flex-grow">
+                <!-- Post Body Content -->
+                <div id="postModalContent" class="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50/70 p-4 rounded-2xl border border-slate-100"></div>
+
+                <!-- Official Raqi Reply (if exists) -->
+                <div id="postModalOfficialReplyBox" class="hidden bg-emerald-50/80 border-2 border-emerald-200 rounded-2xl p-5 relative">
+                    <div class="flex items-center gap-2 text-emerald-800 text-xs font-black mb-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                        <span>الرد الشرعي المعتمد من الشيخ الراقي</span>
+                    </div>
+                    <div id="postModalOfficialReply" class="text-xs text-emerald-950 leading-relaxed font-medium whitespace-pre-line"></div>
+                </div>
+
+                <!-- Replies Stream -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5 text-sky-600"></i>
+                        <span>الردود والمشاركات (<span id="postModalRepliesCount">0</span>)</span>
+                    </h4>
+                    <div id="postModalRepliesList" class="space-y-2.5">
+                        <div class="text-center py-4 text-slate-400 text-xs">لا توجد ردود بعد. كن أول من يشارك.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Reply Box -->
+            <div class="p-4 border-t border-slate-100 bg-white">
+                <form onsubmit="handleSendReply(event)" class="flex items-center gap-2">
+                    <input type="text" id="postReplyInput" required placeholder="أضف رداً لطيفاً أو دعاءً بالشفاء..." class="flex-grow bg-slate-50 border border-slate-200 text-slate-800 px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-sky-500">
+                    <button type="submit" id="postReplySubmitBtn" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        <span>إرسال</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Question / Post Modal -->
+    <div id="newPostModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-right">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-base font-extrabold text-sky-950 flex items-center gap-2">
+                    <i data-lucide="message-circle-plus" class="w-5 h-5 text-sky-600"></i>
+                    <span>طرح استفسار أو موضوع جديد</span>
+                </h3>
+                <button onclick="closeNewPostModal()" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <form id="newPostForm" onsubmit="handleNewPostSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">تصنيف الاستفسار</label>
+                    <select id="newPostBadge" class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2.5 rounded-xl text-xs focus:outline-none focus:border-sky-500">
+                        <option value="استفسار شرعي">استفسار شرعي</option>
+                        <option value="تجربة شفاء">تجربة شفاء وطمأنينة</option>
+                        <option value="نصائح وتحصين">نصائح وتحصين منزلي</option>
+                        <option value="سؤال عام">سؤال عام حول الرقية</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">عنوان الموضوع بإيجاز</label>
+                    <input type="text" id="newPostTitle" required placeholder="مثال: الاستفسار عن رقية الأطفال وقت النوم..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2.5 rounded-xl text-xs focus:outline-none focus:border-sky-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">نص الاستفسار أو المشاركة</label>
+                    <textarea id="newPostContent" rows="4" required placeholder="اكتب استفسارك بوضوح. تجنب ذكر الأسماء الصريحة حفاظاً على الخصوصية..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl text-xs focus:outline-none focus:border-sky-500"></textarea>
+                </div>
+
+                <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-900 flex items-start gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                    <span>تُنشر جميع الاستفسارات بعد مراجعة المشرفين الشرعيين لضمان الالتزام بمنهج أهل السنة والجماعة.</span>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeNewPostModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition">
+                        إلغاء
+                    </button>
+                    <button type="submit" id="newPostSubmitBtn" class="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-xs transition">
+                        إرسال للمراجعة
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Article Reader Modal -->
+    <div id="articleReaderModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+        <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-100 flex flex-col max-h-[90vh] overflow-hidden text-right">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between gap-4 bg-slate-50/50">
+                <div>
+                    <span id="articleModalCat" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"></span>
+                    <h3 id="articleModalTitle" class="text-xl font-black text-sky-950 mt-1">عنوان المقال</h3>
+                    <div class="text-xs text-slate-500 mt-1">بقلم: <span id="articleModalAuthor" class="font-bold text-slate-700"></span> • وقت القراءة: <span id="articleModalReadTime"></span></div>
+                </div>
+                <button onclick="closeArticleModal()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 sm:p-8 overflow-y-auto space-y-6 flex-grow">
+                <div id="articleModalContent" class="text-sm sm:text-base text-slate-700 leading-relaxed font-serif space-y-4 whitespace-pre-line"></div>
+            </div>
+
+            <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+                <button onclick="closeArticleModal()" class="px-6 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs transition">
+                    إغلاق المقال
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Cancel Booking Confirmation Modal -->
     <div id="cancelBookingModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
         <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 text-right">
@@ -604,6 +790,11 @@
         let activeTrackIndex = 0;
         let bookingToCancelId = null;
         let currentFilter = 'ALL';
+        let forumPosts = [];
+        let currentForumFilter = 'ALL';
+        let activeForumPostId = null;
+        let articlesList = [];
+        let currentArticleCategory = 'all';
 
         // 1. Authentication & Route Guard
         async function initPortal() {
@@ -632,11 +823,16 @@
                 return;
             }
 
+            // Route based on URL path
+            handleInitialRoute();
+
             // Load primary data
             await Promise.allSettled([
                 loadMyBookings(),
                 loadAvailableRaqis(),
-                loadAudioTracks()
+                loadAudioTracks(),
+                loadForumPosts(),
+                loadArticles()
             ]);
 
             // Set min date on date input to today
@@ -649,6 +845,24 @@
 
             setupRadioServiceSelection();
             setupAudioPlayerEvents();
+
+            // Listen to browser Back/Forward navigation
+            window.addEventListener('popstate', () => {
+                handleInitialRoute(false);
+            });
+        }
+
+        function handleInitialRoute(updateHistory = false) {
+            const path = window.location.pathname.toLowerCase();
+            if (path === '/forum') {
+                switchTab('forum', updateHistory);
+            } else if (path === '/articles') {
+                switchTab('articles', updateHistory);
+            } else if (path === '/profile') {
+                switchTab('account', updateHistory);
+            } else {
+                switchTab('sessions', updateHistory);
+            }
         }
 
         // Generic authenticated API call
@@ -687,21 +901,37 @@
             window.location.href = '/';
         }
 
-        // 2. Tab Navigation
-        function switchTab(tabId) {
+        // 2. Tab Navigation with Clean URL pushState
+        function switchTab(tabId, updateUrl = true) {
             // Update Tab buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = "tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50";
+                btn.className = "tab-btn flex-1 min-w-[130px] py-3 px-3.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-sky-700 hover:bg-sky-50";
             });
             const activeBtn = document.getElementById(`tabBtn-${tabId}`);
             if (activeBtn) {
-                activeBtn.className = "tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-sky-600 text-white shadow-sm";
+                activeBtn.className = "tab-btn flex-1 min-w-[130px] py-3 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-sky-600 text-white shadow-sm";
             }
 
             // Update Tab contents
             document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
             const activeContent = document.getElementById(`tabContent-${tabId}`);
             if (activeContent) activeContent.classList.remove('hidden');
+
+            // Sync Clean URL
+            if (updateUrl) {
+                const routeMap = {
+                    'sessions': '/dashboard',
+                    'forum':    '/forum',
+                    'articles': '/articles',
+                    'account':  '/profile',
+                    'book':     '/dashboard',
+                    'audio':    '/dashboard',
+                };
+                const targetUrl = routeMap[tabId] || '/dashboard';
+                if (window.location.pathname !== targetUrl) {
+                    history.pushState({ tab: tabId }, '', targetUrl);
+                }
+            }
 
             lucide.createIcons();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -725,7 +955,6 @@
 
         function renderBookings() {
             const now = new Date();
-            // Find next upcoming active session (PENDING or CONFIRMED where endTime > now)
             const activeSessions = myBookings
                 .filter(b => (b.status === 'CONFIRMED' || b.status === 'PENDING') && new Date(b.endTime) >= now)
                 .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
@@ -757,14 +986,14 @@
                         <p class="text-sm text-slate-600 max-w-md mx-auto mb-6">
                             نسأل الله لك ولأهلك دوام العافية والسكينة. إذا كنت تشعر بحاجة لجلسة رقية شرعية خاصة أو استشارة موجهة، يمكنك اختيار الراقي المناسب وحجز موعدك الآن.
                         </p>
-                        <div class="flex items-center justify-center gap-3">
+                        <div class="flex items-center justify-center gap-3 flex-wrap">
                             <button onclick="switchTab('book')" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-md shadow-sky-600/20 active:scale-95 transition">
                                 <i data-lucide="plus-circle" class="w-4 h-4"></i>
                                 <span>حجز جلسة رقية خاصة</span>
                             </button>
-                            <button onclick="switchTab('audio')" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition">
-                                <i data-lucide="headphones" class="w-4 h-4"></i>
-                                <span>الاستماع للتحصين</span>
+                            <button onclick="switchTab('forum')" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition">
+                                <i data-lucide="messages-square" class="w-4 h-4"></i>
+                                <span>تصفح مجتمع السكينة</span>
                             </button>
                         </div>
                     </div>
@@ -962,7 +1191,7 @@
             });
         }
 
-        // 4. Booking Wizard in Portal
+        // 4. Booking Wizard
         async function loadAvailableRaqis() {
             try {
                 const res = await apiCall('/bookings/raqis');
@@ -1049,14 +1278,360 @@
             }
         }
 
-        // 5. Audio Player & Spiritual Library
+        // 5. Forum Community Feature (/forum)
+        async function loadForumPosts() {
+            try {
+                const res = await apiCall('/forum?limit=30');
+                if (res && res.data) {
+                    forumPosts = res.data;
+                    renderForumPosts();
+                }
+            } catch (err) {
+                console.error('[Forum] Failed to load:', err);
+                const container = document.getElementById('forumPostsContainer');
+                if (container) {
+                    container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">لا توجد مواضيع منشورة حالياً، يمكنك طرح أول استفسار.</div>`;
+                }
+            }
+        }
+
+        function renderForumPosts(search = '') {
+            const container = document.getElementById('forumPostsContainer');
+            if (!container) return;
+
+            let filtered = forumPosts;
+            if (currentForumFilter !== 'ALL') {
+                filtered = filtered.filter(p => p.badge === currentForumFilter);
+            }
+            if (search) {
+                const q = search.toLowerCase();
+                filtered = filtered.filter(p => p.title.toLowerCase().includes(q) || p.content.toLowerCase().includes(q));
+            }
+
+            if (!filtered.length) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400 text-xs">
+                        لا توجد استفسارات مطابقة لهذا البحث.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(p => {
+                const dateStr = new Date(p.createdAt).toLocaleDateString('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' });
+                return `
+                    <div class="bg-slate-50/70 hover:bg-sky-50/40 border border-slate-200/80 rounded-2xl p-5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer" onclick="openPostModal('${p.id}')">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-200">${escapeHtml(p.badge || 'استفسار')}</span>
+                                <h4 class="text-sm font-bold text-sky-950 hover:text-sky-700 transition">${escapeHtml(p.title)}</h4>
+                            </div>
+                            <p class="text-xs text-slate-500 line-clamp-1">${escapeHtml(p.content)}</p>
+                            <div class="text-[11px] text-slate-400 flex items-center gap-3">
+                                <span>الكاتب: <strong class="text-slate-600">${escapeHtml(p.authorName)}</strong></span>
+                                <span>•</span>
+                                <span>${dateStr}</span>
+                                ${p.officialReply ? `
+                                    <span class="inline-flex items-center gap-1 text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                                        <i data-lucide="shield-check" class="w-3 h-3 text-emerald-600"></i>
+                                        رد الشيخ الراقي متاح
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 text-xs text-slate-500 shrink-0" onclick="event.stopPropagation()">
+                            <button onclick="handleLikePost('${p.id}', event)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition">
+                                <i data-lucide="heart" class="w-4 h-4"></i>
+                                <span>${p.likesCount || 0}</span>
+                            </button>
+                            <button onclick="openPostModal('${p.id}')" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 text-sky-800 font-bold transition">
+                                <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                                <span>${p.repliesCount || 0} ردود</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function filterForum(badge) {
+            currentForumFilter = badge;
+            document.querySelectorAll('.forum-filter-btn').forEach(btn => {
+                btn.className = "forum-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700";
+            });
+            const active = document.getElementById(`forumFilter-${badge}`);
+            if (active) active.className = "forum-filter-btn px-3 py-1.5 rounded-xl bg-sky-600 text-white shadow-xs";
+            renderForumPosts(document.getElementById('forumSearchInput')?.value);
+        }
+
+        function handleForumSearch(val) {
+            renderForumPosts(val);
+        }
+
+        async function openPostModal(postId) {
+            activeForumPostId = postId;
+            document.getElementById('forumPostModal').classList.remove('hidden');
+
+            try {
+                const res = await apiCall(`/forum/${postId}`);
+                if (res && res.post) {
+                    const p = res.post;
+                    document.getElementById('postModalTitle').textContent = p.title;
+                    document.getElementById('postModalAuthor').textContent = p.authorName;
+                    document.getElementById('postModalBadge').textContent = p.badge || 'استفسار';
+                    document.getElementById('postModalDate').textContent = new Date(p.createdAt).toLocaleDateString('ar-SA');
+                    document.getElementById('postModalContent').textContent = p.content;
+
+                    // Official reply
+                    const officialBox = document.getElementById('postModalOfficialReplyBox');
+                    const officialText = document.getElementById('postModalOfficialReply');
+                    if (p.officialReply) {
+                        officialBox.classList.remove('hidden');
+                        officialText.textContent = p.officialReply;
+                    } else {
+                        officialBox.classList.add('hidden');
+                    }
+
+                    // Replies
+                    const countEl = document.getElementById('postModalRepliesCount');
+                    const listEl = document.getElementById('postModalRepliesList');
+                    const replies = p.replies || [];
+                    countEl.textContent = replies.length;
+
+                    if (!replies.length) {
+                        listEl.innerHTML = `<div class="text-center py-4 text-slate-400 text-xs">لا توجد ردود بعد. كن أول من يشارك.</div>`;
+                    } else {
+                        listEl.innerHTML = replies.map(r => `
+                            <div class="p-3 rounded-xl border ${r.isOfficial ? 'border-emerald-200 bg-emerald-50/50' : 'border-slate-100 bg-slate-50/60'}">
+                                <div class="flex items-center justify-between text-[11px] mb-1">
+                                    <span class="font-bold ${r.isOfficial ? 'text-emerald-900' : 'text-slate-800'}">
+                                        ${escapeHtml(r.user?.name || 'مشارك')}
+                                        ${r.isOfficial ? '<span class="mr-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800 font-bold">راقٍ معتمد</span>' : ''}
+                                    </span>
+                                    <span class="text-slate-400">${new Date(r.createdAt).toLocaleDateString('ar-SA')}</span>
+                                </div>
+                                <div class="text-xs text-slate-700 leading-relaxed whitespace-pre-line">${escapeHtml(r.content)}</div>
+                            </div>
+                        `).join('');
+                    }
+
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                showToast('تعذر تحميل تفاصيل الموضوع.');
+            }
+        }
+
+        function closePostModal() {
+            activeForumPostId = null;
+            document.getElementById('forumPostModal').classList.add('hidden');
+        }
+
+        async function handleSendReply(e) {
+            e.preventDefault();
+            if (!activeForumPostId) return;
+
+            const input = document.getElementById('postReplyInput');
+            const content = input.value.trim();
+            if (!content) return;
+
+            const btn = document.getElementById('postReplySubmitBtn');
+            btn.disabled = true;
+
+            try {
+                const res = await apiCall(`/forum/${activeForumPostId}/replies`, {
+                    method: 'POST',
+                    body: JSON.stringify({ content })
+                });
+                showToast(res.message || 'تم إرسال الرد بنجاح.');
+                input.value = '';
+                await openPostModal(activeForumPostId);
+                await loadForumPosts();
+            } catch (err) {
+                showToast(err.message || 'تعذر إرسال الرد.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function handleLikePost(postId, e) {
+            e.stopPropagation();
+            try {
+                const res = await apiCall(`/forum/${postId}/like`, { method: 'POST' });
+                showToast(res.message || 'تم التحديث.');
+                await loadForumPosts();
+            } catch (err) {
+                showToast(err.message || 'تعذر الإعجاب.');
+            }
+        }
+
+        function openNewPostModal() {
+            document.getElementById('newPostModal').classList.remove('hidden');
+        }
+
+        function closeNewPostModal() {
+            document.getElementById('newPostModal').classList.add('hidden');
+        }
+
+        async function handleNewPostSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('newPostSubmitBtn');
+            btn.disabled = true;
+            btn.textContent = 'جاري الإرسال...';
+
+            const title = document.getElementById('newPostTitle').value.trim();
+            const content = document.getElementById('newPostContent').value.trim();
+            const badge = document.getElementById('newPostBadge').value;
+
+            try {
+                const res = await apiCall('/forum', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        title, content, badge,
+                        authorName: currentUser?.name || 'مستفيد'
+                    })
+                });
+                showToast(res.message || 'تم إرسال موضوعك للمراجعة.');
+                closeNewPostModal();
+                e.target.reset();
+            } catch (err) {
+                showToast(err.message || 'تعذر إرسال الموضوع.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'إرسال للمراجعة';
+            }
+        }
+
+        // 6. Articles Feature (/articles)
+        async function loadArticles() {
+            try {
+                const res = await apiCall('/articles?limit=30');
+                if (res && res.data) {
+                    articlesList = res.data;
+                    document.getElementById('statArticlesCount').textContent = articlesList.length || 3;
+                    renderArticles();
+                }
+            } catch (err) {
+                console.error('[Articles] Failed to load:', err);
+                // Reliable default articles fallback if DB offline
+                articlesList = [
+                    { id: '1', title: 'ضوابط الرقية الشرعية الفردية ودحض البدع والادعاءات', excerpt: 'بيان شامل لمنهج أهل السنة والجماعة في التداوي بالقرآن الكريم والأدعية المأثورة.', categoryKey: 'sunnah', categoryName: 'السنة النبوية', author: 'الشيخ عبد الرحمن الماجد', readTime: '5 دقائق' },
+                    { id: '2', title: 'الفرق بين الإصابة بالعين والحسد وطرق التحصين النبوي', excerpt: 'تفصيل شرعي دقيق يوضح علامات الحسد وكيفية دفع ضرره بالأذكار والأوراد النبوية الثابتة.', categoryKey: 'hasad', categoryName: 'العين والحسد', author: 'د. يوسف الحمداني', readTime: '6 دقائق' },
+                    { id: '3', title: 'أذكار الصباح والمساء: الحصن الحصين للمؤمن وأهل بيته', excerpt: 'جمع مبارك للأوراد اليومية المأثورة مع بيان فضل كل ذكر وأوقاته المستحبة للتحصين.', categoryKey: 'adhkar', categoryName: 'أذكار وتحصين', author: 'الشيخ محمد العمري', readTime: '4 دقائق' }
+                ];
+                renderArticles();
+            }
+        }
+
+        function renderArticles(search = '') {
+            const container = document.getElementById('articlesGridContainer');
+            if (!container) return;
+
+            let filtered = articlesList;
+            if (currentArticleCategory !== 'all') {
+                filtered = filtered.filter(a => a.categoryKey === currentArticleCategory);
+            }
+            if (search) {
+                const q = search.toLowerCase();
+                filtered = filtered.filter(a => a.title.toLowerCase().includes(q) || a.excerpt.toLowerCase().includes(q));
+            }
+
+            if (!filtered.length) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-400 text-xs">
+                        لا توجد مقالات مطابقة لهذا التصنيف أو البحث.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => `
+                <div class="bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-sky-300 rounded-3xl p-6 transition flex flex-col justify-between shadow-xs hover:shadow-md group">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-200">${escapeHtml(a.categoryName || 'السنة النبوية')}</span>
+                            <span class="text-slate-400 flex items-center gap-1 font-mono">
+                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                ${escapeHtml(a.readTime || '4 دقائق')}
+                            </span>
+                        </div>
+                        <h3 class="text-base font-extrabold text-sky-950 group-hover:text-sky-700 transition leading-snug">
+                            ${escapeHtml(a.title)}
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                            ${escapeHtml(a.excerpt)}
+                        </p>
+                    </div>
+
+                    <div class="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-bold">بقلم: ${escapeHtml(a.author)}</span>
+                        <button onclick="openArticleModal('${a.id}')" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5">
+                            <span>قراءة المقال</span>
+                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function filterArticles(cat) {
+            currentArticleCategory = cat;
+            document.querySelectorAll('.art-cat-btn').forEach(btn => {
+                btn.className = "art-cat-btn px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700";
+            });
+            const active = document.getElementById(`artCat-${cat}`);
+            if (active) active.className = "art-cat-btn px-4 py-2 rounded-xl bg-sky-600 text-white shadow-xs";
+            renderArticles(document.getElementById('articleSearchInput')?.value);
+        }
+
+        function handleArticleSearch(val) {
+            renderArticles(val);
+        }
+
+        async function openArticleModal(articleId) {
+            document.getElementById('articleReaderModal').classList.remove('hidden');
+
+            // Find in local array first
+            const local = articlesList.find(a => a.id === articleId);
+            if (local) {
+                document.getElementById('articleModalTitle').textContent = local.title;
+                document.getElementById('articleModalCat').textContent = local.categoryName || 'مقالة إرشادية';
+                document.getElementById('articleModalAuthor').textContent = local.author;
+                document.getElementById('articleModalReadTime').textContent = local.readTime;
+                document.getElementById('articleModalContent').textContent = local.content || local.excerpt;
+            }
+
+            try {
+                const res = await apiCall(`/articles/${articleId}`);
+                if (res && res.article) {
+                    const art = res.article;
+                    document.getElementById('articleModalTitle').textContent = art.title;
+                    document.getElementById('articleModalCat').textContent = art.categoryName;
+                    document.getElementById('articleModalAuthor').textContent = art.author;
+                    document.getElementById('articleModalReadTime').textContent = art.readTime;
+                    document.getElementById('articleModalContent').textContent = art.content || art.excerpt;
+                }
+            } catch (err) {
+                // If backend DB fails, local fallback content remains visible
+            }
+        }
+
+        function closeArticleModal() {
+            document.getElementById('articleReaderModal').classList.add('hidden');
+        }
+
+        // 7. Audio Player & Spiritual Library
         async function loadAudioTracks() {
             try {
                 const res = await apiCall('/audio');
                 if (res && res.data && res.data.length) {
                     audioTracks = res.data;
                 } else {
-                    // Fallback reliable spiritual tracks
                     audioTracks = [
                         { id: '1', title: 'الرقية الشرعية الشاملة لعلاج السحر والحسد', reciter: 'الشيخ مشاري العفاسي', duration: '32:40', src: 'https://server8.mp3quran.net/afs/001.mp3' },
                         { id: '2', title: 'رقية السكينة وطرد القلق والوساوس', reciter: 'الشيخ ماهر المعيقلي', duration: '28:15', src: 'https://server12.mp3quran.net/maher/002.mp3' },
@@ -1180,7 +1755,7 @@
             return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        // 6. Profile & Password Management
+        // 8. Profile & Password Management (/profile)
         async function handleProfileUpdate(e) {
             e.preventDefault();
             const btn = document.getElementById('profileSaveBtn');

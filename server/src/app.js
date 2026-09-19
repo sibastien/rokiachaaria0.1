@@ -67,7 +67,7 @@ function createApp() {
     res.sendFile(path.join(staticRoot, 'index.html'));
   });
 
-  app.get(['/dashboard', '/portal'], (req, res) => {
+  app.get(['/dashboard', '/portal', '/forum', '/articles', '/profile'], (req, res) => {
     res.sendFile(path.join(staticRoot, 'portal.html'));
   });
 

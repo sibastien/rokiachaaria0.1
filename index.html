@@ -1077,16 +1077,18 @@
                         body: JSON.stringify({ name, email, password, phone: phone || undefined }),
                     });
                     saveAuth(data.token, data.user);
-                    simulateToast(data.message || 'تم إنشاء الحساب بنجاح!');
+                    simulateToast(data.message || 'تم إنشاء الحساب بنجاح! جاري التوجيه إلى لوحة المستفيد...');
+                    setTimeout(() => { window.location.href = '/dashboard'; }, 700);
                 } else {
                     const data = await apiCall('/auth/login', {
                         method: 'POST',
                         body: JSON.stringify({ email, password }),
                     });
                     saveAuth(data.token, data.user);
-                    simulateToast(`أهلاً بك مجدداً يا ${data.user.name}`);
+                    simulateToast(`أهلاً بك مجدداً يا ${data.user.name}، جاري التوجيه...`);
+                    setTimeout(() => { window.location.href = '/dashboard'; }, 700);
                 }
-                closeAuthModal();
+                closeAuthModal(false);
                 e.target.reset();
             } catch (_) {
                 // error message already shown in simulateToast from apiCall
@@ -1103,16 +1105,31 @@
         (function handleDirectRouting() {
             const path = window.location.pathname.toLowerCase();
             const params = new URLSearchParams(window.location.search);
+            const isAuthRoute = path === '/login' || path === '/register' || params.get('auth') === 'login' || params.get('auth') === 'register';
+
+            // If already authenticated, redirect to /dashboard
+            if (isAuthRoute && authToken) {
+                window.location.href = '/dashboard';
+                return;
+            }
+
             if (path === '/login' || params.get('auth') === 'login') {
                 openAuthModal('login', false);
             } else if (path === '/register' || params.get('auth') === 'register') {
                 openAuthModal('register', false);
             }
+
             window.addEventListener('popstate', () => {
                 const curPath = window.location.pathname.toLowerCase();
-                if (curPath === '/login') openAuthModal('login', false);
-                else if (curPath === '/register') openAuthModal('register', false);
-                else closeAuthModal(false);
+                if (curPath === '/login') {
+                    if (authToken) { window.location.href = '/dashboard'; }
+                    else { openAuthModal('login', false); }
+                } else if (curPath === '/register') {
+                    if (authToken) { window.location.href = '/dashboard'; }
+                    else { openAuthModal('register', false); }
+                } else {
+                    closeAuthModal(false);
+                }
             });
         })();
 
