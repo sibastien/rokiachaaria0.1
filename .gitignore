@@ -21,6 +21,7 @@ Thumbs.db
 .vscode/
 .idea/
 *.winmd
+*.pdf
 
 # Graphify analysis outputs
 graphify-out/

@@ -390,9 +390,10 @@
                                         <span class="w-1 bg-sky-300 rounded-full h-5 animate-pulse delay-200"></span>
                                         <span class="w-1 bg-sky-400 rounded-full h-2 animate-pulse"></span>
                                     </div>
-                                    <p class="text-xs text-sky-100/90 font-serif leading-relaxed">
+                                    <p id="playerAyahText" class="text-xs text-sky-100/95 font-serif leading-relaxed line-clamp-3">
                                         «وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ»
                                     </p>
+                                    <p id="playerAyahRef" class="text-[10px] text-sky-300/80 mt-1">[سورة الإسراء: 82]</p>
                                 </div>
 
                                 <!-- Progress Bar & Timers -->
@@ -427,14 +428,33 @@
                                 </div>
                             </div>
 
-                            <!-- Playlist quick selection -->
+                            <!-- Playlist quick selection & Mode Switcher -->
                             <div class="mt-3.5 pt-3 border-t border-slate-100">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-[11px] font-bold text-slate-700">المقاطع المتوفرة للاستماع:</span>
-                                    <span class="text-[10px] text-slate-400">انقر للتبديل الفوري</span>
+                                <div class="flex items-center justify-between gap-2 mb-2.5">
+                                    <div class="inline-flex p-0.5 bg-slate-100 rounded-xl text-[11px] font-bold">
+                                        <button type="button" onclick="switchAudioTab('tracks')" id="tabBtnTracks" class="px-2.5 py-1 rounded-lg bg-white text-sky-900 shadow-xs transition">
+                                            المقاطع المسجلة
+                                        </button>
+                                        <button type="button" onclick="switchAudioTab('quran')" id="tabBtnQuran" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-sky-700 transition flex items-center gap-1">
+                                            <i data-lucide="sparkles" class="w-3 h-3 text-amber-500"></i>
+                                            <span>آيات الرقية الشافية</span>
+                                        </button>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 hidden sm:inline">انقر للاستماع الفوري</span>
                                 </div>
-                                <div class="flex flex-wrap gap-1.5" id="playlistContainer">
-                                    <!-- Dynamic Track Buttons rendered by JavaScript -->
+
+                                <!-- Container 1: Custom Tracks (Exact existing playlist) -->
+                                <div id="playlistTracksView">
+                                    <div class="flex flex-wrap gap-1.5" id="playlistContainer">
+                                        <!-- Dynamic Track Buttons rendered by JavaScript -->
+                                    </div>
+                                </div>
+
+                                <!-- Container 2: QuranJS Ruqyah Verses List -->
+                                <div id="playlistQuranView" class="hidden">
+                                    <div class="flex flex-wrap gap-1.5 max-h-[145px] overflow-y-auto pr-0.5" id="quranVersesContainer">
+                                        <!-- Dynamic QuranJS Ruqyah Verse Buttons rendered by JavaScript -->
+                                    </div>
                                 </div>
                             </div>
 
@@ -1409,6 +1429,9 @@
         let audioTracks = defaultTracks;
         let currentTrackIdx = 0;
         let isAudioPlaying = false;
+        let currentAudioMode = 'tracks'; // 'tracks' | 'quran'
+        let quranVerses = [];
+        let currentQuranVerseIdx = 0;
         const realAudio = new Audio();
         realAudio.preload = "metadata";
 
@@ -1432,6 +1455,35 @@
             return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
 
+        function switchAudioTab(mode) {
+            currentAudioMode = mode;
+            const tabTracks = document.getElementById('tabBtnTracks');
+            const tabQuran = document.getElementById('tabBtnQuran');
+            const viewTracks = document.getElementById('playlistTracksView');
+            const viewQuran = document.getElementById('playlistQuranView');
+
+            if (mode === 'tracks') {
+                if (tabTracks) tabTracks.className = "px-2.5 py-1 rounded-lg bg-white text-sky-900 shadow-xs transition";
+                if (tabQuran) tabQuran.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-sky-700 transition flex items-center gap-1";
+                if (viewTracks) viewTracks.classList.remove('hidden');
+                if (viewQuran) viewQuran.classList.add('hidden');
+                updateAudioUI();
+            } else {
+                if (tabQuran) tabQuran.className = "px-2.5 py-1 rounded-lg bg-white text-sky-900 shadow-xs transition flex items-center gap-1";
+                if (tabTracks) tabTracks.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-sky-700 transition";
+                if (viewQuran) viewQuran.classList.remove('hidden');
+                if (viewTracks) viewTracks.classList.add('hidden');
+
+                if (quranVerses.length === 0) {
+                    loadQuranVerses();
+                } else {
+                    renderQuranVerseButtons();
+                    updateAudioUI();
+                }
+            }
+            lucide.createIcons();
+        }
+
         function renderPlaylistButtons() {
             const container = document.getElementById('playlistContainer');
             if (!container) return;
@@ -1440,45 +1492,80 @@
                 return;
             }
             container.innerHTML = audioTracks.map((track, idx) => `
-                <button onclick="selectTrack(${idx})" class="track-btn px-2.5 py-1.5 rounded-xl text-xs transition-all text-center truncate ${idx === currentTrackIdx ? 'bg-sky-600 text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700'}" title="${track.title} - ${track.reciter}">
+                <button onclick="selectTrack(${idx})" class="track-btn px-2.5 py-1.5 rounded-xl text-xs transition-all text-center truncate ${currentAudioMode === 'tracks' && idx === currentTrackIdx ? 'bg-sky-600 text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700'}" title="${track.title} - ${track.reciter}">
                     ${idx + 1}. ${track.title}
                 </button>
             `).join('');
         }
 
+        function renderQuranVerseButtons() {
+            const container = document.getElementById('quranVersesContainer');
+            if (!container) return;
+            if (!quranVerses || quranVerses.length === 0) {
+                container.innerHTML = `<span class="text-[11px] text-slate-400 italic py-1 block w-full text-center">جاري تحميل آيات الرقية من مكتبة القرآن...</span>`;
+                return;
+            }
+            container.innerHTML = quranVerses.map((verse, idx) => `
+                <button onclick="selectQuranVerse(${idx})" class="quran-verse-btn px-2.5 py-1.5 rounded-xl text-xs transition-all text-center truncate ${currentAudioMode === 'quran' && idx === currentQuranVerseIdx ? 'bg-amber-500 text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-amber-50 hover:text-amber-800'}" title="${verse.title} - ${verse.reference}">
+                    ${idx + 1}. ${verse.title}
+                </button>
+            `).join('');
+        }
+
         function updateAudioUI() {
-            const track = audioTracks && audioTracks[currentTrackIdx];
             const titleEl = document.getElementById('playerTrackTitle');
             const reciterEl = document.getElementById('playerTrackReciter');
             const totalDurationEl = document.getElementById('totalDuration');
+            const ayahTextEl = document.getElementById('playerAyahText');
+            const ayahRefEl = document.getElementById('playerAyahRef');
 
-            if (!track) {
-                if (titleEl) titleEl.textContent = "لا يوجد مقطع صوتي محدد";
-                if (reciterEl) reciterEl.textContent = "يمكنك إضافة مقاطع من لوحة التحكم";
-                if (totalDurationEl) totalDurationEl.textContent = "00:00";
-                const playIcon = document.getElementById('playIcon');
-                if (playIcon) {
-                    playIcon.setAttribute('data-lucide', 'play');
-                    lucide.createIcons();
+            if (currentAudioMode === 'quran' && quranVerses.length > 0) {
+                const verse = quranVerses[currentQuranVerseIdx];
+                if (verse) {
+                    if (titleEl) titleEl.textContent = verse.title;
+                    if (reciterEl) reciterEl.textContent = `${verse.reciter} • ${verse.reference}`;
+                    if (totalDurationEl && verse.duration && !realAudio.duration) {
+                        totalDurationEl.textContent = verse.duration;
+                    }
+                    if (ayahTextEl) ayahTextEl.textContent = `«${verse.arabicText}»`;
+                    if (ayahRefEl) ayahRefEl.textContent = `${verse.reference} — ${verse.benefit}`;
+
+                    // Highlight active quran verse button
+                    const qBtns = document.querySelectorAll('.quran-verse-btn');
+                    qBtns.forEach((btn, idx) => {
+                        if (idx === currentQuranVerseIdx) {
+                            btn.className = "quran-verse-btn px-2.5 py-1.5 rounded-xl text-xs bg-amber-500 text-white font-bold text-center truncate shadow-xs transition-all";
+                        } else {
+                            btn.className = "quran-verse-btn px-2.5 py-1.5 rounded-xl text-xs bg-slate-100 text-slate-700 hover:bg-amber-50 hover:text-amber-800 text-center truncate transition-all";
+                        }
+                    });
                 }
-                return;
-            }
-
-            if (titleEl) titleEl.textContent = track.title;
-            if (reciterEl) reciterEl.textContent = track.reciter;
-            if (totalDurationEl && track.duration && !realAudio.duration) {
-                totalDurationEl.textContent = track.duration;
-            }
-
-            // Highlight active playlist button
-            const buttons = document.querySelectorAll('.track-btn');
-            buttons.forEach((btn, idx) => {
-                if (idx === currentTrackIdx) {
-                    btn.className = "track-btn px-2.5 py-1.5 rounded-xl text-xs bg-sky-600 text-white font-bold text-center truncate shadow-xs transition-all";
+            } else {
+                const track = audioTracks && audioTracks[currentTrackIdx];
+                if (!track) {
+                    if (titleEl) titleEl.textContent = "لا يوجد مقطع صوتي محدد";
+                    if (reciterEl) reciterEl.textContent = "يمكنك إضافة مقاطع من لوحة التحكم";
+                    if (totalDurationEl) totalDurationEl.textContent = "00:00";
                 } else {
-                    btn.className = "track-btn px-2.5 py-1.5 rounded-xl text-xs bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700 text-center truncate transition-all";
+                    if (titleEl) titleEl.textContent = track.title;
+                    if (reciterEl) reciterEl.textContent = track.reciter;
+                    if (totalDurationEl && track.duration && !realAudio.duration) {
+                        totalDurationEl.textContent = track.duration;
+                    }
+                    if (ayahTextEl) ayahTextEl.textContent = '«وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ»';
+                    if (ayahRefEl) ayahRefEl.textContent = '[سورة الإسراء: 82]';
+
+                    // Highlight active playlist button
+                    const buttons = document.querySelectorAll('.track-btn');
+                    buttons.forEach((btn, idx) => {
+                        if (idx === currentTrackIdx) {
+                            btn.className = "track-btn px-2.5 py-1.5 rounded-xl text-xs bg-sky-600 text-white font-bold text-center truncate shadow-xs transition-all";
+                        } else {
+                            btn.className = "track-btn px-2.5 py-1.5 rounded-xl text-xs bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700 text-center truncate transition-all";
+                        }
+                    });
                 }
-            });
+            }
 
             // Toggle play/pause icon
             const playIcon = document.getElementById('playIcon');
@@ -1528,12 +1615,18 @@
         });
 
         async function toggleAudio() {
-            const track = audioTracks[currentTrackIdx];
-            if (!track) return;
+            let currentItem = null;
+            if (currentAudioMode === 'quran') {
+                currentItem = quranVerses[currentQuranVerseIdx];
+            } else {
+                currentItem = audioTracks[currentTrackIdx];
+            }
+            if (!currentItem) return;
 
+            const audioSrc = currentItem.audioUrl || currentItem.src;
             if (!realAudio.src || realAudio.src === "" || realAudio.src === window.location.href) {
-                if (track.src) {
-                    realAudio.src = track.src;
+                if (audioSrc) {
+                    realAudio.src = audioSrc;
                 } else {
                     simulateToast('هذا المقطع لا يحتوي على رابط ملف صوتي');
                     return;
@@ -1544,7 +1637,7 @@
                 try {
                     await realAudio.play();
                     isAudioPlaying = true;
-                    simulateToast(`جاري الاستماع إلى: ${track.title}`);
+                    simulateToast(`جاري الاستماع إلى: ${currentItem.title}`);
                 } catch (err) {
                     console.error('Audio play error:', err);
                     simulateToast('انقر مرة أخرى للسماح بتشغيل الصوت في المتصفح');
@@ -1558,6 +1651,7 @@
 
         function selectTrack(index) {
             if (index < 0 || index >= audioTracks.length) return;
+            currentAudioMode = 'tracks';
             currentTrackIdx = index;
             const track = audioTracks[currentTrackIdx];
 
@@ -1578,16 +1672,51 @@
             updateAudioUI();
         }
 
+        function selectQuranVerse(index) {
+            if (index < 0 || index >= quranVerses.length) return;
+            currentAudioMode = 'quran';
+            currentQuranVerseIdx = index;
+            const verse = quranVerses[currentQuranVerseIdx];
+
+            if (verse.audioUrl) {
+                realAudio.src = verse.audioUrl;
+                realAudio.play().then(() => {
+                    isAudioPlaying = true;
+                    updateAudioUI();
+                }).catch((err) => {
+                    console.warn('Auto-play blocked or waiting for user gesture:', err);
+                    isAudioPlaying = false;
+                    updateAudioUI();
+                });
+                simulateToast(`تم الانتقال إلى: ${verse.title}`);
+            } else {
+                simulateToast('هذا المقطع لا يحتوي على رابط ملف صوتي');
+            }
+            updateAudioUI();
+        }
+
         function nextTrack() {
-            if (audioTracks.length === 0) return;
-            const nextIdx = (currentTrackIdx + 1) % audioTracks.length;
-            selectTrack(nextIdx);
+            if (currentAudioMode === 'quran') {
+                if (quranVerses.length === 0) return;
+                const nextIdx = (currentQuranVerseIdx + 1) % quranVerses.length;
+                selectQuranVerse(nextIdx);
+            } else {
+                if (audioTracks.length === 0) return;
+                const nextIdx = (currentTrackIdx + 1) % audioTracks.length;
+                selectTrack(nextIdx);
+            }
         }
 
         function prevTrack() {
-            if (audioTracks.length === 0) return;
-            const prevIdx = (currentTrackIdx - 1 + audioTracks.length) % audioTracks.length;
-            selectTrack(prevIdx);
+            if (currentAudioMode === 'quran') {
+                if (quranVerses.length === 0) return;
+                const prevIdx = (currentQuranVerseIdx - 1 + quranVerses.length) % quranVerses.length;
+                selectQuranVerse(prevIdx);
+            } else {
+                if (audioTracks.length === 0) return;
+                const prevIdx = (currentTrackIdx - 1 + audioTracks.length) % audioTracks.length;
+                selectTrack(prevIdx);
+            }
         }
 
         function seekAudio(e) {
@@ -1613,6 +1742,23 @@
                 }
             } catch (err) {
                 console.warn('[Audio] Could not fetch audio library from API:', err.message);
+            }
+            // Also preload QuranJS Ruqyah verses in the background
+            loadQuranVerses();
+        }
+
+        async function loadQuranVerses() {
+            try {
+                const res = await apiCall('/quran/ruqyah');
+                if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
+                    quranVerses = res.data;
+                    renderQuranVerseButtons();
+                    if (currentAudioMode === 'quran') {
+                        updateAudioUI();
+                    }
+                }
+            } catch (err) {
+                console.warn('[QuranJS] Could not fetch Ruqyah verses from API:', err.message);
             }
         }
         loadAudioLibrary();

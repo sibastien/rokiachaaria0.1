@@ -26,6 +26,7 @@ router.use('/articles', require('./articles')); // Step 4
 router.use('/forum',    require('./forum'));     // Step 5
 router.use('/settings', require('./settings'));  // CMS Settings
 router.use('/audio',    require('./audio'));     // Audio Recitations
+router.use('/quran',    require('./quran'));     // QuranJS & Ruqyah Verses API
 router.use('/seo',      require('./seo'));       // Dynamic Sitemap & IndexNow API
 
 module.exports = router;
