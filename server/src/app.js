@@ -80,6 +80,14 @@ function createApp() {
     res.sendFile(path.join(staticRoot, 'admin.html'));
   });
 
+  // ── Uploaded Media Assets (Audio & Attachments) ──────────────────────────
+  const uploadsDir = path.join(staticRoot, 'uploads');
+  app.use('/uploads', express.static(uploadsDir, {
+    setHeaders: (res) => {
+      res.set('Accept-Ranges', 'bytes');
+    }
+  }));
+
   // ── Static Frontend Assets ───────────────────────────────────────────────
   app.use(express.static(staticRoot));
 

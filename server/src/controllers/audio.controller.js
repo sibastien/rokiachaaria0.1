@@ -1,8 +1,11 @@
 // src/controllers/audio.controller.js
 // Audio Tracks Library API — powers the recitation player.
 
+const fs = require('fs');
+const path = require('path');
 const prisma = require('../config/prisma');
 const { createError } = require('../middleware/errorHandler');
+const { audioUploadDir } = require('../middleware/upload');
 
 const DEFAULT_TRACKS = [
   {
@@ -55,6 +58,33 @@ async function getAudioTracks(req, res, next) {
   }
 }
 
+// ── POST /api/audio/upload (ADMIN only) ───────────────────────────────────────
+async function uploadAudioFile(req, res, next) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'يرجى تحديد ملف صوتي لرفعه.',
+      });
+    }
+
+    const fileUrl = `/uploads/audio/${req.file.filename}`;
+
+    res.json({
+      success: true,
+      message: 'تم رفع الملف الصوتي بنجاح.',
+      data: {
+        url: fileUrl,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // ── POST /api/audio (ADMIN only) ──────────────────────────────────────────────
 async function createAudioTrack(req, res, next) {
   try {
@@ -67,6 +97,11 @@ async function createAudioTrack(req, res, next) {
       });
     }
 
+    let finalSrc = src ? src.trim() : null;
+    if (req.file) {
+      finalSrc = `/uploads/audio/${req.file.filename}`;
+    }
+
     const count = await prisma.audioTrack.count();
 
     const track = await prisma.audioTrack.create({
@@ -75,7 +110,7 @@ async function createAudioTrack(req, res, next) {
         reciter: reciter.trim(),
         duration: duration ? duration.trim() : '05:00',
         category: category ? category.trim() : 'شاملة',
-        src: src ? src.trim() : null,
+        src: finalSrc,
         orderIndex: count,
       },
     });
@@ -99,6 +134,19 @@ async function updateAudioTrack(req, res, next) {
     const track = await prisma.audioTrack.findUnique({ where: { id } });
     if (!track) return next(createError('المقطع الصوتي غير موجود.', 404));
 
+    let finalSrc = src !== undefined ? (src ? src.trim() : null) : undefined;
+    if (req.file) {
+      finalSrc = `/uploads/audio/${req.file.filename}`;
+      // Clean up previous file if it was a local upload
+      if (track.src && track.src.startsWith('/uploads/audio/')) {
+        const oldFilename = track.src.replace('/uploads/audio/', '');
+        const oldFilePath = path.join(audioUploadDir, oldFilename);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlink(oldFilePath, () => {});
+        }
+      }
+    }
+
     const updated = await prisma.audioTrack.update({
       where: { id },
       data: {
@@ -106,7 +154,7 @@ async function updateAudioTrack(req, res, next) {
         ...(reciter && { reciter: reciter.trim() }),
         ...(duration !== undefined && { duration: duration.trim() }),
         ...(category !== undefined && { category: category.trim() }),
-        ...(src !== undefined && { src: src ? src.trim() : null }),
+        ...(finalSrc !== undefined && { src: finalSrc }),
         ...(orderIndex !== undefined && { orderIndex: parseInt(orderIndex, 10) }),
       },
     });
@@ -129,6 +177,15 @@ async function deleteAudioTrack(req, res, next) {
     const track = await prisma.audioTrack.findUnique({ where: { id } });
     if (!track) return next(createError('المقطع الصوتي غير موجود.', 404));
 
+    // If it was a local uploaded audio file, delete it from disk
+    if (track.src && track.src.startsWith('/uploads/audio/')) {
+      const filename = track.src.replace('/uploads/audio/', '');
+      const filePath = path.join(audioUploadDir, filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlink(filePath, () => {});
+      }
+    }
+
     await prisma.audioTrack.delete({ where: { id } });
 
     res.json({
@@ -142,6 +199,7 @@ async function deleteAudioTrack(req, res, next) {
 
 module.exports = {
   getAudioTracks,
+  uploadAudioFile,
   createAudioTrack,
   updateAudioTrack,
   deleteAudioTrack,

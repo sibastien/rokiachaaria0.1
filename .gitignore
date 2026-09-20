@@ -26,5 +26,7 @@ Thumbs.db
 graphify-out/
 graph.html
 .agents/
-
-
+# Uploaded media files
+uploads/*
+!uploads/audio/
+!uploads/audio/.gitkeep

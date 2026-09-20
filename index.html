@@ -341,61 +341,81 @@
                         </div>
                     </div>
 
-                    <!-- Left Hero Preview: Interactive Consultation Simulator -->
-                    <div class="lg:col-span-5">
+                    <!-- Left Hero: Live Interactive Media Player -->
+                    <div class="lg:col-span-5" id="audio-player">
                         <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-2xl shadow-sky-200/50 border border-sky-100 relative">
-                            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                            <!-- Card Header -->
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                                 <div class="flex items-center gap-2">
                                     <span class="w-3 h-3 rounded-full bg-rose-400 inline-block"></span>
                                     <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
                                     <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
-                                    <span class="text-xs text-slate-400 mr-2">غرفة الرقية الرقمية الآمنة</span>
+                                    <h2 class="text-xs sm:text-sm font-bold text-sky-950 mr-1.5 flex items-center gap-1.5">
+                                        <span>مشغل الرقية الشرعية المباشر</span>
+                                    </h2>
                                 </div>
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                                    اتصال مشفر مباشر
+                                    استماع مباشر عالي النقاء
                                 </span>
                             </div>
 
-                            <!-- Screen simulator inner -->
-                            <div class="mt-4 rounded-2xl bg-gradient-to-b from-sky-900 to-slate-900 p-4 text-white relative overflow-hidden min-h-[260px] flex flex-col justify-between">
-                                <div class="flex justify-between items-center z-10">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-9 h-9 rounded-full bg-sky-700 flex items-center justify-center font-bold text-sky-100">
-                                            ش
+                            <!-- Screen Player Box -->
+                            <div class="mt-4 rounded-2xl bg-gradient-to-b from-sky-900 via-sky-950 to-slate-950 p-4 sm:p-5 text-white relative overflow-hidden shadow-inner flex flex-col justify-between min-h-[290px]">
+                                <!-- Top: Track Reciter & Quality Badge -->
+                                <div class="flex justify-between items-start z-10 gap-2">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <div class="w-10 h-10 rounded-xl bg-sky-700/80 border border-sky-500/30 flex items-center justify-center text-sky-200 shadow-sm shrink-0">
+                                            <i data-lucide="headphones" class="w-5 h-5"></i>
                                         </div>
-                                        <div>
-                                            <p class="text-xs font-bold text-white">الشيخ الراقي: د. عبد الرحمن</p>
-                                            <p class="text-[10px] text-sky-200">إجازة في القراءات العشر والرقية الشرعية</p>
+                                        <div class="min-w-0">
+                                            <span class="text-[10px] text-sky-300 font-medium block">المقطع المشغّل حالياً:</span>
+                                            <h3 id="playerTrackTitle" class="text-sm sm:text-base font-bold text-white truncate">سورة الفاتحة وآية الكرسي</h3>
+                                            <p id="playerTrackReciter" class="text-[11px] text-sky-200/80 truncate">تلاوة خاشعة مركدة للشفاء</p>
                                         </div>
                                     </div>
-                                    <span class="text-xs font-mono bg-black/40 px-2 py-0.5 rounded text-sky-300" id="callTimer">24:18</span>
+                                    <div class="flex flex-col items-end gap-1 shrink-0">
+                                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-200 border border-sky-400/20">320kbps</span>
+                                        <span class="text-[10px] font-medium text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/30">مكتمل الشروط</span>
+                                    </div>
                                 </div>
 
-                                <!-- Center Quranic Verse visualizer -->
-                                <div class="my-6 text-center z-10">
-                                    <div class="inline-block p-2 bg-sky-800/40 rounded-full mb-2">
-                                        <i data-lucide="mic" class="w-5 h-5 text-sky-300 animate-bounce"></i>
+                                <!-- Center: Animated Quranic Recitation Visualizer -->
+                                <div class="my-4 py-3 text-center z-10 bg-white/5 rounded-xl border border-white/10 px-3 backdrop-blur-xs">
+                                    <div class="flex items-center justify-center gap-1 mb-2">
+                                        <span class="w-1 bg-sky-400 rounded-full h-2 animate-pulse"></span>
+                                        <span class="w-1 bg-sky-300 rounded-full h-4 animate-pulse delay-75"></span>
+                                        <span class="w-1 bg-sky-200 rounded-full h-5 animate-pulse delay-150"></span>
+                                        <span class="w-1 bg-sky-400 rounded-full h-3 animate-pulse delay-100"></span>
+                                        <span class="w-1 bg-sky-300 rounded-full h-5 animate-pulse delay-200"></span>
+                                        <span class="w-1 bg-sky-400 rounded-full h-2 animate-pulse"></span>
                                     </div>
-                                    <p class="text-xs text-sky-200 mb-1">يتلو الآن بصوت خاشع:</p>
-                                    <p class="text-sm font-semibold text-sky-50 leading-relaxed font-serif">
+                                    <p class="text-xs text-sky-100/90 font-serif leading-relaxed">
                                         «وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ»
                                     </p>
                                 </div>
 
-                                <!-- Controls mockup -->
-                                <div class="flex items-center justify-center gap-3 z-10 pt-2 border-t border-white/10">
-                                    <button class="p-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition">
-                                        <i data-lucide="mic" class="w-4 h-4"></i>
+                                <!-- Progress Bar & Timers -->
+                                <div class="z-10">
+                                    <div class="w-full bg-white/20 hover:bg-white/30 rounded-full h-2 mb-1.5 cursor-pointer relative transition-colors" id="audioProgressContainer" onclick="seekAudio(event)" title="انقر للتنقل في التلاوة">
+                                        <div id="audioProgressBar" class="bg-gradient-to-l from-sky-400 to-sky-300 h-2 rounded-full w-0 transition-all"></div>
+                                    </div>
+                                    <div class="flex justify-between text-[11px] text-sky-300 font-mono">
+                                        <span id="currentTime">00:00</span>
+                                        <span id="totalDuration">04:30</span>
+                                    </div>
+                                </div>
+
+                                <!-- Controls buttons -->
+                                <div class="flex items-center justify-center gap-4 z-10 pt-2 border-t border-white/10 mt-2">
+                                    <button onclick="prevTrack()" class="p-2 text-sky-200 hover:text-white hover:bg-white/10 rounded-full transition active:scale-95" title="المقطع السابق">
+                                        <i data-lucide="skip-forward" class="w-5 h-5"></i>
                                     </button>
-                                    <button class="p-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition">
-                                        <i data-lucide="video" class="w-4 h-4"></i>
+                                    <button onclick="toggleAudio()" id="playPauseBtn" class="w-12 h-12 rounded-full bg-sky-500 hover:bg-sky-400 text-white flex items-center justify-center shadow-lg shadow-sky-500/40 transition transform active:scale-95" title="تشغيل / إيقاف مؤقت">
+                                        <i data-lucide="play" id="playIcon" class="w-6 h-6 ml-0.5"></i>
                                     </button>
-                                    <button class="p-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition">
-                                        <i data-lucide="volume-2" class="w-4 h-4"></i>
-                                    </button>
-                                    <button onclick="simulateToast('يمكنك تجربة حجز جلسة حقيقية بالضغط على الزر أدناه')" class="p-2.5 rounded-full bg-rose-500 hover:bg-rose-600 text-white transition">
-                                        <i data-lucide="phone-off" class="w-4 h-4"></i>
+                                    <button onclick="nextTrack()" class="p-2 text-sky-200 hover:text-white hover:bg-white/10 rounded-full transition active:scale-95" title="المقطع التالي">
+                                        <i data-lucide="skip-back" class="w-5 h-5"></i>
                                     </button>
                                 </div>
 
@@ -407,15 +427,26 @@
                                 </div>
                             </div>
 
-                            <!-- Bottom session helper card -->
-                            <div class="mt-4 p-3.5 bg-sky-50 rounded-xl border border-sky-100 flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-sky-500 text-white flex items-center justify-center">
-                                        <i data-lucide="lock" class="w-4 h-4"></i>
+                            <!-- Playlist quick selection -->
+                            <div class="mt-3.5 pt-3 border-t border-slate-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[11px] font-bold text-slate-700">المقاطع المتوفرة للاستماع:</span>
+                                    <span class="text-[10px] text-slate-400">انقر للتبديل الفوري</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5" id="playlistContainer">
+                                    <!-- Dynamic Track Buttons rendered by JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Bottom helper card -->
+                            <div class="mt-3.5 p-3 bg-sky-50 rounded-xl border border-sky-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded-lg bg-sky-500 text-white flex items-center justify-center shrink-0">
+                                        <i data-lucide="shield-check" class="w-4 h-4"></i>
                                     </div>
                                     <div>
-                                        <div class="text-xs font-bold text-sky-900">سرية وخصوصية عائلية تامة</div>
-                                        <div class="text-[11px] text-slate-500">لا يتم تسجيل أي مكالمات، مع توفر رقية للأخوات مع مرافق</div>
+                                        <div class="text-xs font-bold text-sky-900">تلاوات شرعية مأذونة ومراجعة</div>
+                                        <div class="text-[10px] text-slate-500">خالية من أي طلاسم أو مؤثرات، وموافقة لمنهج أهل السنة والجماعة</div>
                                     </div>
                                 </div>
                             </div>
@@ -593,63 +624,6 @@
             </div>
         </section>
 
-        <section id="audio-player" class="py-14 bg-gradient-to-br from-sky-900 via-sky-800 to-sky-950 text-white relative overflow-hidden">
-            <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
-                <div class="text-center mb-8">
-                    <span class="inline-block px-3 py-1 bg-white/10 rounded-full text-xs font-semibold text-sky-200 mb-2">استمع بخشوع</span>
-                    <h2 class="text-2xl sm:text-3xl font-bold">تلاوات الرقية الشرعية المباشرة</h2>
-                    <p class="text-sky-200 text-sm mt-1">نماذج تلاوة مختارة من آيات الشفاء والسكينة بصوت نقي</p>
-                </div>
-
-                <!-- Custom Interactive Audio Box -->
-                <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-2xl">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                        
-                        <!-- Track Info -->
-                        <div class="md:col-span-1 text-center md:text-right">
-                            <span class="text-xs text-sky-300 font-medium">المقطع المشغّل حالياً:</span>
-                            <h3 id="playerTrackTitle" class="text-xl font-bold text-white mt-1">سورة الفاتحة وآية الكرسي</h3>
-                            <p id="playerTrackReciter" class="text-xs text-sky-200 mt-1">تلاوة خاشعة مركدة للشفاء</p>
-                            <div class="mt-4 flex items-center justify-center md:justify-start gap-2">
-                                <span class="px-2.5 py-1 bg-sky-500/30 rounded-lg text-[11px] text-sky-200">صوت واضح 320kbps</span>
-                                <span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 rounded-lg text-[11px]">مكتمل الشروط</span>
-                            </div>
-                        </div>
-
-                        <!-- Player Controls -->
-                        <div class="md:col-span-2 flex flex-col justify-center">
-                            <!-- Progress Bar -->
-                            <div class="w-full bg-white/20 rounded-full h-2 mb-2 cursor-pointer relative" id="audioProgressContainer" onclick="seekAudio(event)">
-                                <div id="audioProgressBar" class="bg-sky-400 h-2 rounded-full w-1/3 transition-all"></div>
-                            </div>
-                            <div class="flex justify-between text-[11px] text-sky-300 font-mono mb-4">
-                                <span id="currentTime">01:14</span>
-                                <span id="totalDuration">04:30</span>
-                            </div>
-
-                            <!-- Controls buttons -->
-                            <div class="flex items-center justify-center gap-4">
-                                <button onclick="prevTrack()" class="p-2 text-sky-200 hover:text-white transition" title="السابق">
-                                    <i data-lucide="skip-forward" class="w-5 h-5"></i>
-                                </button>
-                                <button onclick="toggleAudio()" id="playPauseBtn" class="w-14 h-14 rounded-full bg-sky-500 hover:bg-sky-400 text-white flex items-center justify-center shadow-lg shadow-sky-500/30 transition transform active:scale-95">
-                                    <i data-lucide="play" id="playIcon" class="w-6 h-6 ml-0.5"></i>
-                                </button>
-                                <button onclick="nextTrack()" class="p-2 text-sky-200 hover:text-white transition" title="التالي">
-                                    <i data-lucide="skip-back" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-
-                            <!-- Playlist quick selection -->
-                            <div class="mt-4 pt-4 border-t border-white/10 flex flex-wrap gap-2 justify-center" id="playlistContainer">
-                                <!-- Dynamic Track Buttons rendered by JavaScript -->
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <section id="blog" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1462,7 +1436,7 @@
             const container = document.getElementById('playlistContainer');
             if (!container) return;
             container.innerHTML = audioTracks.map((track, idx) => `
-                <button onclick="selectTrack(${idx})" class="track-btn px-3 py-1.5 rounded-lg text-xs transition-all text-center truncate ${idx === currentTrackIdx ? 'bg-white/30 text-white font-bold border border-white/30 shadow-sm' : 'bg-white/10 text-sky-200 hover:bg-white/20'}" title="${track.title} - ${track.reciter}">
+                <button onclick="selectTrack(${idx})" class="track-btn px-2.5 py-1.5 rounded-xl text-xs transition-all text-center truncate ${idx === currentTrackIdx ? 'bg-sky-600 text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700'}" title="${track.title} - ${track.reciter}">
                     ${idx + 1}. ${track.title}
                 </button>
             `).join('');
@@ -1486,9 +1460,9 @@
             const buttons = document.querySelectorAll('.track-btn');
             buttons.forEach((btn, idx) => {
                 if (idx === currentTrackIdx) {
-                    btn.className = "track-btn px-3 py-1.5 rounded-lg text-xs bg-white/30 text-white font-bold text-center truncate border border-white/30 shadow-sm transition-all";
+                    btn.className = "track-btn px-2.5 py-1.5 rounded-xl text-xs bg-sky-600 text-white font-bold text-center truncate shadow-xs transition-all";
                 } else {
-                    btn.className = "track-btn px-3 py-1.5 rounded-lg text-xs bg-white/10 text-sky-200 hover:bg-white/20 text-center truncate transition-all";
+                    btn.className = "track-btn px-2.5 py-1.5 rounded-xl text-xs bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700 text-center truncate transition-all";
                 }
             });
 
