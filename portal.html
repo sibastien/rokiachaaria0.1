@@ -314,24 +314,42 @@
                     </button>
                 </div>
 
-                <!-- Category Filters & Search -->
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6">
-                    <div class="flex items-center gap-1.5 flex-wrap w-full sm:w-auto text-xs font-bold">
-                        <button onclick="filterForum('ALL')" id="forumFilter-ALL" class="forum-filter-btn px-3 py-1.5 rounded-xl bg-sky-600 text-white shadow-xs">الكل</button>
-                        <button onclick="filterForum('استفسار شرعي')" id="forumFilter-استفسار شرعي" class="forum-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700">استفسارات شرعية</button>
-                        <button onclick="filterForum('تجربة شفاء')" id="forumFilter-تجربة شفاء" class="forum-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700">تجارب شفاء</button>
-                        <button onclick="filterForum('نصائح وتحصين')" id="forumFilter-نصائح وتحصين" class="forum-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700">نصائح وتحصين</button>
+                <!-- Category Filters, Search & Sort Bar -->
+                <div class="space-y-3 pt-6">
+                    <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                        <div id="forumCategoriesBar" class="flex items-center gap-1.5 flex-wrap text-xs font-bold">
+                            <button onclick="filterForumCategory('ALL')" id="forumCat-ALL" class="forum-cat-btn px-3 py-1.5 rounded-xl bg-sky-600 text-white shadow-xs">جميع الأقسام</button>
+                            <!-- Dynamic category buttons inserted by JS -->
+                        </div>
+                        
+                        <div class="flex items-center gap-2 self-end md:self-auto">
+                            <button onclick="filterMyForumPosts()" id="forumMyPostsBtn" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-700 text-xs font-bold transition flex items-center gap-1.5 shrink-0">
+                                <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                                <span>مواضيعي</span>
+                            </button>
+                            <select id="forumSortSelect" onchange="handleForumSortChange(this.value)" class="bg-slate-50 border border-slate-200 text-slate-700 py-1.5 px-3 rounded-xl text-xs font-medium focus:outline-none focus:border-sky-500">
+                                <option value="newest">الأحدث أولاً</option>
+                                <option value="popular">الأكثر ردوداً</option>
+                                <option value="views">الأكثر مشاهدة</option>
+                                <option value="likes">الأكثر إعجاباً</option>
+                                <option value="unanswered">بانتظار الرد</option>
+                            </select>
+                        </div>
                     </div>
-                    
-                    <div class="relative w-full sm:w-64">
+
+                    <div class="relative w-full">
                         <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3 top-3"></i>
-                        <input type="text" id="forumSearchInput" oninput="handleForumSearch(this.value)" placeholder="بحث في المنتدى..." class="w-full bg-slate-50 border border-slate-200 text-slate-700 pr-9 pl-4 py-2 rounded-xl text-xs focus:outline-none focus:border-sky-500">
+                        <input type="text" id="forumSearchInput" oninput="handleForumSearch(this.value)" placeholder="ابحث في عناوين ونصوص مواضيع المنتدى..." class="w-full bg-slate-50 border border-slate-200 text-slate-700 pr-9 pl-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-sky-500">
                     </div>
                 </div>
 
                 <!-- Forum Posts List -->
-                <div id="forumPostsContainer" class="space-y-4 pt-6">
-                    <div class="text-center py-12 text-slate-400 text-xs">جاري تحميل استفسارات ومشاركات المجتمع...</div>
+                <div id="forumPostsContainer" class="space-y-4 pt-4">
+                    <div class="text-center py-12 text-slate-400 text-xs">جاري تحميل مواضيع المنتدى...</div>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div id="forumPaginationContainer" class="flex items-center justify-between pt-6 border-t border-slate-100 hidden text-xs font-medium">
                 </div>
             </div>
         </div>
@@ -768,6 +786,279 @@
         </div>
     </div>
 
+    <!-- ================= FORUM MODALS ================= -->
+
+    <!-- 1. Forum Topic & Replies Modal (Thread View) -->
+    <div id="forumPostModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs hidden overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-100 my-8 overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Modal Header -->
+            <div class="p-5 sm:p-6 border-b border-slate-100 flex items-start justify-between gap-4 bg-slate-50/50">
+                <div class="space-y-1.5 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span id="postModalBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-200">قسم المنتدى</span>
+                        <span id="postModalPinnedBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
+                            <i data-lucide="pin" class="w-3 h-3"></i> مثبت
+                        </span>
+                        <span id="postModalLockedBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-1">
+                            <i data-lucide="lock" class="w-3 h-3"></i> مغلق للمناقشة
+                        </span>
+                    </div>
+                    <h3 id="postModalTitle" class="text-base sm:text-lg font-black text-sky-950 leading-snug">عنوان الموضوع</h3>
+                    <div class="text-[11px] text-slate-400 flex items-center gap-2 flex-wrap">
+                        <span>الكاتب: <strong id="postModalAuthor" class="text-slate-700"></strong></span>
+                        <span id="postModalAuthorRole" class="px-1.5 py-0.2 rounded text-[10px] bg-slate-100 text-slate-600 font-bold hidden"></span>
+                        <span>•</span>
+                        <span id="postModalDate"></span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> <span id="postModalViews">0</span> مشاهدة</span>
+                        <span id="postModalEditedTag" class="text-slate-400 text-[10px] italic hidden">(تم التعديل)</span>
+                    </div>
+                </div>
+                <button onclick="closePostModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition shrink-0">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1 text-right">
+                <!-- Topic Content -->
+                <div class="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-100">
+                    <div id="postModalContent" class="text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-line font-medium"></div>
+                    
+                    <!-- Topic Actions Toolbar -->
+                    <div class="mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between flex-wrap gap-2 text-xs">
+                        <div class="flex items-center gap-2">
+                            <button id="postModalLikeBtn" onclick="handleModalLikePost()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 border border-slate-200 text-slate-600 hover:text-rose-600 transition">
+                                <i data-lucide="heart" class="w-4 h-4"></i>
+                                <span id="postModalLikesCount">0</span>
+                            </button>
+                            <button id="postModalReportBtn" onclick="openReportModal('POST', activeForumPostId)" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition text-[11px]" title="إبلاغ عن محتوى مخالف">
+                                <i data-lucide="flag" class="w-3.5 h-3.5"></i>
+                                <span>إبلاغ</span>
+                            </button>
+                        </div>
+
+                        <!-- Author & Mod Quick Actions -->
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button id="postModalEditBtn" onclick="openEditPostModal()" class="hidden px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-700 font-bold transition flex items-center gap-1 text-[11px]">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>تعديل</span>
+                            </button>
+                            <button id="postModalPinBtn" onclick="handleTogglePin()" class="hidden px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold transition flex items-center gap-1 text-[11px]">
+                                <i data-lucide="pin" class="w-3.5 h-3.5"></i>
+                                <span id="postModalPinBtnText">تثبيت</span>
+                            </button>
+                            <button id="postModalLockBtn" onclick="handleToggleLock()" class="hidden px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition flex items-center gap-1 text-[11px]">
+                                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                                <span id="postModalLockBtnText">قفل</span>
+                            </button>
+                            <button id="postModalDeleteBtn" onclick="handleDeletePost()" class="hidden px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold transition flex items-center gap-1 text-[11px]">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                <span>حذف</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Official Raqi Reply Box (if present) -->
+                <div id="postModalOfficialReplyBox" class="hidden bg-gradient-to-br from-emerald-50 to-teal-50/50 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs">
+                    <div class="flex items-center gap-2 text-emerald-800 font-bold text-xs mb-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                        <span>الرد الشرعي المعتمد من الشيخ الراقي</span>
+                    </div>
+                    <div id="postModalOfficialReply" class="text-xs sm:text-sm text-emerald-950 leading-relaxed whitespace-pre-line font-medium"></div>
+                </div>
+
+                <!-- Replies Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <h4 class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                            <i data-lucide="message-square" class="w-4 h-4 text-sky-600"></i>
+                            <span>ردود ومشاركات المجتمع</span>
+                            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-mono" id="postModalRepliesCount">0</span>
+                        </h4>
+                    </div>
+
+                    <!-- Replies List Container -->
+                    <div id="postModalRepliesList" class="space-y-3">
+                        <div class="text-center py-4 text-slate-400 text-xs">جاري تحميل الردود...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reply Form (Footer) -->
+            <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50">
+                <div id="postModalLockedNotice" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2 mb-2">
+                    <i data-lucide="lock" class="w-4 h-4 text-amber-600 shrink-0"></i>
+                    <span>تم إغلاق المناقشة في هذا الموضوع بقرار إداري. لا يمكن إضافة ردود جديدة.</span>
+                </div>
+
+                <form id="postReplyForm" onsubmit="handleSendReply(event)" class="space-y-2">
+                    <textarea id="postReplyInput" rows="2" placeholder="أضف ردك أو فائدتك الشرعية بأدب ووقار..." required class="w-full bg-white border border-slate-200 text-slate-800 p-3 rounded-2xl text-xs focus:outline-none focus:border-sky-500 transition resize-none"></textarea>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] text-slate-400">كن عوناً لأخيك بالتذكير بالسنة والدعاء الصالح.</span>
+                        <button type="submit" id="postReplySubmitBtn" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition shadow-sm active:scale-95 flex items-center gap-1.5">
+                            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                            <span>إرسال الرد</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. New Topic Modal -->
+    <div id="newPostModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-right space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-900">طرح استفسار أو موضوع جديد</h3>
+                        <p class="text-[11px] text-slate-400">شارك استفسارك في مجتمع السكينة بكل سرية وأمان</p>
+                    </div>
+                </div>
+                <button onclick="closeNewPostModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="newPostForm" onsubmit="handleNewPostSubmit(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">عنوان الموضوع *</label>
+                    <input type="text" id="newPostTitle" required minlength="5" maxlength="150" placeholder="مثال: استفسار حول علامات الشفاء من العين والحسد" class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl focus:outline-none focus:border-sky-500">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">القسم المناسب *</label>
+                    <select id="newPostCategory" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl focus:outline-none focus:border-sky-500">
+                        <option value="">اختر القسم المناسب للموضوع...</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">تفاصيل الاستفسار أو الموضوع *</label>
+                    <textarea id="newPostContent" required minlength="10" rows="5" placeholder="اكتب تفاصيل استفسارك بوضوح. لا تذكر أسماء أو أسراراً شخصية حرصاً على خصوصيتك..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl focus:outline-none focus:border-sky-500 leading-relaxed"></textarea>
+                </div>
+
+                <div class="p-3 bg-sky-50/60 rounded-xl border border-sky-100 text-[11px] text-sky-800 flex items-start gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-sky-600 shrink-0 mt-0.5"></i>
+                    <span>تُنشر الاستفسارات بعد مراجعة سريعة لضمان التزامها بالضوابط الشرعية وحماية خصوصية الأعضاء.</span>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeNewPostModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold">
+                        إلغاء
+                    </button>
+                    <button type="submit" id="newPostSubmitBtn" class="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold shadow-md shadow-sky-600/20 active:scale-95 transition flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>إرسال الموضوع</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Edit Topic Modal -->
+    <div id="editPostModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-right space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                        <i data-lucide="edit-3" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-900">تعديل الموضوع</h3>
+                        <p class="text-[11px] text-slate-400">تحديث عنوان ونص وتصنيف الموضوع</p>
+                    </div>
+                </div>
+                <button onclick="closeEditPostModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="editPostForm" onsubmit="handleEditPostSubmit(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">عنوان الموضوع *</label>
+                    <input type="text" id="editPostTitle" required minlength="5" class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl focus:outline-none focus:border-sky-500">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">القسم</label>
+                    <select id="editPostCategory" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl focus:outline-none focus:border-sky-500"></select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">النص والمحتوى *</label>
+                    <textarea id="editPostContent" required minlength="10" rows="6" class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl focus:outline-none focus:border-sky-500 leading-relaxed"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeEditPostModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold">
+                        إلغاء
+                    </button>
+                    <button type="submit" id="editPostSubmitBtn" class="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold transition flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>حفظ التعديلات</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Report Modal (Post or Reply) -->
+    <div id="reportModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-right space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                        <i data-lucide="flag" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-900">إبلاغ عن محتوى مخالف</h3>
+                        <p class="text-[11px] text-slate-400">ساعدنا في الحفاظ على بيئة إسلامية نقية ومنضبطة</p>
+                    </div>
+                </div>
+                <button onclick="closeReportModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="reportForm" onsubmit="handleReportSubmit(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="reportTargetType" value="POST">
+                <input type="hidden" id="reportTargetId" value="">
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">سبب الإبلاغ *</label>
+                    <select id="reportReason" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl focus:outline-none focus:border-rose-500">
+                        <option value="INAPPROPRIATE_CONTENT">محتوى مخالف للشريعة أو العقيدة</option>
+                        <option value="ABUSIVE_LANGUAGE">ألفاظ غير لائقة أو إساءة شخصية</option>
+                        <option value="SPAM">إعلانات أو روابط خارجية مشبوهة</option>
+                        <option value="MISINFORMATION">معلومات مغلوطة أو بدع لا أصل لها</option>
+                        <option value="OTHER">سبب آخر</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">تفاصيل وملاحظات إضافية (اختياري)</label>
+                    <textarea id="reportDetails" rows="3" placeholder="وضح باختصار وجه المخالفة لإعانة المشرفين على مراجعتها..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-xl focus:outline-none focus:border-rose-500"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeReportModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold">
+                        تراجع
+                    </button>
+                    <button type="submit" id="reportSubmitBtn" class="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-md shadow-rose-600/20 active:scale-95 transition flex items-center gap-1.5">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>إرسال البلاغ</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200/80 py-6 mt-12 text-center text-xs text-slate-500">
         <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -794,8 +1085,15 @@
         let bookingToCancelId = null;
         let currentFilter = 'ALL';
         let forumPosts = [];
-        let currentForumFilter = 'ALL';
+        let forumCategories = [];
+        let currentForumCategory = 'ALL';
+        let currentForumSort = 'newest';
+        let currentForumPage = 1;
+        let currentForumTotalPages = 1;
+        let isViewingMyPosts = false;
         let activeForumPostId = null;
+        let activePostObject = null;
+        let forumSearchTimer = null;
         let articlesList = [];
         let currentArticleCategory = 'all';
 
@@ -834,6 +1132,7 @@
                 loadMyBookings(),
                 loadAvailableRaqis(),
                 loadAudioTracks(),
+                loadForumCategories(),
                 loadForumPosts(),
                 loadArticles()
             ]);
@@ -1281,61 +1580,159 @@
             }
         }
 
-        // 5. Forum Community Feature (/forum)
-        async function loadForumPosts() {
+        // 5. Complete Forum System (/forum)
+        async function loadForumCategories() {
             try {
-                const res = await apiCall('/forum?limit=30');
+                const res = await apiCall('/forum/categories');
                 if (res && res.data) {
-                    forumPosts = res.data;
-                    renderForumPosts();
+                    forumCategories = res.data;
+                    renderForumCategoryButtons();
+                    populateCategorySelects();
                 }
             } catch (err) {
-                console.error('[Forum] Failed to load:', err);
-                const container = document.getElementById('forumPostsContainer');
+                console.error('[Forum] Failed to load categories:', err);
+            }
+        }
+
+        function renderForumCategoryButtons() {
+            const bar = document.getElementById('forumCategoriesBar');
+            if (!bar) return;
+
+            bar.innerHTML = `
+                <button onclick="filterForumCategory('ALL')" id="forumCat-ALL" class="forum-cat-btn px-3 py-1.5 rounded-xl ${currentForumCategory === 'ALL' && !isViewingMyPosts ? 'bg-sky-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:text-sky-700'}">جميع الأقسام</button>
+                ${forumCategories.map(c => `
+                    <button onclick="filterForumCategory('${c.slug}')" id="forumCat-${c.slug}" class="forum-cat-btn px-3 py-1.5 rounded-xl ${currentForumCategory === c.slug && !isViewingMyPosts ? 'bg-sky-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:text-sky-700'} flex items-center gap-1">
+                        <span>${c.icon || '📌'}</span>
+                        <span>${escapeHtml(c.name)}</span>
+                    </button>
+                `).join('')}
+            `;
+            lucide.createIcons();
+        }
+
+        function populateCategorySelects() {
+            const selects = [document.getElementById('newPostCategory'), document.getElementById('editPostCategory')];
+            selects.forEach(sel => {
+                if (!sel) return;
+                sel.innerHTML = `
+                    <option value="">اختر القسم المناسب للموضوع...</option>
+                    ${forumCategories.map(c => `<option value="${c.id}">${c.icon || '•'} ${escapeHtml(c.name)}</option>`).join('')}
+                `;
+            });
+        }
+
+        async function loadForumPosts(page = 1) {
+            currentForumPage = page;
+            const container = document.getElementById('forumPostsContainer');
+            if (container) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs">جاري تحديث مواضيع المنتدى...</div>`;
+            }
+
+            try {
+                if (isViewingMyPosts && currentUser) {
+                    const res = await apiCall(`/forum/users/${currentUser.id}/activity`);
+                    if (res && res.data) {
+                        forumPosts = res.data.posts || [];
+                        currentForumTotalPages = 1;
+                        renderForumPosts();
+                        renderForumPagination(1, 1, forumPosts.length);
+                        return;
+                    }
+                }
+
+                const searchInput = document.getElementById('forumSearchInput')?.value.trim() || '';
+                let query = `/forum?page=${page}&limit=12&sort=${currentForumSort}`;
+                if (currentForumCategory !== 'ALL') {
+                    query += `&category=${encodeURIComponent(currentForumCategory)}`;
+                }
+                if (searchInput) {
+                    query += `&q=${encodeURIComponent(searchInput)}`;
+                }
+
+                const res = await apiCall(query);
+                if (res && res.data) {
+                    forumPosts = res.data;
+                    const meta = res.meta || { page: 1, totalPages: 1, totalCount: forumPosts.length };
+                    currentForumTotalPages = meta.totalPages || 1;
+                    renderForumPosts();
+                    renderForumPagination(meta.page, meta.totalPages, meta.totalCount);
+                }
+            } catch (err) {
+                console.error('[Forum] Failed to load topics:', err);
                 if (container) {
-                    container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">لا توجد مواضيع منشورة حالياً، يمكنك طرح أول استفسار.</div>`;
+                    container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs bg-slate-50 rounded-2xl border border-slate-200/60">لا توجد مواضيع منشورة في هذا القسم حالياً، يمكنك طرح أول استفسار.</div>`;
                 }
             }
         }
 
-        function renderForumPosts(search = '') {
+        function renderForumPosts() {
             const container = document.getElementById('forumPostsContainer');
             if (!container) return;
 
-            let filtered = forumPosts;
-            if (currentForumFilter !== 'ALL') {
-                filtered = filtered.filter(p => p.badge === currentForumFilter);
-            }
-            if (search) {
-                const q = search.toLowerCase();
-                filtered = filtered.filter(p => p.title.toLowerCase().includes(q) || p.content.toLowerCase().includes(q));
-            }
-
-            if (!filtered.length) {
+            if (!forumPosts.length) {
                 container.innerHTML = `
-                    <div class="text-center py-12 text-slate-400 text-xs">
-                        لا توجد استفسارات مطابقة لهذا البحث.
+                    <div class="text-center py-12 text-slate-400 text-xs bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                        <i data-lucide="message-square-off" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                        <p>لا توجد مواضيع مطابقة للبحث أو التصفية الحالية.</p>
                     </div>
                 `;
+                lucide.createIcons();
                 return;
             }
 
-            container.innerHTML = filtered.map(p => {
+            const roleNames = {
+                ADMIN: 'مدير عام',
+                MODERATOR: 'مشرف منتدى',
+                RAQI: 'راقٍ معتمد',
+                USER: 'عضو'
+            };
+
+            const roleBadges = {
+                ADMIN: 'bg-rose-100 text-rose-800 border-rose-200',
+                MODERATOR: 'bg-amber-100 text-amber-800 border-amber-200',
+                RAQI: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                USER: 'bg-slate-100 text-slate-600 border-slate-200'
+            };
+
+            container.innerHTML = forumPosts.map(p => {
                 const dateStr = new Date(p.createdAt).toLocaleDateString('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' });
+                const authorRole = p.user?.role || 'USER';
+                const catName = p.category?.name || p.badge || 'استفسار شرعي';
+                const catIcon = p.category?.icon || '📌';
+
                 return `
-                    <div class="bg-slate-50/70 hover:bg-sky-50/40 border border-slate-200/80 rounded-2xl p-5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer" onclick="openPostModal('${p.id}')">
-                        <div class="space-y-1.5">
+                    <div class="bg-slate-50/80 hover:bg-sky-50/40 border ${p.isPinned ? 'border-amber-300 bg-amber-50/30' : 'border-slate-200/80'} rounded-2xl p-5 transition flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer shadow-xs hover:shadow-sm" onclick="openPostModal('${p.id}')">
+                        <div class="space-y-2 flex-1">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-200">${escapeHtml(p.badge || 'استفسار')}</span>
-                                <h4 class="text-sm font-bold text-sky-950 hover:text-sky-700 transition">${escapeHtml(p.title)}</h4>
+                                ${p.isPinned ? `
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200 flex items-center gap-1">
+                                        <i data-lucide="pin" class="w-3 h-3"></i> مثبت
+                                    </span>
+                                ` : ''}
+                                ${p.isLocked ? `
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-1">
+                                        <i data-lucide="lock" class="w-3 h-3"></i> مغلق
+                                    </span>
+                                ` : ''}
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1">
+                                    <span>${catIcon}</span>
+                                    <span>${escapeHtml(catName)}</span>
+                                </span>
+                                <h4 class="text-sm font-bold text-sky-950 hover:text-sky-700 transition line-clamp-1">${escapeHtml(p.title)}</h4>
                             </div>
-                            <p class="text-xs text-slate-500 line-clamp-1">${escapeHtml(p.content)}</p>
-                            <div class="text-[11px] text-slate-400 flex items-center gap-3">
-                                <span>الكاتب: <strong class="text-slate-600">${escapeHtml(p.authorName)}</strong></span>
+                            
+                            <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">${escapeHtml(p.content)}</p>
+                            
+                            <div class="text-[11px] text-slate-400 flex items-center gap-3 flex-wrap pt-0.5">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="font-bold text-slate-700">${escapeHtml(p.authorName)}</span>
+                                    ${authorRole !== 'USER' ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold border ${roleBadges[authorRole]}">${roleNames[authorRole] || authorRole}</span>` : ''}
+                                </span>
                                 <span>•</span>
                                 <span>${dateStr}</span>
+                                ${p.isEdited ? '<span class="text-slate-400 italic text-[10px]">(معدل)</span>' : ''}
                                 ${p.officialReply ? `
-                                    <span class="inline-flex items-center gap-1 text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                                    <span class="inline-flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-[10px]">
                                         <i data-lucide="shield-check" class="w-3 h-3 text-emerald-600"></i>
                                         رد الشيخ الراقي متاح
                                     </span>
@@ -1343,12 +1740,16 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-3 text-xs text-slate-500 shrink-0" onclick="event.stopPropagation()">
-                            <button onclick="handleLikePost('${p.id}', event)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition">
-                                <i data-lucide="heart" class="w-4 h-4"></i>
+                        <div class="flex items-center gap-3 text-xs text-slate-500 shrink-0 self-end md:self-auto" onclick="event.stopPropagation()">
+                            <span class="flex items-center gap-1 text-slate-400 text-[11px] px-2 py-1 rounded-lg" title="عدد المشاهدات">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                <span>${p.viewsCount || 0}</span>
+                            </span>
+                            <button onclick="handleListLikePost('${p.id}', event)" class="flex items-center gap-1 px-3 py-1.5 rounded-xl hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-transparent hover:border-rose-200 transition" title="إعجاب">
+                                <i data-lucide="heart" class="w-3.5 h-3.5"></i>
                                 <span>${p.likesCount || 0}</span>
                             </button>
-                            <button onclick="openPostModal('${p.id}')" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 text-sky-800 font-bold transition">
+                            <button onclick="openPostModal('${p.id}')" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 text-sky-800 font-bold transition shadow-2xs">
                                 <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
                                 <span>${p.repliesCount || 0} ردود</span>
                             </button>
@@ -1360,35 +1761,165 @@
             lucide.createIcons();
         }
 
-        function filterForum(badge) {
-            currentForumFilter = badge;
-            document.querySelectorAll('.forum-filter-btn').forEach(btn => {
-                btn.className = "forum-filter-btn px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-sky-700";
-            });
-            const active = document.getElementById(`forumFilter-${badge}`);
-            if (active) active.className = "forum-filter-btn px-3 py-1.5 rounded-xl bg-sky-600 text-white shadow-xs";
-            renderForumPosts(document.getElementById('forumSearchInput')?.value);
+        function renderForumPagination(page = 1, totalPages = 1, totalCount = 0) {
+            const container = document.getElementById('forumPaginationContainer');
+            if (!container) return;
+
+            if (totalPages <= 1) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <div class="text-slate-500">
+                    عرض مواضيع الصفحة <strong class="text-slate-800">${page}</strong> من إجمالي <strong class="text-slate-800">${totalPages}</strong> (${totalCount} موضوع)
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button onclick="loadForumPosts(${page - 1})" ${page <= 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition">
+                        السابق
+                    </button>
+                    <button onclick="loadForumPosts(${page + 1})" ${page >= totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold transition">
+                        التالي
+                    </button>
+                </div>
+            `;
+        }
+
+        function filterForumCategory(slug) {
+            isViewingMyPosts = false;
+            currentForumCategory = slug;
+            document.getElementById('forumMyPostsBtn')?.classList.remove('bg-sky-600', 'text-white');
+            document.getElementById('forumMyPostsBtn')?.classList.add('bg-slate-100', 'text-slate-600');
+            renderForumCategoryButtons();
+            loadForumPosts(1);
+        }
+
+        function filterMyForumPosts() {
+            if (!currentUser) {
+                showToast('يرجى تسجيل الدخول لعرض مواضيعك.');
+                return;
+            }
+            isViewingMyPosts = !isViewingMyPosts;
+            const btn = document.getElementById('forumMyPostsBtn');
+            if (btn) {
+                if (isViewingMyPosts) {
+                    btn.className = "px-3 py-1.5 rounded-xl bg-sky-600 text-white text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-xs";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-700 text-xs font-bold transition flex items-center gap-1.5 shrink-0";
+                }
+            }
+            renderForumCategoryButtons();
+            loadForumPosts(1);
+        }
+
+        function handleForumSortChange(val) {
+            currentForumSort = val;
+            loadForumPosts(1);
         }
 
         function handleForumSearch(val) {
-            renderForumPosts(val);
+            clearTimeout(forumSearchTimer);
+            forumSearchTimer = setTimeout(() => {
+                loadForumPosts(1);
+            }, 300);
         }
 
         async function openPostModal(postId) {
             activeForumPostId = postId;
-            document.getElementById('forumPostModal').classList.remove('hidden');
+            const modal = document.getElementById('forumPostModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
 
             try {
                 const res = await apiCall(`/forum/${postId}`);
                 if (res && res.post) {
                     const p = res.post;
+                    activePostObject = p;
+
                     document.getElementById('postModalTitle').textContent = p.title;
                     document.getElementById('postModalAuthor').textContent = p.authorName;
-                    document.getElementById('postModalBadge').textContent = p.badge || 'استفسار';
-                    document.getElementById('postModalDate').textContent = new Date(p.createdAt).toLocaleDateString('ar-SA');
+                    document.getElementById('postModalBadge').textContent = p.category?.name || p.badge || 'استفسار';
+                    document.getElementById('postModalDate').textContent = new Date(p.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
                     document.getElementById('postModalContent').textContent = p.content;
+                    document.getElementById('postModalViews').textContent = p.viewsCount || 0;
+                    document.getElementById('postModalLikesCount').textContent = p.likesCount || 0;
 
-                    // Official reply
+                    // Author role badge
+                    const roleEl = document.getElementById('postModalAuthorRole');
+                    if (p.user && p.user.role && p.user.role !== 'USER') {
+                        const roleNames = { ADMIN: 'مدير عام', MODERATOR: 'مشرف منتدى', RAQI: 'راقٍ معتمد' };
+                        roleEl.textContent = roleNames[p.user.role] || p.user.role;
+                        roleEl.classList.remove('hidden');
+                    } else {
+                        roleEl.classList.add('hidden');
+                    }
+
+                    // Edited tag
+                    const editedEl = document.getElementById('postModalEditedTag');
+                    if (p.isEdited) editedEl.classList.remove('hidden');
+                    else editedEl.classList.add('hidden');
+
+                    // Pinned badge & button
+                    const pinnedBadge = document.getElementById('postModalPinnedBadge');
+                    const pinBtn = document.getElementById('postModalPinBtn');
+                    const pinBtnText = document.getElementById('postModalPinBtnText');
+                    if (p.isPinned) pinnedBadge.classList.remove('hidden');
+                    else pinnedBadge.classList.add('hidden');
+
+                    // Locked badge & notices
+                    const lockedBadge = document.getElementById('postModalLockedBadge');
+                    const lockBtn = document.getElementById('postModalLockBtn');
+                    const lockBtnText = document.getElementById('postModalLockBtnText');
+                    const lockedNotice = document.getElementById('postModalLockedNotice');
+                    const replyInput = document.getElementById('postReplyInput');
+                    const replySubmitBtn = document.getElementById('postReplySubmitBtn');
+
+                    if (p.isLocked) {
+                        lockedBadge.classList.remove('hidden');
+                        lockedNotice.classList.remove('hidden');
+                        const isModOrAdmin = currentUser && ['MODERATOR', 'ADMIN'].includes(currentUser.role);
+                        if (!isModOrAdmin) {
+                            replyInput.disabled = true;
+                            replySubmitBtn.disabled = true;
+                        } else {
+                            replyInput.disabled = false;
+                            replySubmitBtn.disabled = false;
+                        }
+                    } else {
+                        lockedBadge.classList.add('hidden');
+                        lockedNotice.classList.add('hidden');
+                        replyInput.disabled = false;
+                        replySubmitBtn.disabled = false;
+                    }
+
+                    // Author & Moderator Permissions
+                    const isAuthor = currentUser && (currentUser.id === p.userId || currentUser.email === p.user?.email);
+                    const isModOrAdmin = currentUser && ['MODERATOR', 'ADMIN'].includes(currentUser.role);
+                    const isRaqiOrModOrAdmin = currentUser && ['RAQI', 'MODERATOR', 'ADMIN'].includes(currentUser.role);
+
+                    // Edit button
+                    const editBtn = document.getElementById('postModalEditBtn');
+                    if (isAuthor || isModOrAdmin) editBtn.classList.remove('hidden');
+                    else editBtn.classList.add('hidden');
+
+                    // Delete button
+                    const deleteBtn = document.getElementById('postModalDeleteBtn');
+                    if (isAuthor || isModOrAdmin) deleteBtn.classList.remove('hidden');
+                    else deleteBtn.classList.add('hidden');
+
+                    // Pin & Lock buttons (MODERATOR / ADMIN / RAQI)
+                    if (isRaqiOrModOrAdmin) {
+                        pinBtn.classList.remove('hidden');
+                        pinBtnText.textContent = p.isPinned ? 'إلغاء التثبيت' : 'تثبيت';
+                        lockBtn.classList.remove('hidden');
+                        lockBtnText.textContent = p.isLocked ? 'إلغاء القفل' : 'قفل النقاش';
+                    } else {
+                        pinBtn.classList.add('hidden');
+                        lockBtn.classList.add('hidden');
+                    }
+
+                    // Official reply box
                     const officialBox = document.getElementById('postModalOfficialReplyBox');
                     const officialText = document.getElementById('postModalOfficialReply');
                     if (p.officialReply) {
@@ -1398,27 +1929,48 @@
                         officialBox.classList.add('hidden');
                     }
 
-                    // Replies
+                    // Replies List
                     const countEl = document.getElementById('postModalRepliesCount');
                     const listEl = document.getElementById('postModalRepliesList');
                     const replies = p.replies || [];
                     countEl.textContent = replies.length;
 
                     if (!replies.length) {
-                        listEl.innerHTML = `<div class="text-center py-4 text-slate-400 text-xs">لا توجد ردود بعد. كن أول من يشارك.</div>`;
+                        listEl.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs bg-slate-50 rounded-xl">لا توجد مشاركات أو ردود بعد. كن أول من يضيف فائدة.</div>`;
                     } else {
-                        listEl.innerHTML = replies.map(r => `
-                            <div class="p-3 rounded-xl border ${r.isOfficial ? 'border-emerald-200 bg-emerald-50/50' : 'border-slate-100 bg-slate-50/60'}">
-                                <div class="flex items-center justify-between text-[11px] mb-1">
-                                    <span class="font-bold ${r.isOfficial ? 'text-emerald-900' : 'text-slate-800'}">
-                                        ${escapeHtml(r.user?.name || 'مشارك')}
-                                        ${r.isOfficial ? '<span class="mr-1 text-[10px] px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800 font-bold">راقٍ معتمد</span>' : ''}
-                                    </span>
-                                    <span class="text-slate-400">${new Date(r.createdAt).toLocaleDateString('ar-SA')}</span>
+                        listEl.innerHTML = replies.map(r => {
+                            const isReplyAuthor = currentUser && currentUser.id === r.userId;
+                            const canModerateReply = isReplyAuthor || (currentUser && ['MODERATOR', 'ADMIN'].includes(currentUser.role));
+                            const rRole = r.user?.role || 'USER';
+                            const roleNames = { ADMIN: 'مدير عام', MODERATOR: 'مشرف منتدى', RAQI: 'راقٍ معتمد' };
+
+                            return `
+                                <div class="p-4 rounded-2xl border ${r.isOfficial ? 'border-emerald-200 bg-emerald-50/60' : 'border-slate-200/70 bg-white'} space-y-2 text-right">
+                                    <div class="flex items-center justify-between text-[11px]">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[10px]">
+                                                ${escapeHtml((r.user?.name || 'م')[0])}
+                                            </div>
+                                            <span class="font-bold text-slate-800">${escapeHtml(r.user?.name || 'مشارك')}</span>
+                                            ${rRole !== 'USER' ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold ${r.isOfficial ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-600'}">${roleNames[rRole] || rRole}</span>` : ''}
+                                            ${r.isEdited ? '<span class="text-slate-400 text-[10px] italic">(معدل)</span>' : ''}
+                                        </div>
+                                        <div class="flex items-center gap-2 text-slate-400">
+                                            <span>${new Date(r.createdAt).toLocaleDateString('ar-SA')}</span>
+                                            ${canModerateReply ? `
+                                                <button onclick="handleDeleteReply('${r.id}')" class="text-rose-400 hover:text-rose-600 transition p-1" title="حذف الرد">
+                                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                </button>
+                                            ` : ''}
+                                            <button onclick="openReportModal('REPLY', '${r.id}')" class="text-slate-300 hover:text-rose-500 transition p-1" title="إبلاغ عن الرد">
+                                                <i data-lucide="flag" class="w-3.5 h-3.5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-slate-700 leading-relaxed whitespace-pre-line">${escapeHtml(r.content)}</div>
                                 </div>
-                                <div class="text-xs text-slate-700 leading-relaxed whitespace-pre-line">${escapeHtml(r.content)}</div>
-                            </div>
-                        `).join('');
+                            `;
+                        }).join('');
                     }
 
                     lucide.createIcons();
@@ -1430,7 +1982,34 @@
 
         function closePostModal() {
             activeForumPostId = null;
-            document.getElementById('forumPostModal').classList.add('hidden');
+            activePostObject = null;
+            document.getElementById('forumPostModal')?.classList.add('hidden');
+        }
+
+        async function handleModalLikePost() {
+            if (!activeForumPostId) return;
+            try {
+                const res = await apiCall(`/forum/${activeForumPostId}/like`, { method: 'POST' });
+                showToast(res.message || 'تم تحديث التفاعل.');
+                const likesEl = document.getElementById('postModalLikesCount');
+                if (likesEl && res.likesCount !== undefined) {
+                    likesEl.textContent = res.likesCount;
+                }
+                await loadForumPosts(currentForumPage);
+            } catch (err) {
+                showToast(err.message || 'تعذر تسجيل الإعجاب.');
+            }
+        }
+
+        async function handleListLikePost(postId, e) {
+            e.stopPropagation();
+            try {
+                const res = await apiCall(`/forum/${postId}/like`, { method: 'POST' });
+                showToast(res.message || 'تم التحديث.');
+                await loadForumPosts(currentForumPage);
+            } catch (err) {
+                showToast(err.message || 'تعذر الإعجاب.');
+            }
         }
 
         async function handleSendReply(e) {
@@ -1452,7 +2031,7 @@
                 showToast(res.message || 'تم إرسال الرد بنجاح.');
                 input.value = '';
                 await openPostModal(activeForumPostId);
-                await loadForumPosts();
+                await loadForumPosts(currentForumPage);
             } catch (err) {
                 showToast(err.message || 'تعذر إرسال الرد.');
             } finally {
@@ -1460,51 +2039,176 @@
             }
         }
 
-        async function handleLikePost(postId, e) {
-            e.stopPropagation();
+        async function handleDeleteReply(replyId) {
+            if (!confirm('هل تريد بالتأكيد حذف هذا الرد؟')) return;
             try {
-                const res = await apiCall(`/forum/${postId}/like`, { method: 'POST' });
-                showToast(res.message || 'تم التحديث.');
-                await loadForumPosts();
+                await apiCall(`/forum/replies/${replyId}`, { method: 'DELETE' });
+                showToast('تم حذف الرد بنجاح.');
+                if (activeForumPostId) await openPostModal(activeForumPostId);
+                await loadForumPosts(currentForumPage);
             } catch (err) {
-                showToast(err.message || 'تعذر الإعجاب.');
+                showToast(err.message || 'تعذر حذف الرد.');
             }
         }
 
         function openNewPostModal() {
-            document.getElementById('newPostModal').classList.remove('hidden');
+            populateCategorySelects();
+            document.getElementById('newPostModal')?.classList.remove('hidden');
         }
 
         function closeNewPostModal() {
-            document.getElementById('newPostModal').classList.add('hidden');
+            document.getElementById('newPostModal')?.classList.add('hidden');
         }
 
         async function handleNewPostSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('newPostSubmitBtn');
             btn.disabled = true;
-            btn.textContent = 'جاري الإرسال...';
+            btn.innerHTML = `<span>جاري الإرسال...</span>`;
 
             const title = document.getElementById('newPostTitle').value.trim();
             const content = document.getElementById('newPostContent').value.trim();
-            const badge = document.getElementById('newPostBadge').value;
+            const categoryId = document.getElementById('newPostCategory').value;
 
             try {
                 const res = await apiCall('/forum', {
                     method: 'POST',
                     body: JSON.stringify({
-                        title, content, badge,
+                        title,
+                        content,
+                        categoryId,
                         authorName: currentUser?.name || 'مستفيد'
                     })
                 });
-                showToast(res.message || 'تم إرسال موضوعك للمراجعة.');
+                showToast(res.message || 'تم نشر موضوعك بنجاح.');
                 closeNewPostModal();
                 e.target.reset();
+                await loadForumPosts(1);
             } catch (err) {
-                showToast(err.message || 'تعذر إرسال الموضوع.');
+                showToast(err.message || 'تعذر إنشاء الموضوع.');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'إرسال للمراجعة';
+                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i><span>إرسال الموضوع</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        function openEditPostModal() {
+            if (!activePostObject) return;
+            populateCategorySelects();
+            document.getElementById('editPostTitle').value = activePostObject.title;
+            document.getElementById('editPostContent').value = activePostObject.content;
+            if (activePostObject.categoryId) {
+                document.getElementById('editPostCategory').value = activePostObject.categoryId;
+            }
+            document.getElementById('editPostModal')?.classList.remove('hidden');
+        }
+
+        function closeEditPostModal() {
+            document.getElementById('editPostModal')?.classList.add('hidden');
+        }
+
+        async function handleEditPostSubmit(e) {
+            e.preventDefault();
+            if (!activeForumPostId) return;
+
+            const btn = document.getElementById('editPostSubmitBtn');
+            btn.disabled = true;
+
+            const title = document.getElementById('editPostTitle').value.trim();
+            const content = document.getElementById('editPostContent').value.trim();
+            const categoryId = document.getElementById('editPostCategory').value;
+
+            try {
+                const res = await apiCall(`/forum/${activeForumPostId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ title, content, categoryId })
+                });
+                showToast(res.message || 'تم تعديل الموضوع بنجاح.');
+                closeEditPostModal();
+                await openPostModal(activeForumPostId);
+                await loadForumPosts(currentForumPage);
+            } catch (err) {
+                showToast(err.message || 'تعذر تعديل الموضوع.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function handleTogglePin() {
+            if (!activeForumPostId) return;
+            try {
+                const res = await apiCall(`/forum/${activeForumPostId}/pin`, { method: 'PATCH' });
+                showToast(res.message || 'تم تحديث التثبيت.');
+                await openPostModal(activeForumPostId);
+                await loadForumPosts(currentForumPage);
+            } catch (err) {
+                showToast(err.message || 'تعذر تغيير حالة التثبيت.');
+            }
+        }
+
+        async function handleToggleLock() {
+            if (!activeForumPostId) return;
+            try {
+                const res = await apiCall(`/forum/${activeForumPostId}/lock`, { method: 'PATCH' });
+                showToast(res.message || 'تم تحديث قفل الموضوع.');
+                await openPostModal(activeForumPostId);
+                await loadForumPosts(currentForumPage);
+            } catch (err) {
+                showToast(err.message || 'تعذر تغيير حالة القفل.');
+            }
+        }
+
+        async function handleDeletePost() {
+            if (!activeForumPostId) return;
+            if (!confirm('هل أنت متأكد من حذف هذا الموضوع وجميع الردود التابعة له؟')) return;
+
+            try {
+                await apiCall(`/forum/${activeForumPostId}`, { method: 'DELETE' });
+                showToast('تم حذف الموضوع بنجاح.');
+                closePostModal();
+                await loadForumPosts(1);
+            } catch (err) {
+                showToast(err.message || 'تعذر حذف الموضوع.');
+            }
+        }
+
+        function openReportModal(targetType, targetId) {
+            document.getElementById('reportTargetType').value = targetType;
+            document.getElementById('reportTargetId').value = targetId;
+            document.getElementById('reportDetails').value = '';
+            document.getElementById('reportModal')?.classList.remove('hidden');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal')?.classList.add('hidden');
+        }
+
+        async function handleReportSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('reportSubmitBtn');
+            btn.disabled = true;
+
+            const targetType = document.getElementById('reportTargetType').value;
+            const targetId = document.getElementById('reportTargetId').value;
+            const reason = document.getElementById('reportReason').value;
+            const details = document.getElementById('reportDetails').value.trim();
+
+            try {
+                const payload = { targetType, reason, details };
+                if (targetType === 'POST') payload.postId = targetId;
+                else payload.replyId = targetId;
+
+                const res = await apiCall('/forum/reports', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                showToast(res.message || 'تم إرسال بلاغك بنجاح وسيتولى المشرفون مراجعته.');
+                closeReportModal();
+            } catch (err) {
+                showToast(err.message || 'تعذر إرسال البلاغ.');
+            } finally {
+                btn.disabled = false;
             }
         }
 

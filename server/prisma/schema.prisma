@@ -18,9 +18,10 @@ datasource db {
 
 /// User account roles — controls access across the entire platform.
 enum Role {
-  USER   // Regular visitor / patient
-  RAQI   // Certified practitioner — can respond in forum, manage own schedule
-  ADMIN  // Full platform control
+  USER       // Regular visitor / patient
+  RAQI       // Certified practitioner — can respond in forum, manage own schedule
+  MODERATOR  // Forum & community moderator
+  ADMIN      // Full platform control
 }
 
 /// Appointment lifecycle.
@@ -38,28 +39,38 @@ enum PostStatus {
   REJECTED  // Hidden — reason can be stored in moderatorNote
 }
 
+/// Moderation state for reports.
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // USER & AUTHENTICATION
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Platform user account (all roles share this model).
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  name         String
-  phone        String?
-  role         Role     @default(USER)
-  isActive     Boolean  @default(true)  @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt      @map("updated_at")
+  id              String          @id @default(cuid())
+  email           String          @unique
+  passwordHash    String          @map("password_hash")
+  name            String
+  phone           String?
+  role            Role            @default(USER)
+  isActive        Boolean         @default(true)  @map("is_active")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt      @map("updated_at")
 
   // Relations
-  raqiProfile  RaqiProfile?
-  bookings     Booking[]    @relation("UserBookings")
-  forumPosts   ForumPost[]
-  forumReplies ForumReply[]
-  postLikes    PostLike[]
+  raqiProfile     RaqiProfile?
+  bookings        Booking[]       @relation("UserBookings")
+  forumPosts      ForumPost[]
+  forumReplies    ForumReply[]
+  postLikes       PostLike[]
+  reportsMade     ForumReport[]   @relation("UserReports")
+  reportsResolved ForumReport[]   @relation("ResolvedReports")
+  moderationLogs  ModerationLog[]
 
   @@map("users")
 }
@@ -156,44 +167,75 @@ model Article {
 // COMMUNITY FORUM
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// A forum thread / post — powers the منتدى مجتمع السكينة section.
-/// Posts default to PENDING and must be approved by a moderator (RAQI or ADMIN).
+/// Forum categories / departments.
+model ForumCategory {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  description String?
+  icon        String      @default("message-square")
+  orderIndex  Int         @default(0) @map("order_index")
+  isActive    Boolean     @default(true) @map("is_active")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  posts       ForumPost[]
+
+  @@map("forum_categories")
+}
+
+/// A forum thread / topic — powers the منتدى مجتمع السكينة section.
+/// Posts default to PENDING and must be approved by a moderator (RAQI, MODERATOR, or ADMIN).
 model ForumPost {
-  id            String     @id @default(cuid())
-  authorName    String     @map("author_name")  // Display name (may be pseudonym)
+  id            String         @id @default(cuid())
+  authorName    String         @map("author_name")  // Display name (may be pseudonym)
   title         String
-  content       String     @db.Text
-  badge         String     // Category badge e.g. "استفسار شرعي" | "تجربة شفاء"
-  status        PostStatus @default(PENDING)
-  officialReply String?    @map("official_reply") @db.Text  // Pinned reply from a raqi
-  moderatorNote String?    @map("moderator_note")           // Internal rejection reason
-  likesCount    Int        @default(0) @map("likes_count")
-  userId        String?    @map("user_id")  // Null = anonymous / pseudonym post
-  createdAt     DateTime   @default(now()) @map("created_at")
-  updatedAt     DateTime   @updatedAt      @map("updated_at")
-  deletedAt     DateTime?  @map("deleted_at")  // Soft delete
+  content       String         @db.Text
+  badge         String         // Category badge/fallback e.g. "استفسار شرعي" | "تجربة شفاء"
+  categoryId    String?        @map("category_id")
+  status        PostStatus     @default(PENDING)
+  isPinned      Boolean        @default(false) @map("is_pinned")
+  isLocked      Boolean        @default(false) @map("is_locked")
+  viewsCount    Int            @default(0)     @map("views_count")
+  isEdited      Boolean        @default(false) @map("is_edited")
+  editedAt      DateTime?      @map("edited_at")
+  officialReply String?        @map("official_reply") @db.Text  // Pinned reply from a raqi/admin
+  moderatorNote String?        @map("moderator_note")           // Internal rejection/moderation note
+  likesCount    Int            @default(0) @map("likes_count")
+  userId        String?        @map("user_id")  // Null = anonymous / pseudonym post
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt      @map("updated_at")
+  deletedAt     DateTime?      @map("deleted_at")  // Soft delete
 
   // Relations
-  user    User?        @relation(fields: [userId], references: [id])
-  replies ForumReply[]
-  likes   PostLike[]
+  user          User?          @relation(fields: [userId], references: [id])
+  category      ForumCategory? @relation(fields: [categoryId], references: [id])
+  replies       ForumReply[]
+  likes         PostLike[]
+  reports       ForumReport[]
 
   @@index([status, createdAt])
+  @@index([categoryId])
+  @@index([isPinned, createdAt])
   @@map("forum_posts")
 }
 
 /// A reply to a forum thread.
 model ForumReply {
-  id        String    @id @default(cuid())
-  postId    String    @map("post_id")
-  userId    String    @map("user_id")
-  content   String    @db.Text
-  isOfficial Boolean  @default(false) @map("is_official")  // True if posted by RAQI/ADMIN
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt      @map("updated_at")
+  id         String        @id @default(cuid())
+  postId     String        @map("post_id")
+  userId     String        @map("user_id")
+  content    String        @db.Text
+  isOfficial Boolean       @default(false) @map("is_official")  // True if posted by RAQI/ADMIN
+  isEdited   Boolean       @default(false) @map("is_edited")
+  editedAt   DateTime?     @map("edited_at")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt      @map("updated_at")
+  deletedAt  DateTime?     @map("deleted_at")  // Soft delete
 
-  post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User      @relation(fields: [userId], references: [id])
+  post       ForumPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id])
+  reports    ForumReport[]
 
   @@index([postId])
   @@map("forum_replies")
@@ -210,6 +252,47 @@ model PostLike {
 
   @@id([userId, postId])
   @@map("post_likes")
+}
+
+/// Reports filed against posts or replies for moderation.
+model ForumReport {
+  id             String       @id @default(cuid())
+  reporterId     String       @map("reporter_id")
+  postId         String?      @map("post_id")
+  replyId        String?      @map("reply_id")
+  reason         String       // "مخالفة شرعية" | "سب وقذف" | "إعلان مضلل" | "محتوى غير لائق" | "أخرى"
+  details        String?      @db.Text
+  status         ReportStatus @default(PENDING)
+  resolutionNote String?      @map("resolution_note")
+  resolvedById   String?      @map("resolved_by_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt      @map("updated_at")
+
+  reporter       User         @relation("UserReports", fields: [reporterId], references: [id])
+  resolvedBy     User?        @relation("ResolvedReports", fields: [resolvedById], references: [id])
+  post           ForumPost?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reply          ForumReply?  @relation(fields: [replyId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@map("forum_reports")
+}
+
+/// Audit log of all moderator and admin actions on the forum.
+model ModerationLog {
+  id          String   @id @default(cuid())
+  moderatorId String   @map("moderator_id")
+  action      String   // "APPROVE_POST" | "REJECT_POST" | "PIN_POST" | "LOCK_POST" | "DELETE_POST" | "DELETE_REPLY" | "RESOLVE_REPORT"
+  targetType  String   @map("target_type") // "POST" | "REPLY" | "USER" | "REPORT"
+  targetId    String   @map("target_id")
+  reason      String?
+  metadata    String?  @db.Text // JSON metadata
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  moderator   User     @relation(fields: [moderatorId], references: [id])
+
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("moderation_logs")
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

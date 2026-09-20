@@ -23,6 +23,7 @@ const {
   changePassword,
   listUsers,
   setUserStatus,
+  setUserRole,
 } = require('../controllers/auth.controller');
 
 const { authenticate, requireRole } = require('../middleware/auth');
@@ -45,7 +46,8 @@ router.put( '/me',              authenticate, updateMeRules,    updateMe);
 router.post('/change-password', authenticate, changePasswordRules, changePassword);
 
 // ── Admin only ────────────────────────────────────────────────────────────────
-router.get(  '/users',           authenticate, requireRole('ADMIN'), listUsers);
-router.patch('/users/:id/status',authenticate, requireRole('ADMIN'), setUserStatus);
+router.get(  '/users',            authenticate, requireRole('ADMIN'), listUsers);
+router.patch('/users/:id/status', authenticate, requireRole('ADMIN'), setUserStatus);
+router.patch('/users/:id/role',   authenticate, requireRole('ADMIN'), setUserRole);
 
 module.exports = router;

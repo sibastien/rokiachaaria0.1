@@ -22,6 +22,7 @@ Thumbs.db
 .idea/
 *.winmd
 *.pdf
+*.exe
 
 # Graphify analysis outputs
 graphify-out/

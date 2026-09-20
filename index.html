@@ -1942,12 +1942,16 @@
                     forumPostsCache = res.data.map(p => ({
                         id: p.id,
                         author: p.authorName || 'مجهول',
-                        badge: p.badge || 'استفسار شرعي',
+                        badge: p.category?.name || p.badge || 'استفسار شرعي',
+                        categoryIcon: p.category?.icon || '📌',
+                        isPinned: p.isPinned || false,
+                        isLocked: p.isLocked || false,
                         time: p.createdAt ? new Date(p.createdAt).toLocaleDateString('ar-SA') : 'مؤخراً',
                         title: p.title,
                         content: p.content,
                         likes: p.likesCount || 0,
                         liked: false,
+                        views: p.viewsCount || 0,
                         repliesCount: p.repliesCount || 0,
                         officialReply: p.officialReply || null,
                     }));
@@ -1965,24 +1969,30 @@
             {
                 id: "101",
                 author: "أبو أنس التونسي",
-                badge: "تجربة واقعية",
+                badge: "تجارب واستشفاء",
+                categoryIcon: "💬",
+                isPinned: true,
                 time: "منذ 4 ساعات",
                 title: "تجربتي مع جلسة الرقية الأونلاين لطفلي بعد كوابيس مستمرة",
                 content: "الحمد لله الذي بنعمته تتم الصالحات. ابني كان يستيقظ باكياً ومذعوراً لشهور. حجزنا جلسة مع الراقي الشيخ عبد الرحمن عبر المنصة، علمنا أذكار النوم الصحيحة وقرأ عليه مباشرة. بفضل الله عادت السكينة إلى نومه من الليلة الأولى.",
                 likes: 34,
                 liked: false,
+                views: 142,
                 repliesCount: 6,
                 officialReply: "نحمد الله على شفائه، ونوصيكم بالاستمرار على قراءة المعوذتين في الكفين ومسح رأسه وجسده قبل النوم."
             },
             {
                 id: "102",
                 author: "أخت في الله",
-                badge: "سؤال شرعي",
+                badge: "العلاج بالرقية الشرعية",
+                categoryIcon: "📖",
+                isPinned: false,
                 time: "منذ يوم واحد",
                 title: "هل سماع الرقية المسجلة بالسماعات يكفي أم يجب الحضور المباشر؟",
                 content: "السلام عليكم، أود السؤال: هل تشغيل رقية مسجلة في البيت يكفي لطرد الضيق، أم أن الجلسة التفاعلية الحية لها أثر أقوى من الناحية الشرعية؟",
                 likes: 19,
                 liked: false,
+                views: 89,
                 repliesCount: 4,
                 officialReply: "وعليكم السلام ورحمة الله. الاستماع للمسجل فيه خير وبركة، لكن الجلسة المباشرة تمتاز بحضور القلب، وتوجيه الراقي للآيات بحسب تفاعل المسترقي، وإرشاده المباشر للخلل إن وجد."
             }
@@ -1997,45 +2007,55 @@
                 return;
             }
             feed.innerHTML = data.map(post => `
-                <div class="bg-white rounded-2xl p-5 border border-sky-100 shadow-sm hover:border-sky-200 transition">
-                    <div class="flex items-center justify-between mb-3">
+                <div class="bg-white rounded-2xl p-5 border ${post.isPinned ? 'border-amber-200 bg-amber-50/20' : 'border-sky-100'} shadow-sm hover:border-sky-200 transition">
+                    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div class="flex items-center gap-2.5">
                             <div class="w-8 h-8 rounded-full bg-sky-100 text-sky-700 font-bold flex items-center justify-center text-xs">
                                 ${(post.author || 'م').charAt(0)}
                             </div>
                             <div>
-                                <span class="font-bold text-xs text-sky-950">${post.author}</span>
+                                <span class="font-bold text-xs text-sky-950">${escapeHtml(post.author)}</span>
                                 <span class="text-[11px] text-slate-400 mr-2">${post.time}</span>
                             </div>
                         </div>
-                        <span class="text-[11px] font-bold text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">${post.badge}</span>
+                        <div class="flex items-center gap-1.5">
+                            ${post.isPinned ? '<span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-200">📌 مثبت</span>' : ''}
+                            <span class="text-[11px] font-bold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100 flex items-center gap-1">
+                                <span>${post.categoryIcon || '📌'}</span>
+                                <span>${escapeHtml(post.badge)}</span>
+                            </span>
+                        </div>
                     </div>
 
-                    <h4 class="font-bold text-sm sm:text-base text-slate-900 mb-2">${post.title}</h4>
-                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">${post.content}</p>
+                    <h4 class="font-bold text-sm sm:text-base text-slate-900 mb-2">${escapeHtml(post.title)}</h4>
+                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">${escapeHtml(post.content)}</p>
 
                     ${post.officialReply ? `
                         <div class="mb-4 p-3 rounded-xl bg-sky-50/70 border-r-4 border-sky-500 text-xs text-slate-700 leading-relaxed">
                             <span class="font-bold text-sky-900 block mb-1">تعقيب الراقي المشرف:</span>
-                            ${post.officialReply}
+                            ${escapeHtml(post.officialReply)}
                         </div>
                     ` : ''}
 
-                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs text-slate-500">
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs text-slate-500 flex-wrap gap-2">
                         <div class="flex items-center gap-4">
-                            <button onclick="togglePostLike('${post.id}')" class="flex items-center gap-1.5 ${post.liked ? 'text-sky-600 font-bold' : 'hover:text-sky-600'} transition">
-                                <i data-lucide="heart" class="w-4 h-4 ${post.liked ? 'fill-sky-600' : ''}"></i>
+                            <button onclick="togglePostLike('${post.id}')" class="flex items-center gap-1.5 ${post.liked ? 'text-rose-600 font-bold' : 'hover:text-rose-600'} transition">
+                                <i data-lucide="heart" class="w-4 h-4 ${post.liked ? 'fill-rose-600 text-rose-600' : ''}"></i>
                                 <span>${post.likes}</span>
                             </button>
                             <span class="flex items-center gap-1.5">
                                 <i data-lucide="message-square" class="w-4 h-4"></i>
-                                <span>${post.repliesCount} تعليقات</span>
+                                <span>${post.repliesCount} ردود</span>
+                            </span>
+                            <span class="flex items-center gap-1 text-slate-400">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                <span>${post.views || 0}</span>
                             </span>
                         </div>
-                        <button onclick="simulateToast('تم نسخ رابط الموضوع للمشاركة')" class="hover:text-sky-600 text-[11px] font-medium flex items-center gap-1">
-                            <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                            <span>مشاركة</span>
-                        </button>
+                        <a href="/portal#forum" class="hover:text-sky-600 text-[11px] font-bold text-sky-600 flex items-center gap-1">
+                            <span>المشاركة في المنتدى</span>
+                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                        </a>
                     </div>
                 </div>
             `).join('');

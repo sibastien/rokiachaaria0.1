@@ -1,20 +1,34 @@
-// src/routes/forum.js — Full implementation (Step 5)
-// Note: createPost is semi-public (anonymous allowed).
-// We use an optional-auth pattern: if a token is present it's decoded,
-// but its absence does not block the request.
+// src/routes/forum.js
+// Production-Ready Islamic Community Forum Routes
 
 const { Router } = require('express');
 const {
-  getPosts, getPendingPosts, createPost, getPost,
-  addReply, toggleLike, moderatePost, setOfficialReply,
+  // Categories
+  getCategories, createCategory, updateCategory,
+  // Topics
+  getPosts, getPendingPosts, createPost, getPost, updatePost, deletePost,
+  // Replies
+  addReply, updateReply, deleteReply, toggleLike,
+  // Moderation
+  togglePin, toggleLock, moderatePost, setOfficialReply,
+  // Reports
+  createReport, getReports, resolveReport,
+  // Audit & Activity
+  getModerationLogs, getUserActivity,
 } = require('../controllers/forum.controller');
+
 const { authenticate, requireRole } = require('../middleware/auth');
-const { createPostRules, replyRules } = require('../validators/forum.validators');
+const {
+  createPostRules,
+  updatePostRules,
+  replyRules,
+  reportRules,
+  categoryRules,
+} = require('../validators/forum.validators');
 
 const router = Router();
 
 // ── Optional auth middleware ───────────────────────────────────────────────────
-// Decodes JWT if present but does NOT reject requests without one.
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/env');
 
@@ -23,7 +37,7 @@ function optionalAuth(req, res, next) {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     try {
       const payload = jwt.verify(authHeader.split(' ')[1], jwtSecret);
-      req.user = { id: payload.sub, email: payload.email, role: payload.role };
+      req.user = { id: payload.sub, email: payload.email, role: payload.role, name: payload.name };
     } catch (_) {
       // Invalid token — continue as anonymous
     }
@@ -31,20 +45,42 @@ function optionalAuth(req, res, next) {
   next();
 }
 
-// ── Public routes ─────────────────────────────────────────────────────────────
-router.get('/', getPosts);
-router.get('/pending', authenticate, requireRole('RAQI', 'ADMIN'), getPendingPosts);
-router.get('/:id', optionalAuth, getPost);
+// ── 1. Categories ─────────────────────────────────────────────────────────────
+router.get( '/categories',     getCategories);
+router.post('/categories',     authenticate, requireRole('ADMIN'), categoryRules, createCategory);
+router.put( '/categories/:id', authenticate, requireRole('ADMIN'), updateCategory);
 
-// ── Semi-public: post creation (anonymous or authenticated) ───────────────────
+// ── 2. Reports (placed before parameterized /:id routes) ───────────────────────
+router.post( '/reports',     authenticate, reportRules, createReport);
+router.get(  '/reports',     authenticate, requireRole('MODERATOR', 'ADMIN'), getReports);
+router.patch('/reports/:id', authenticate, requireRole('MODERATOR', 'ADMIN'), resolveReport);
+
+// ── 3. Moderation Logs & User Activity ────────────────────────────────────────
+router.get('/moderation-logs',      authenticate, requireRole('MODERATOR', 'ADMIN'), getModerationLogs);
+router.get('/users/:id/activity',   optionalAuth, getUserActivity);
+
+// ── 4. Moderation Queues ──────────────────────────────────────────────────────
+router.get('/pending', authenticate, requireRole('RAQI', 'MODERATOR', 'ADMIN'), getPendingPosts);
+
+// ── 5. Replies Management (specific endpoints) ────────────────────────────────
+router.put(   '/replies/:replyId', authenticate, replyRules, updateReply);
+router.delete('/replies/:replyId', authenticate, deleteReply);
+
+// ── 6. Topics (CRUD & Interactions) ───────────────────────────────────────────
+router.get('/',  getPosts);
 router.post('/', optionalAuth, createPostRules, createPost);
 
-// ── Authenticated: replies and likes ─────────────────────────────────────────
+router.get(   '/:id', optionalAuth, getPost);
+router.put(   '/:id', authenticate, updatePostRules, updatePost);
+router.delete('/:id', authenticate, deletePost);
+
 router.post('/:id/replies', authenticate, replyRules, addReply);
 router.post('/:id/like',    authenticate, toggleLike);
 
-// ── Moderator: RAQI / ADMIN ───────────────────────────────────────────────────
-router.patch('/:id/status', authenticate, requireRole('RAQI', 'ADMIN'), moderatePost);
+// ── 7. Topic Moderation (Pin, Lock, Status, Official Reply) ───────────────────
+router.patch('/:id/pin',    authenticate, requireRole('MODERATOR', 'ADMIN'), togglePin);
+router.patch('/:id/lock',   authenticate, requireRole('MODERATOR', 'ADMIN'), toggleLock);
+router.patch('/:id/status', authenticate, requireRole('RAQI', 'MODERATOR', 'ADMIN'), moderatePost);
 router.patch('/:id/reply',  authenticate, requireRole('RAQI', 'ADMIN'), setOfficialReply);
 
 module.exports = router;

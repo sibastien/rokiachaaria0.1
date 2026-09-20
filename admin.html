@@ -456,16 +456,28 @@
 
         <!-- ================= 5. FORUM TAB ================= -->
         <section id="tab-forum" class="tab-pane hidden space-y-6">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h3 class="text-lg font-bold text-white">منتدى استفسارات الرقية والأسئلة (مجتمع السكينة)</h3>
-              <p class="text-xs text-slate-400 mt-0.5">مراجعة أسئلة الزوار والموافقة عليها وكتابة الرد الرسمي المثبت</p>
+              <h3 class="text-lg font-bold text-white">إدارة ورقابة منتدى مجتمع السكينة</h3>
+              <p class="text-xs text-slate-400 mt-0.5">مراجعة المواضيع، الردود الرسمية، بلاغات الأعضاء، أقسام المنتدى، وسجل الرقابة</p>
             </div>
             <!-- Forum Subtabs -->
-            <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs">
-              <button onclick="switchForumSubtab('pending')" id="subtabForumPending" class="px-3 py-1.5 rounded-lg font-bold bg-amber-500 text-white">قيد المراجعة (<span id="forumPendingCount">0</span>)</button>
-              <button onclick="switchForumSubtab('approved')" id="subtabForumApproved" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white">المعتمدة والمنشورة</button>
+            <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs flex-wrap">
+              <button onclick="switchForumSubtab('pending')" id="subtabForumPending" class="px-3 py-1.5 rounded-lg font-bold bg-amber-500 text-white transition-all">قيد المراجعة (<span id="forumPendingCount">0</span>)</button>
+              <button onclick="switchForumSubtab('approved')" id="subtabForumApproved" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all">جميع المواضيع</button>
+              <button onclick="switchForumSubtab('reports')" id="subtabForumReports" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all">بلاغات الأعضاء (<span id="forumReportsCount">0</span>)</button>
+              <button onclick="switchForumSubtab('categories')" id="subtabForumCategories" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all">أقسام المنتدى</button>
+              <button onclick="switchForumSubtab('logs')" id="subtabForumLogs" class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all">سجل الرقابة</button>
             </div>
+          </div>
+
+          <!-- Forum Dynamic Subtab Toolbar -->
+          <div id="forumSubtabToolbar" class="flex items-center justify-between hidden">
+            <span class="text-xs text-slate-400" id="forumSubtabInfo"></span>
+            <button onclick="openCategoryModal()" id="forumAddCategoryBtn" class="hidden bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition-colors">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>إضافة قسم جديد</span>
+            </button>
           </div>
 
           <div id="forumListContainer" class="space-y-4">
@@ -788,6 +800,109 @@
           <button onclick="approveForumWithoutReply()" class="px-3 py-2 rounded-xl text-xs font-semibold text-emerald-400 hover:bg-emerald-500/10">موافقة ونشر</button>
         </div>
         <button onclick="submitForumReply()" class="px-5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-colors">حفظ ونشر الرد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3B. CATEGORY MODAL -->
+  <div id="categoryModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative text-right">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i data-lucide="folder-plus" class="w-5 h-5 text-emerald-400"></i>
+          <span>إضافة قسم جديد للمنتدى</span>
+        </h3>
+        <button onclick="closeModal('categoryModal')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="categoryForm" onsubmit="saveCategory(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">اسم القسم *</label>
+          <input type="text" id="catNameInput" required placeholder="مثال: استفسارات الرقية العامة"
+                 class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">الأيقونة (رمز تعبيري)</label>
+            <input type="text" id="catIconInput" placeholder="📖" value="💬"
+                   class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl text-center focus:outline-none focus:border-sky-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">الترتيب</label>
+            <input type="number" id="catOrderInput" value="0" min="0"
+                   class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">وصف القسم</label>
+          <textarea id="catDescInput" rows="3" placeholder="وصف موجز لطبيعة المواضيع المناسبة لهذا القسم..."
+                    class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('categoryModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">إلغاء</button>
+          <button type="submit" id="catSubmitBtn" class="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-white transition-colors">إنشاء القسم</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3C. RESOLVE REPORT MODAL -->
+  <div id="resolveReportModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative text-right space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i data-lucide="shield-alert" class="w-5 h-5 text-rose-400"></i>
+          <span>اتخاذ إجراء بشأن البلاغ</span>
+        </h3>
+        <button onclick="closeModal('resolveReportModal')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="reportModalId">
+
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-2 text-xs">
+        <div class="flex items-center justify-between text-slate-400 text-[11px]">
+          <span>المُبلّغ: <strong id="reportModalReporter" class="text-slate-300"></strong></span>
+          <span id="reportModalTargetType" class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-bold"></span>
+        </div>
+        <div>
+          <span class="text-slate-500 text-[11px] block">سبب البلاغ:</span>
+          <span id="reportModalReason" class="font-bold text-amber-400"></span>
+        </div>
+        <div id="reportModalDetailsBox">
+          <span class="text-slate-500 text-[11px] block">تفاصيل البلاغ:</span>
+          <p id="reportModalDetails" class="text-slate-300 text-xs italic"></p>
+        </div>
+        <div class="pt-2 border-t border-slate-800/60">
+          <span class="text-slate-500 text-[11px] block mb-1">محتوى الهدف المُبلغ عنه:</span>
+          <div id="reportModalTargetSnippet" class="p-2.5 bg-slate-900 rounded-lg text-slate-300 text-xs leading-relaxed max-h-32 overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <div class="space-y-1.5 text-xs">
+        <label class="block font-semibold text-slate-300">ملاحظة القرار / الحل (اختياري)</label>
+        <input type="text" id="reportModalNote" placeholder="مثال: تم حذف المحتوى لمخالفته الضوابط الشرعية"
+               class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2 flex-wrap text-xs">
+        <button onclick="handleReportAction('DISMISSED')" class="px-3.5 py-2 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          رفض البلاغ (لا توجد مخالفة)
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="handleReportAction('RESOLVED', false)" class="px-3.5 py-2 rounded-xl font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 transition">
+            إغلاق البلاغ مع إبقاء المحتوى
+          </button>
+          <button onclick="handleReportAction('RESOLVED', true)" class="px-3.5 py-2 rounded-xl font-bold bg-rose-600 hover:bg-rose-500 text-white transition shadow-sm">
+            حذف المحتوى وإغلاق البلاغ
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1625,65 +1740,459 @@
     async function switchForumSubtab(tab) {
       currentForumSubtab = tab;
       const container = document.getElementById('forumListContainer');
-      container.innerHTML = `<div class="text-center py-10 text-slate-500">جاري تحميل الاستفسارات...</div>`;
+      const toolbar = document.getElementById('forumSubtabToolbar');
+      const addCatBtn = document.getElementById('forumAddCategoryBtn');
+      const subtabInfo = document.getElementById('forumSubtabInfo');
+      container.innerHTML = `<div class="text-center py-10 text-slate-500">جاري تحميل البيانات...</div>`;
 
-      if (tab === 'pending') {
-        document.getElementById('subtabForumPending').className = 'px-3 py-1.5 rounded-lg font-bold bg-amber-500 text-white';
-        document.getElementById('subtabForumApproved').className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white';
+      // Update Subtab button styles
+      const subtabs = ['pending', 'approved', 'reports', 'categories', 'logs'];
+      subtabs.forEach(s => {
+        const btn = document.getElementById(`subtabForum${s.charAt(0).toUpperCase() + s.slice(1)}`);
+        if (!btn) return;
+        if (s === tab) {
+          btn.className = 'px-3 py-1.5 rounded-lg font-bold bg-sky-500 text-white transition-all shadow-xs';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all';
+        }
+      });
+
+      if (tab === 'categories') {
+        toolbar.classList.remove('hidden');
+        addCatBtn.classList.remove('hidden');
+        subtabInfo.textContent = 'أقسام المنتدى المعتمدة لتنظيم استفسارات وتجارب المستفيدين';
       } else {
-        document.getElementById('subtabForumApproved').className = 'px-3 py-1.5 rounded-lg font-bold bg-sky-500 text-white';
-        document.getElementById('subtabForumPending').className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white';
+        toolbar.classList.add('hidden');
+        addCatBtn.classList.add('hidden');
       }
 
       try {
-        const endpoint = tab === 'pending' ? '/forum/pending' : '/forum';
-        const res = await apiRequest(endpoint);
-        cachedForum = res.data || res.inquiries || res.posts || [];
-
         if (tab === 'pending') {
+          const res = await apiRequest('/forum/pending');
+          cachedForum = res.data || res.inquiries || res.posts || [];
           document.getElementById('forumPendingCount').textContent = cachedForum.length;
-        }
 
-        if (cachedForum.length === 0) {
-          container.innerHTML = `<div class="text-center py-10 text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">لا توجد استفسارات في هذا القسم حالياً</div>`;
-          return;
-        }
+          if (cachedForum.length === 0) {
+            container.innerHTML = `<div class="text-center py-10 text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">لا توجد استفسارات بانتظار المراجعة حالياً (القائمة مكتملة)</div>`;
+            return;
+          }
 
-        container.innerHTML = cachedForum.map(f => `
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-white">${f.authorName || 'سائل مجهول'}</span>
-                <span class="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-md">${f.badge || 'استفسار شرعي'}</span>
+          container.innerHTML = cachedForum.map(f => `
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-white">${f.authorName || 'سائل مجهول'}</span>
+                  <span class="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-md">${f.category?.name || f.badge || 'استفسار شرعي'}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-[11px] text-slate-500 font-mono">${formatDate(f.createdAt)}</span>
+                  ${renderStatusBadge(f.status || 'PENDING')}
+                </div>
               </div>
-              <div class="flex items-center gap-3">
-                <span class="text-[11px] text-slate-500 font-mono">${formatDate(f.createdAt)}</span>
-                ${renderStatusBadge(f.status || (tab === 'pending' ? 'PENDING' : 'APPROVED'))}
+
+              <h4 class="text-white font-bold text-sm">${escapeHtml(f.title)}</h4>
+              <p class="text-slate-300 text-xs leading-relaxed">${escapeHtml(f.content)}</p>
+
+              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <button onclick="quickRejectForum('${f.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition-colors">
+                    رفض
+                  </button>
+                  <button onclick="quickApproveForum('${f.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-400 hover:bg-emerald-500/10 transition-colors">
+                    موافقة فورية
+                  </button>
+                </div>
+                <button onclick="openForumModal('${f.id}')" class="bg-sky-500 hover:bg-sky-400 text-white text-xs px-3.5 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors">
+                  <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                  <span>مراجعة وإضافة رد رسمي</span>
+                </button>
               </div>
             </div>
+          `).join('');
 
-            <h4 class="text-white font-bold text-sm">${f.title}</h4>
-            <p class="text-slate-300 text-xs leading-relaxed">${f.content}</p>
+        } else if (tab === 'approved') {
+          const res = await apiRequest('/forum?limit=50&sort=newest');
+          cachedForum = res.data || res.posts || [];
 
-            ${f.officialReply ? `
-              <div class="bg-slate-950 p-3.5 rounded-xl border border-sky-500/20 text-xs mt-2">
-                <span class="text-sky-400 font-bold block mb-1">الرد الشرعي الرسمي المثبت:</span>
-                <p class="text-slate-300">${f.officialReply}</p>
+          if (cachedForum.length === 0) {
+            container.innerHTML = `<div class="text-center py-10 text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">لا توجد مواضيع معتمدة حالياً</div>`;
+            return;
+          }
+
+          container.innerHTML = cachedForum.map(f => `
+            <div class="bg-slate-900 border ${f.isPinned ? 'border-amber-500/40 bg-amber-950/10' : 'border-slate-800'} rounded-2xl p-5 space-y-3">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  ${f.isPinned ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">📌 مثبت</span>' : ''}
+                  ${f.isLocked ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">🔒 مغلق</span>' : ''}
+                  <span class="text-xs font-bold text-white">${f.authorName || 'عضو'}</span>
+                  <span class="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-md">${f.category?.name || f.badge || 'استفسار'}</span>
+                </div>
+                <div class="flex items-center gap-3 text-slate-400 text-xs">
+                  <span><i data-lucide="eye" class="w-3.5 h-3.5 inline"></i> ${f.viewsCount || 0}</span>
+                  <span><i data-lucide="message-square" class="w-3.5 h-3.5 inline"></i> ${f.repliesCount || 0}</span>
+                  <span class="text-[11px] font-mono">${formatDate(f.createdAt)}</span>
+                </div>
               </div>
-            ` : ''}
 
-            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-end gap-2">
-              <button onclick="openForumModal('${f.id}')" class="bg-sky-500 hover:bg-sky-400 text-white text-xs px-3.5 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors">
-                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
-                <span>${f.officialReply ? 'تعديل الرد الرسمي' : 'مراجعة والرد'}</span>
-              </button>
+              <h4 class="text-white font-bold text-sm">${escapeHtml(f.title)}</h4>
+              <p class="text-slate-300 text-xs leading-relaxed line-clamp-2">${escapeHtml(f.content)}</p>
+
+              ${f.officialReply ? `
+                <div class="bg-slate-950 p-3 rounded-xl border border-emerald-500/20 text-xs">
+                  <span class="text-emerald-400 font-bold block mb-1">الرد الشرعي الرسمي المثبت:</span>
+                  <p class="text-slate-300">${escapeHtml(f.officialReply)}</p>
+                </div>
+              ` : ''}
+
+              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <button onclick="toggleForumPin('${f.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold ${f.isPinned ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-800 text-slate-300 hover:text-white'} transition-colors">
+                    ${f.isPinned ? 'إلغاء التثبيت' : '📌 تثبيت'}
+                  </button>
+                  <button onclick="toggleForumLock('${f.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold ${f.isLocked ? 'bg-rose-500/20 text-rose-300' : 'bg-slate-800 text-slate-300 hover:text-white'} transition-colors">
+                    ${f.isLocked ? 'إلغاء القفل' : '🔒 قفل النقاش'}
+                  </button>
+                  <button onclick="deleteForumPost('${f.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition-colors">
+                    حذف الموضوع
+                  </button>
+                </div>
+
+                <button onclick="openForumModal('${f.id}')" class="bg-sky-500 hover:bg-sky-400 text-white text-xs px-3.5 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors">
+                  <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                  <span>${f.officialReply ? 'تعديل الرد الرسمي' : 'إضافة رد رسمي'}</span>
+                </button>
+              </div>
             </div>
-          </div>
-        `).join('');
+          `).join('');
+
+        } else if (tab === 'reports') {
+          const res = await apiRequest('/forum/reports');
+          const reports = res.data || [];
+          const pendingReports = reports.filter(r => r.status === 'PENDING');
+          document.getElementById('forumReportsCount').textContent = pendingReports.length;
+
+          if (reports.length === 0) {
+            container.innerHTML = `<div class="text-center py-10 text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">سجل البلاغات فارغ تماماً، لا توجد بلاغات مسجلة</div>`;
+            return;
+          }
+
+          const reasonMap = {
+            INAPPROPRIATE_CONTENT: 'محتوى مخالف للشريعة أو العقيدة',
+            ABUSIVE_LANGUAGE: 'ألفاظ غير لائقة أو إساءة شخصية',
+            SPAM: 'إعلانات أو روابط خارجية مشبوهة',
+            MISINFORMATION: 'معلومات مغلوطة أو بدع لا أصل لها',
+            OTHER: 'سبب آخر'
+          };
+
+          container.innerHTML = reports.map(r => {
+            const targetContent = r.post ? r.post.content : (r.reply ? r.reply.content : 'تم حذف المحتوى');
+            const targetTitle = r.post ? r.post.title : (r.reply ? `رد على موضوع: ${r.reply.post?.title || ''}` : '');
+
+            return `
+              <div class="bg-slate-900 border ${r.status === 'PENDING' ? 'border-rose-500/30 bg-rose-950/10' : 'border-slate-800'} rounded-2xl p-5 space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-white">المُبلّغ: ${r.reporter?.name || 'مستخدم'}</span>
+                    <span class="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-md">${r.targetType === 'POST' ? 'موضوع' : 'رد'}</span>
+                    <span class="text-amber-400 font-bold text-xs">${reasonMap[r.reason] || r.reason}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] text-slate-500 font-mono">${formatDate(r.createdAt)}</span>
+                    ${renderReportStatusBadge(r.status)}
+                  </div>
+                </div>
+
+                ${r.details ? `<p class="text-slate-300 text-xs italic bg-slate-950 p-2.5 rounded-xl border border-slate-800">تفاصيل البلاغ: ${escapeHtml(r.details)}</p>` : ''}
+
+                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-xs">
+                  <div class="text-slate-400 text-[11px] mb-1 font-bold">${escapeHtml(targetTitle)}</div>
+                  <div class="text-slate-300 leading-relaxed max-h-24 overflow-y-auto">${escapeHtml(targetContent)}</div>
+                </div>
+
+                ${r.status === 'PENDING' ? `
+                  <div class="pt-2 border-t border-slate-800/80 flex items-center justify-end">
+                    <button onclick='openResolveReportModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="bg-rose-600 hover:bg-rose-500 text-white text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-1.5 transition-all shadow-sm">
+                      <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                      <span>اتخاذ قرار ومعالجة البلاغ</span>
+                    </button>
+                  </div>
+                ` : `
+                  <div class="text-[11px] text-slate-400 pt-1">
+                    <span>تمت المعالجة بواسطة: <strong class="text-slate-300">${r.resolver?.name || 'مشرف'}</strong></span>
+                    ${r.resolutionNote ? `<span class="mr-2">(${escapeHtml(r.resolutionNote)})</span>` : ''}
+                  </div>
+                `}
+              </div>
+            `;
+          }).join('');
+
+        } else if (tab === 'categories') {
+          const res = await apiRequest('/forum/categories');
+          const categories = res.data || [];
+
+          container.innerHTML = `
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                  <thead class="bg-slate-950/70 text-slate-400 font-bold border-b border-slate-800">
+                    <tr>
+                      <th class="p-4">الأيقونة</th>
+                      <th class="p-4">اسم القسم</th>
+                      <th class="p-4">الرمز المعرّف (Slug)</th>
+                      <th class="p-4">الوصف</th>
+                      <th class="p-4 text-center">الترتيب</th>
+                      <th class="p-4 text-center">الحالة</th>
+                      <th class="p-4 text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-800/60">
+                    ${categories.map(c => `
+                      <tr class="hover:bg-slate-800/40 transition-colors">
+                        <td class="p-4 text-base">${c.icon || '📌'}</td>
+                        <td class="p-4 font-bold text-white">${escapeHtml(c.name)}</td>
+                        <td class="p-4 font-mono text-slate-400 dir-ltr text-right">${c.slug}</td>
+                        <td class="p-4 text-slate-300 max-w-xs truncate">${escapeHtml(c.description || '-')}</td>
+                        <td class="p-4 text-center font-mono">${c.orderIndex || 0}</td>
+                        <td class="p-4 text-center">
+                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${c.isActive !== false ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">
+                            ${c.isActive !== false ? 'مفعّل' : 'معطّل'}
+                          </span>
+                        </td>
+                        <td class="p-4 text-center">
+                          <button onclick="toggleCategoryActive('${c.id}', ${c.isActive !== false})" class="text-xs ${c.isActive !== false ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-300' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300'} px-3 py-1 rounded-lg transition-colors font-medium">
+                            ${c.isActive !== false ? 'تعطيل' : 'تفعيل'}
+                          </button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+
+        } else if (tab === 'logs') {
+          const res = await apiRequest('/forum/moderation-logs');
+          const logs = res.data || [];
+
+          if (logs.length === 0) {
+            container.innerHTML = `<div class="text-center py-10 text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">سجل الرقابة فارغ حالياً</div>`;
+            return;
+          }
+
+          const actionNames = {
+            APPROVE_POST: 'موافقة على موضوع',
+            REJECT_POST: 'رفض موضوع',
+            PIN_POST: 'تثبيت موضوع',
+            UNPIN_POST: 'إلغاء تثبيت موضوع',
+            LOCK_POST: 'قفل نقاش موضوع',
+            UNLOCK_POST: 'فتح نقاش موضوع',
+            DELETE_POST: 'حذف موضوع',
+            DELETE_REPLY: 'حذف رد',
+            OFFICIAL_REPLY: 'إضافة رد رسمي',
+            RESOLVE_REPORT: 'معالجة بلاغ مخالفة',
+            DISMISS_REPORT: 'رفض بلاغ مخالفة'
+          };
+
+          container.innerHTML = `
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                  <thead class="bg-slate-950/70 text-slate-400 font-bold border-b border-slate-800">
+                    <tr>
+                      <th class="p-4">المشرف / الإداري</th>
+                      <th class="p-4">الإجراء الرقابي</th>
+                      <th class="p-4">نوع الهدف</th>
+                      <th class="p-4">السبب / الملاحظات</th>
+                      <th class="p-4">التاريخ والوقت</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-800/60">
+                    ${logs.map(l => `
+                      <tr class="hover:bg-slate-800/40 transition-colors">
+                        <td class="p-4 font-bold text-slate-200">${escapeHtml(l.moderator?.name || 'مشرف')}</td>
+                        <td class="p-4">
+                          <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                            ${actionNames[l.action] || l.action}
+                          </span>
+                        </td>
+                        <td class="p-4 font-mono text-slate-400">${l.targetType}</td>
+                        <td class="p-4 text-slate-300">${escapeHtml(l.reason || '-')}</td>
+                        <td class="p-4 text-slate-400 font-mono">${formatDate(l.createdAt)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }
 
         lucide.createIcons({ root: container });
       } catch (err) {
-        container.innerHTML = `<div class="text-center py-10 text-rose-400">فشل جلب استفسارات المنتدى: ${err.message}</div>`;
+        container.innerHTML = `<div class="text-center py-10 text-rose-400">فشل جلب بيانات المنتدى: ${err.message}</div>`;
+      }
+    }
+
+    function renderReportStatusBadge(status) {
+      const map = {
+        PENDING: { label: 'قيد المراجعة', cls: 'bg-rose-500/20 text-rose-300 border-rose-500/30' },
+        RESOLVED: { label: 'تمت المعالجة', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+        DISMISSED: { label: 'مرفوض', cls: 'bg-slate-800 text-slate-400 border-slate-700' }
+      };
+      const s = map[status] || { label: status || 'معلق', cls: 'bg-slate-800 text-slate-400 border-slate-700' };
+      return `<span class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${s.cls}">${s.label}</span>`;
+    }
+
+    async function quickApproveForum(id) {
+      try {
+        await apiRequest(`/forum/${id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'APPROVED' })
+        });
+        toast('تمت الموافقة على السؤال ونشره في المنتدى', 'success');
+        switchForumSubtab(currentForumSubtab);
+      } catch (err) {
+        toast(err.message || 'فشل تحديث الحالة', 'error');
+      }
+    }
+
+    async function quickRejectForum(id) {
+      if (!confirm('هل تريد بالتأكيد رفض هذا السؤال؟')) return;
+      try {
+        await apiRequest(`/forum/${id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'REJECTED' })
+        });
+        toast('تم رفض السؤال بنجاح', 'info');
+        switchForumSubtab(currentForumSubtab);
+      } catch (err) {
+        toast(err.message || 'فشل رفض السؤال', 'error');
+      }
+    }
+
+    async function toggleForumPin(id) {
+      try {
+        const res = await apiRequest(`/forum/${id}/pin`, { method: 'PATCH' });
+        toast(res.message || 'تم تحديث التثبيت', 'success');
+        switchForumSubtab(currentForumSubtab);
+      } catch (err) {
+        toast(err.message || 'فشل تغيير حالة التثبيت', 'error');
+      }
+    }
+
+    async function toggleForumLock(id) {
+      try {
+        const res = await apiRequest(`/forum/${id}/lock`, { method: 'PATCH' });
+        toast(res.message || 'تم تحديث قفل الموضوع', 'success');
+        switchForumSubtab(currentForumSubtab);
+      } catch (err) {
+        toast(err.message || 'فشل تغيير حالة القفل', 'error');
+      }
+    }
+
+    async function deleteForumPost(id) {
+      if (!confirm('هل تريد بالتأكيد حذف هذا الموضوع نهائياً؟')) return;
+      try {
+        await apiRequest(`/forum/${id}`, { method: 'DELETE' });
+        toast('تم حذف الموضوع بنجاح', 'success');
+        switchForumSubtab(currentForumSubtab);
+      } catch (err) {
+        toast(err.message || 'فشل حذف الموضوع', 'error');
+      }
+    }
+
+    function openResolveReportModal(report) {
+      document.getElementById('reportModalId').value = report.id;
+      document.getElementById('reportModalReporter').textContent = report.reporter?.name || 'مستخدم';
+      document.getElementById('reportModalTargetType').textContent = report.targetType === 'POST' ? 'موضوع' : 'رد';
+      
+      const reasonMap = {
+        INAPPROPRIATE_CONTENT: 'محتوى مخالف للشريعة أو العقيدة',
+        ABUSIVE_LANGUAGE: 'ألفاظ غير لائقة أو إساءة شخصية',
+        SPAM: 'إعلانات أو روابط خارجية مشبوهة',
+        MISINFORMATION: 'معلومات مغلوطة أو بدع لا أصل لها',
+        OTHER: 'سبب آخر'
+      };
+      document.getElementById('reportModalReason').textContent = reasonMap[report.reason] || report.reason;
+      
+      const detailsEl = document.getElementById('reportModalDetails');
+      const detailsBox = document.getElementById('reportModalDetailsBox');
+      if (report.details) {
+        detailsEl.textContent = report.details;
+        detailsBox.classList.remove('hidden');
+      } else {
+        detailsBox.classList.add('hidden');
+      }
+
+      const snippetEl = document.getElementById('reportModalTargetSnippet');
+      const targetContent = report.post ? report.post.content : (report.reply ? report.reply.content : 'تم حذف المحتوى مسبقاً');
+      snippetEl.textContent = targetContent;
+      document.getElementById('reportModalNote').value = '';
+
+      openModal('resolveReportModal');
+    }
+
+    async function handleReportAction(status, deleteContent = false) {
+      const reportId = document.getElementById('reportModalId').value;
+      const resolutionNote = document.getElementById('reportModalNote').value.trim();
+
+      try {
+        await apiRequest(`/forum/reports/${reportId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status, deleteContent, resolutionNote })
+        });
+        toast('تم اتخاذ الإجراء وحفظ القرار بنجاح', 'success');
+        closeModal('resolveReportModal');
+        switchForumSubtab('reports');
+      } catch (err) {
+        toast(err.message || 'فشل معالجة البلاغ', 'error');
+      }
+    }
+
+    function openCategoryModal() {
+      document.getElementById('categoryForm').reset();
+      document.getElementById('catOrderInput').value = 0;
+      document.getElementById('catIconInput').value = '💬';
+      openModal('categoryModal');
+    }
+
+    async function saveCategory(e) {
+      e.preventDefault();
+      const name = document.getElementById('catNameInput').value.trim();
+      const icon = document.getElementById('catIconInput').value.trim() || '💬';
+      const orderIndex = parseInt(document.getElementById('catOrderInput').value, 10) || 0;
+      const description = document.getElementById('catDescInput').value.trim();
+
+      const btn = document.getElementById('catSubmitBtn');
+      btn.disabled = true;
+
+      try {
+        await apiRequest('/forum/categories', {
+          method: 'POST',
+          body: JSON.stringify({ name, icon, orderIndex, description })
+        });
+        toast('تم إنشاء قسم المنتدى بنجاح', 'success');
+        closeModal('categoryModal');
+        switchForumSubtab('categories');
+      } catch (err) {
+        toast(err.message || 'فشل إنشاء القسم', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function toggleCategoryActive(catId, currentActive) {
+      try {
+        await apiRequest(`/forum/categories/${catId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ isActive: !currentActive })
+        });
+        toast(!currentActive ? 'تم تفعيل القسم' : 'تم تعطيل القسم', 'success');
+        switchForumSubtab('categories');
+      } catch (err) {
+        toast(err.message || 'فشل تعديل حالة القسم', 'error');
       }
     }
 
@@ -1693,7 +2202,7 @@
 
       document.getElementById('modalForumId').value = f.id;
       document.getElementById('modalForumAuthor').textContent = `السائل: ${f.authorName || 'زائر'}`;
-      document.getElementById('modalForumCategory').textContent = f.badge || 'استفسار شرعي';
+      document.getElementById('modalForumCategory').textContent = f.category?.name || f.badge || 'استفسار شرعي';
       document.getElementById('modalForumTitle').textContent = f.title || '';
       document.getElementById('modalForumContent').textContent = f.content || '';
       document.getElementById('modalForumReply').value = f.officialReply || '';
@@ -1724,7 +2233,7 @@
 
         toast('تم حفظ ونشر الرد الرسمي في المنتدى بنجاح', 'success');
         closeModal('forumModal');
-        loadForum();
+        switchForumSubtab(currentForumSubtab);
       } catch (err) {
         toast(err.message || 'فشل حفظ الرد', 'error');
       }
@@ -1739,7 +2248,7 @@
         });
         toast('تمت الموافقة على السؤال ونشره في المنتدى', 'success');
         closeModal('forumModal');
-        loadForum();
+        switchForumSubtab(currentForumSubtab);
       } catch (err) {
         toast(err.message || 'فشل تحديث الحالة', 'error');
       }
@@ -1756,7 +2265,7 @@
         });
         toast('تم رفض المشاركة بنجاح', 'info');
         closeModal('forumModal');
-        loadForum();
+        switchForumSubtab(currentForumSubtab);
       } catch (err) {
         toast(err.message || 'فشل الرفض', 'error');
       }
@@ -2252,12 +2761,19 @@
         tbody.innerHTML = users.map(u => `
           <tr class="hover:bg-slate-800/40 transition-colors">
             <td class="p-4">
-              <div class="font-bold text-slate-200">${u.name || 'مستخدم'}</div>
+              <div class="font-bold text-slate-200">${escapeHtml(u.name || 'مستخدم')}</div>
               <div class="text-[10px] text-slate-500 font-mono">ID: ${u.id ? u.id.substring(0, 8) : '-'}</div>
             </td>
-            <td class="p-4 font-mono text-slate-300 dir-ltr text-right">${u.email}</td>
-            <td class="p-4 font-mono text-slate-400 dir-ltr text-right">${u.phone || '-'}</td>
-            <td class="p-4">${renderRoleBadge(u.role)}</td>
+            <td class="p-4 font-mono text-slate-300 dir-ltr text-right">${escapeHtml(u.email)}</td>
+            <td class="p-4 font-mono text-slate-400 dir-ltr text-right">${escapeHtml(u.phone || '-')}</td>
+            <td class="p-4">
+              <select onchange="changeUserRole('${u.id}', this.value)" class="bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs px-2.5 py-1 rounded-xl focus:outline-none focus:border-sky-500 transition-colors">
+                <option value="USER" ${u.role === 'USER' ? 'selected' : ''}>مستفيد / زائر</option>
+                <option value="MODERATOR" ${u.role === 'MODERATOR' ? 'selected' : ''}>مشرف منتدى</option>
+                <option value="RAQI" ${u.role === 'RAQI' ? 'selected' : ''}>راقٍ معتمد</option>
+                <option value="ADMIN" ${u.role === 'ADMIN' ? 'selected' : ''}>مدير عام</option>
+              </select>
+            </td>
             <td class="p-4">
               <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${u.isActive !== false ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">
                 ${u.isActive !== false ? 'نشط' : 'معلق'}
@@ -2275,6 +2791,20 @@
 
       } catch (err) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-400">فشل جلب المستخدمين: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function changeUserRole(userId, newRole) {
+      try {
+        const res = await apiRequest(`/auth/users/${userId}/role`, {
+          method: 'PATCH',
+          body: JSON.stringify({ role: newRole })
+        });
+        toast(res.message || 'تم تحديث رتبة وصلاحيات المستخدم بنجاح', 'success');
+        loadUsers();
+      } catch (err) {
+        toast(err.message || 'فشل تحديث رتبة المستخدم', 'error');
+        loadUsers();
       }
     }
 
@@ -2325,6 +2855,7 @@
     function renderRoleBadge(role) {
       const map = {
         ADMIN: { label: 'مدير عام', cls: 'bg-rose-500/20 text-rose-400 border-rose-500/30' },
+        MODERATOR: { label: 'مشرف منتدى', cls: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
         RAQI: { label: 'راقٍ معتمد', cls: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' },
         USER: { label: 'مستفيد / زائر', cls: 'bg-slate-800 text-slate-400 border-slate-700' }
       };

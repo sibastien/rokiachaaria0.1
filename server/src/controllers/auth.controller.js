@@ -305,6 +305,54 @@ async function setUserStatus(req, res, next) {
   }
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// PATCH /api/auth/users/:id/role  (ADMIN only)
+// Change a user's role (USER, MODERATOR, RAQI, ADMIN)
+// ────────────────────────────────────────────────────────────────────────────
+async function setUserRole(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const validRoles = ['USER', 'MODERATOR', 'RAQI', 'ADMIN'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: `الدور غير صالح. الأدوار المتاحة: ${validRoles.join(', ')}`,
+      });
+    }
+
+    // Prevent self-demotion from admin to avoid locking out the last admin
+    if (req.user.id === id && role !== 'ADMIN') {
+      return res.status(400).json({
+        success: false,
+        message: 'لا يمكنك تغيير رتبة حسابك الإداري الخاص.',
+      });
+    }
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role },
+      select: { id: true, name: true, email: true, role: true },
+    });
+
+    const roleNames = {
+      ADMIN: 'مدير عام',
+      MODERATOR: 'مشرف منتدى',
+      RAQI: 'راقٍ معتمد',
+      USER: 'مستخدم عادي'
+    };
+
+    res.json({
+      success: true,
+      message: `تم تغيير رتبة ${user.name} إلى ${roleNames[role] || role}.`,
+      user,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -313,4 +361,5 @@ module.exports = {
   changePassword,
   listUsers,
   setUserStatus,
+  setUserRole,
 };

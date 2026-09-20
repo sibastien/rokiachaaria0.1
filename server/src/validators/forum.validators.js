@@ -1,8 +1,6 @@
 // src/validators/forum.validators.js
 const { body } = require('express-validator');
 
-const VALID_BADGES = ['استفسار شرعي', 'تجربة شفاء', 'نصيحة وأذكار'];
-
 const createPostRules = [
   body('authorName')
     .optional()
@@ -12,24 +10,79 @@ const createPostRules = [
   body('title')
     .trim()
     .notEmpty().withMessage('عنوان المشاركة مطلوب.')
-    .isLength({ min: 5, max: 200 }).withMessage('العنوان يجب أن يكون بين 5 و 200 حرف.'),
+    .isLength({ min: 3, max: 200 }).withMessage('العنوان يجب أن يكون بين 3 و 200 حرف.'),
 
   body('content')
     .trim()
     .notEmpty().withMessage('نص المشاركة مطلوب.')
-    .isLength({ min: 10, max: 2000 }).withMessage('النص يجب أن يكون بين 10 و 2000 حرف.'),
+    .isLength({ min: 5, max: 5000 }).withMessage('النص يجب أن يكون بين 5 و 5000 حرف.'),
 
   body('badge')
     .optional()
     .trim()
-    .isIn(VALID_BADGES).withMessage(`القسم غير صالح. الأقسام المتاحة: ${VALID_BADGES.join(' | ')}`),
+    .isLength({ max: 100 }),
+
+  body('categoryId')
+    .optional({ checkFalsy: true })
+    .trim(),
+];
+
+const updatePostRules = [
+  body('title')
+    .optional()
+    .trim()
+    .isLength({ min: 3, max: 200 }).withMessage('العنوان يجب أن يكون بين 3 و 200 حرف.'),
+
+  body('content')
+    .optional()
+    .trim()
+    .isLength({ min: 5, max: 5000 }).withMessage('النص يجب أن يكون بين 5 و 5000 حرف.'),
+
+  body('badge')
+    .optional()
+    .trim()
+    .isLength({ max: 100 }),
+
+  body('categoryId')
+    .optional({ checkFalsy: true })
+    .trim(),
 ];
 
 const replyRules = [
   body('content')
     .trim()
     .notEmpty().withMessage('نص الرد مطلوب.')
-    .isLength({ min: 3, max: 1000 }).withMessage('الرد يجب أن يكون بين 3 و 1000 حرف.'),
+    .isLength({ min: 2, max: 2000 }).withMessage('الرد يجب أن يكون بين حرفين و 2000 حرف.'),
 ];
 
-module.exports = { createPostRules, replyRules };
+const reportRules = [
+  body('reason')
+    .trim()
+    .notEmpty().withMessage('يرجى تحديد سبب البلاغ.')
+    .isLength({ max: 150 }).withMessage('السبب لا يتجاوز 150 حرفاً.'),
+
+  body('details')
+    .optional()
+    .trim()
+    .isLength({ max: 1000 }).withMessage('التفاصيل لا تتجاوز 1000 حرف.'),
+];
+
+const categoryRules = [
+  body('name')
+    .trim()
+    .notEmpty().withMessage('اسم القسم مطلوب.')
+    .isLength({ min: 3, max: 100 }).withMessage('الاسم بين 3 و 100 حرف.'),
+
+  body('slug')
+    .trim()
+    .notEmpty().withMessage('معرف القسم (Slug) مطلوب.')
+    .matches(/^[a-z0-9-]+$/i).withMessage('المعرف يجب أن يحتوي على أحرف وأرقام وشرطات فقط.'),
+];
+
+module.exports = {
+  createPostRules,
+  updatePostRules,
+  replyRules,
+  reportRules,
+  categoryRules,
+};
