@@ -1723,25 +1723,28 @@
     async function loadAudioTracks() {
       try {
         const res = await apiRequest('/audio');
-        if (res && res.data && res.data.length > 0) {
+        if (res && res.data && Array.isArray(res.data)) {
           cachedAudioTracks = res.data;
           localStorage.setItem('roqia_audio_tracks', JSON.stringify(cachedAudioTracks));
-        } else {
-          loadAudioTracksFromStorage();
+          renderAudioTable();
+          return;
         }
       } catch (err) {
-        loadAudioTracksFromStorage();
+        console.warn('Could not load audio tracks from API, checking local storage:', err);
       }
+      loadAudioTracksFromStorage();
       renderAudioTable();
     }
 
     function loadAudioTracksFromStorage() {
       const saved = localStorage.getItem('roqia_audio_tracks');
-      if (saved) {
-        try { cachedAudioTracks = JSON.parse(saved); } catch { cachedAudioTracks = DEFAULT_AUDIO_TRACKS; }
-      } else {
-        cachedAudioTracks = DEFAULT_AUDIO_TRACKS;
+      if (saved !== null) {
+        try {
+          cachedAudioTracks = JSON.parse(saved);
+          return;
+        } catch {}
       }
+      cachedAudioTracks = [];
     }
 
     function renderAudioTable() {
@@ -2023,12 +2026,11 @@
     async function deleteAudioTrack(id) {
       if (!confirm('هل أنت متأكد من حذف هذا المقطع الصوتي؟')) return;
       try {
-        if (isNaN(Number(id))) {
-          await apiRequest(`/audio/${id}`, { method: 'DELETE' });
-        }
-        toast('تم حذف المقطع بنجاح من قاعدة البيانات', 'success');
+        await apiRequest(`/audio/${id}`, { method: 'DELETE' });
+        toast('تم حذف المقطع الصوتي بنجاح', 'success');
       } catch (err) {
-        toast('تم حذف المقطع محلياً', 'info');
+        console.warn('API delete error or local track:', err);
+        toast('تم حذف المقطع من القائمة', 'info');
       }
       cachedAudioTracks = cachedAudioTracks.filter(x => String(x.id) !== String(id));
       localStorage.setItem('roqia_audio_tracks', JSON.stringify(cachedAudioTracks));

@@ -1435,6 +1435,10 @@
         function renderPlaylistButtons() {
             const container = document.getElementById('playlistContainer');
             if (!container) return;
+            if (!audioTracks || audioTracks.length === 0) {
+                container.innerHTML = `<span class="text-[11px] text-slate-400 italic py-1 block w-full text-center">لا توجد مقاطع صوتية مضافة حالياً</span>`;
+                return;
+            }
             container.innerHTML = audioTracks.map((track, idx) => `
                 <button onclick="selectTrack(${idx})" class="track-btn px-2.5 py-1.5 rounded-xl text-xs transition-all text-center truncate ${idx === currentTrackIdx ? 'bg-sky-600 text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-sky-50 hover:text-sky-700'}" title="${track.title} - ${track.reciter}">
                     ${idx + 1}. ${track.title}
@@ -1443,12 +1447,22 @@
         }
 
         function updateAudioUI() {
-            const track = audioTracks[currentTrackIdx];
-            if (!track) return;
-
+            const track = audioTracks && audioTracks[currentTrackIdx];
             const titleEl = document.getElementById('playerTrackTitle');
             const reciterEl = document.getElementById('playerTrackReciter');
             const totalDurationEl = document.getElementById('totalDuration');
+
+            if (!track) {
+                if (titleEl) titleEl.textContent = "لا يوجد مقطع صوتي محدد";
+                if (reciterEl) reciterEl.textContent = "يمكنك إضافة مقاطع من لوحة التحكم";
+                if (totalDurationEl) totalDurationEl.textContent = "00:00";
+                const playIcon = document.getElementById('playIcon');
+                if (playIcon) {
+                    playIcon.setAttribute('data-lucide', 'play');
+                    lucide.createIcons();
+                }
+                return;
+            }
 
             if (titleEl) titleEl.textContent = track.title;
             if (reciterEl) reciterEl.textContent = track.reciter;
@@ -1590,14 +1604,15 @@
             updateAudioUI();
             try {
                 const res = await apiCall('/audio');
-                if (res && res.data && res.data.length > 0) {
+                if (res && res.data && Array.isArray(res.data)) {
                     audioTracks = res.data;
                     localStorage.setItem('roqia_audio_tracks', JSON.stringify(audioTracks));
+                    if (currentTrackIdx >= audioTracks.length) currentTrackIdx = 0;
                     renderPlaylistButtons();
                     updateAudioUI();
                 }
             } catch (err) {
-                console.warn('[Audio] Could not fetch audio library from API, using default playlist:', err.message);
+                console.warn('[Audio] Could not fetch audio library from API:', err.message);
             }
         }
         loadAudioLibrary();

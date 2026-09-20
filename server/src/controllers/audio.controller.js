@@ -37,24 +37,14 @@ const DEFAULT_TRACKS = [
 // ── GET /api/audio (Public) ───────────────────────────────────────────────────
 async function getAudioTracks(req, res, next) {
   try {
-    let tracks = await prisma.audioTrack.findMany({
+    const tracks = await prisma.audioTrack.findMany({
       orderBy: { orderIndex: 'asc' },
     });
 
-    // Auto-seed default tracks if empty
-    if (tracks.length === 0) {
-      await prisma.audioTrack.createMany({
-        data: DEFAULT_TRACKS,
-      });
-      tracks = await prisma.audioTrack.findMany({
-        orderBy: { orderIndex: 'asc' },
-      });
-    }
-
     res.json({ success: true, data: tracks });
   } catch (err) {
-    // If table doesn't exist yet, return defaults gracefully
-    res.json({ success: true, data: DEFAULT_TRACKS, fallback: true });
+    // If table doesn't exist yet or connection issue, return empty array gracefully
+    res.json({ success: true, data: [], fallback: true });
   }
 }
 
@@ -174,8 +164,22 @@ async function deleteAudioTrack(req, res, next) {
   try {
     const { id } = req.params;
 
-    const track = await prisma.audioTrack.findUnique({ where: { id } });
-    if (!track) return next(createError('المقطع الصوتي غير موجود.', 404));
+    let track = await prisma.audioTrack.findUnique({ where: { id } }).catch(() => null);
+
+    // If not found by cuid, try finding by orderIndex if id is a number
+    if (!track && !isNaN(Number(id))) {
+      track = await prisma.audioTrack.findFirst({
+        where: { orderIndex: parseInt(id, 10) - 1 }
+      });
+    }
+
+    if (!track) {
+      // If already deleted or not in DB, still return success so client state is synced
+      return res.json({
+        success: true,
+        message: 'تم حذف المقطع الصوتي بنجاح.',
+      });
+    }
 
     // If it was a local uploaded audio file, delete it from disk
     if (track.src && track.src.startsWith('/uploads/audio/')) {
@@ -186,7 +190,7 @@ async function deleteAudioTrack(req, res, next) {
       }
     }
 
-    await prisma.audioTrack.delete({ where: { id } });
+    await prisma.audioTrack.delete({ where: { id: track.id } });
 
     res.json({
       success: true,
