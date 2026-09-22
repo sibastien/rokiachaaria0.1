@@ -465,7 +465,20 @@
                         </div>
                     </div>
 
-                    <!-- Step 4: Notes -->
+                    <!-- Step 4: WhatsApp Number -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
+                            <span>4. رقم الواتساب للتواصل وتأكيد الموعد <span class="text-rose-500">*</span></span>
+                            <span class="text-xs font-normal text-emerald-600 flex items-center gap-1">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5 inline"></i>
+                                مطلوب للتأكيد
+                            </span>
+                        </label>
+                        <input type="tel" id="portalWhatsappInput" required dir="ltr" placeholder="+966500000000 أو 0500000000" class="w-full bg-slate-50 border border-slate-200 text-slate-800 px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+                        <p class="text-xs text-slate-400 mt-1">يُشترط رقم الواتساب لتأكيد الموعد وإرسال رابط الاتصال المرئي أو الصوتي</p>
+                    </div>
+
+                    <!-- Step 5: Notes -->
                     <div>
                         <label class="block text-sm font-bold text-slate-800 mb-2">5. ملاحظات أو أعراض مختصرة (اختياري وبسرية تامة)</label>
                         <textarea id="portalNotesInput" rows="3" placeholder="اكتب بإيجاز ما تشكو منه أو أي تفاصيل تفيد الشيخ الراقي أثناء الجلسة..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 p-4 rounded-2xl text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition"></textarea>
@@ -1195,6 +1208,12 @@
             if (accName) accName.value = currentUser.name || '';
             if (accEmail) accEmail.value = currentUser.email || '';
             if (accPhone) accPhone.value = currentUser.phone || '';
+
+            // Pre-fill booking tab WhatsApp
+            const portalWhatsapp = document.getElementById('portalWhatsappInput');
+            if (portalWhatsapp && !portalWhatsapp.value && currentUser.phone) {
+                portalWhatsapp.value = currentUser.phone;
+            }
         }
 
         function handleLogout() {
@@ -1556,6 +1575,24 @@
                 return;
             }
 
+            const whatsappInput = document.getElementById('portalWhatsappInput');
+            const whatsapp = whatsappInput ? whatsappInput.value.trim() : '';
+            if (!whatsapp) {
+                showToast('يرجى إدخال رقم الواتساب لإتمام الحجز.');
+                if (whatsappInput) whatsappInput.focus();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
+            const phoneRegex = /^[+0-9\s\-()]{7,25}$/;
+            if (!phoneRegex.test(whatsapp)) {
+                showToast('يرجى إدخال رقم واتساب صحيح يتضمن الأرقام ومفتاح الدولة إن وجد.');
+                if (whatsappInput) whatsappInput.focus();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
+
             const timeMap = {
                 'morning':   'T09:00:00.000Z',
                 'afternoon': 'T15:00:00.000Z',
@@ -1566,7 +1603,7 @@
             try {
                 const data = await apiCall('/bookings', {
                     method: 'POST',
-                    body: JSON.stringify({ raqiId, serviceType, startTime, notes })
+                    body: JSON.stringify({ raqiId, serviceType, startTime, whatsapp, notes })
                 });
                 showToast(data.message || 'تم إرسال طلب الحجز بنجاح!');
                 e.target.reset();

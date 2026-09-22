@@ -29,6 +29,11 @@ const createBookingRules = [
       return true;
     }),
 
+  body('whatsapp')
+    .trim()
+    .notEmpty().withMessage('رقم الواتساب مطلوب لإتمام الحجز والتواصل.')
+    .matches(/^[+0-9\s\-()]{7,25}$/).withMessage('يرجى إدخال رقم واتساب صحيح يتضمن رمز الدولة أو رقماً هاتفياً صالحاً.'),
+
   body('notes')
     .optional()
     .trim()

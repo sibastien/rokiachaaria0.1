@@ -151,8 +151,16 @@ async function createBooking(req, res, next) {
     const validationErr = checkValidation(req);
     if (validationErr) return next(validationErr);
 
-    const { raqiId, serviceType, startTime, notes } = req.body;
+    const { raqiId, serviceType, startTime, notes, whatsapp } = req.body;
     const userId = req.user.id;
+
+    // Persist WhatsApp number to user profile if provided
+    if (whatsapp) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { phone: whatsapp.trim() },
+      }).catch((err) => console.warn('[Bookings] Failed to update user phone:', err.message));
+    }
 
     const duration = SERVICE_DURATIONS[serviceType] || DEFAULT_DURATION;
     const start = new Date(startTime);
@@ -191,6 +199,10 @@ async function createBooking(req, res, next) {
       });
     }
 
+    const bookingNotes = whatsapp
+      ? (notes ? `[واتساب: ${whatsapp.trim()}] - ${notes.trim()}` : `[واتساب: ${whatsapp.trim()}]`)
+      : (notes || null);
+
     const booking = await prisma.booking.create({
       data: {
         userId,
@@ -198,7 +210,7 @@ async function createBooking(req, res, next) {
         serviceType,
         startTime: start,
         endTime:   end,
-        notes:     notes || null,
+        notes:     bookingNotes,
         status:    'PENDING',
       },
       include: {
