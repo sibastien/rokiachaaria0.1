@@ -1214,11 +1214,15 @@
             if (portalWhatsapp && !portalWhatsapp.value && currentUser.phone) {
                 portalWhatsapp.value = currentUser.phone;
             }
+
+            // Sync user data with Chatwoot live chat if active
+            if (window.syncChatwootUser) window.syncChatwootUser();
         }
 
         function handleLogout() {
             localStorage.removeItem('ruqyah_token');
             localStorage.removeItem('ruqyah_user');
+            if (window.resetChatwoot) window.resetChatwoot();
             window.location.href = '/';
         }
 
@@ -2585,5 +2589,8 @@
         // Run on DOM load
         document.addEventListener('DOMContentLoaded', initPortal);
     </script>
+
+    <!-- Chatwoot Live Chat Integration (Configurable in /chatwoot.js) -->
+    <script src="/chatwoot.js" defer></script>
 </body>
 </html>

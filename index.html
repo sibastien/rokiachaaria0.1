@@ -1097,6 +1097,7 @@
             localStorage.setItem('ruqyah_token', token);
             localStorage.setItem('ruqyah_user', JSON.stringify(user));
             updateAuthUI();
+            if (window.syncChatwootUser) window.syncChatwootUser();
         }
 
         /** Clear auth on logout */
@@ -1106,6 +1107,7 @@
             localStorage.removeItem('ruqyah_token');
             localStorage.removeItem('ruqyah_user');
             updateAuthUI();
+            if (window.resetChatwoot) window.resetChatwoot();
         }
 
         /** Update nav to show login/logout based on auth state */
@@ -2327,5 +2329,8 @@
         // Initialize Lucide Icons
         lucide.createIcons();
     </script>
+
+    <!-- Chatwoot Live Chat Integration (Configurable in /chatwoot.js) -->
+    <script src="/chatwoot.js" defer></script>
 </body>
 </html>
