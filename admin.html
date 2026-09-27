@@ -189,6 +189,15 @@
           <i data-lucide="user-check" class="w-4 h-4 text-rose-400"></i>
           <span>المستخدمين والأدوار</span>
         </button>
+
+        <button onclick="switchTab('seo')" data-tab="seo"
+                class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-slate-300 hover:bg-slate-800/60 hover:text-white">
+          <div class="flex items-center gap-3">
+            <i data-lucide="search" class="w-4 h-4 text-lime-400"></i>
+            <span>إدارة SEO والظهور</span>
+          </div>
+          <span id="navSeoBadge" class="bg-red-500/20 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full hidden">!</span>
+        </button>
       </nav>
 
       <!-- Sidebar Footer -->
@@ -634,6 +643,329 @@
           </div>
         </section>
 
+        <!-- ================= 9. SEO MANAGEMENT TAB ================= -->
+        <section id="tab-seo" class="tab-pane hidden space-y-6">
+
+          <!-- Sub-tab bar -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i data-lucide="search" class="w-5 h-5 text-lime-400"></i>
+                إدارة SEO والظهور في محركات البحث
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">تحكم كامل في بيانات SEO، التحويلات، robots.txt، والتحليل الشامل لكل صفحة</p>
+            </div>
+            <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs flex-wrap">
+              <button onclick="switchSeoSubtab('overview')" id="seoSubtabOverview"
+                      class="px-3 py-1.5 rounded-lg font-bold bg-lime-500 text-slate-900 transition-all">نظرة عامة</button>
+              <button onclick="switchSeoSubtab('pages')" id="seoSubtabPages"
+                      class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all">وصف الصفحات</button>
+              <button onclick="switchSeoSubtab('redirects')" id="seoSubtabRedirects"
+                      class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all">التحويلات</button>
+              <button onclick="switchSeoSubtab('robots')" id="seoSubtabRobots"
+                      class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all">Robots.txt</button>
+              <button onclick="switchSeoSubtab('analysis')" id="seoSubtabAnalysis"
+                      class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all">تحليل SEO</button>
+            </div>
+          </div>
+
+          <!-- ── OVERVIEW ── -->
+          <div id="seo-pane-overview" class="space-y-6">
+            <!-- Score cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <p class="text-xs text-slate-400 mb-1">متوسط نقاط SEO</p>
+                <h3 id="seoAvgScore" class="text-3xl font-black text-lime-400">-</h3>
+                <p class="text-[11px] text-slate-500 mt-1">من 100 نقطة</p>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <p class="text-xs text-slate-400 mb-1">الصفحات المحللة</p>
+                <h3 id="seoTotalPages" class="text-3xl font-black text-white">-</h3>
+                <p class="text-[11px] text-slate-500 mt-1">صفحات ثابتة + مقالات</p>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <p class="text-xs text-slate-400 mb-1">مشاكل حرجة</p>
+                <h3 id="seoCriticalIssues" class="text-3xl font-black text-red-400">-</h3>
+                <p class="text-[11px] text-slate-500 mt-1">تحتاج إصلاح فوري</p>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <p class="text-xs text-slate-400 mb-1">التحويلات النشطة</p>
+                <h3 id="seoActiveRedirects" class="text-3xl font-black text-sky-400">-</h3>
+                <p class="text-[11px] text-slate-500 mt-1">قاعدة redirect</p>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex flex-wrap gap-3">
+              <button onclick="runSeoAnalysis()" id="btnRunAnalysis"
+                      class="flex items-center gap-2 bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-lime-500/20 transition-all">
+                <i data-lucide="scan-search" class="w-4 h-4"></i>
+                <span>تشغيل تحليل SEO الشامل</span>
+              </button>
+              <button onclick="triggerIndexNow()"
+                      class="flex items-center gap-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 font-bold text-xs px-5 py-2.5 rounded-xl transition-all">
+                <i data-lucide="zap" class="w-4 h-4"></i>
+                <span>إرسال IndexNow لمحركات البحث</span>
+              </button>
+              <a href="/sitemap.xml" target="_blank"
+                 class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs px-5 py-2.5 rounded-xl transition-all">
+                <i data-lucide="map" class="w-4 h-4"></i>
+                <span>معاينة Sitemap.xml</span>
+              </a>
+            </div>
+
+            <!-- Pages score table -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+              <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+                <h4 class="font-bold text-sm text-white">نقاط SEO لكل صفحة</h4>
+                <span class="text-xs text-slate-500">آخر تحليل: <span id="seoLastScan">لم يتم بعد</span></span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                  <thead class="bg-slate-950/70 text-slate-400 font-bold border-b border-slate-800">
+                    <tr>
+                      <th class="p-4">الصفحة</th>
+                      <th class="p-4">الرابط</th>
+                      <th class="p-4">نقاط SEO</th>
+                      <th class="p-4">المشاكل</th>
+                      <th class="p-4 text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="seoOverviewTableBody" class="divide-y divide-slate-800/60">
+                    <tr><td colspan="5" class="text-center py-8 text-slate-500">اضغط "تشغيل تحليل SEO" لعرض النتائج</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── PAGE META ── -->
+          <div id="seo-pane-pages" class="hidden space-y-4">
+            <div class="flex items-center justify-between">
+              <p class="text-xs text-slate-400">اختر صفحة من القائمة لتعديل بياناتها. التغييرات تُحفظ في قاعدة البيانات مباشرةً.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              <!-- Pages list -->
+              <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-800">
+                  <h4 class="font-bold text-sm text-white">الصفحات</h4>
+                </div>
+                <div id="seoPagesList" class="divide-y divide-slate-800/60 max-h-[520px] overflow-y-auto">
+                  <div class="text-center py-6 text-slate-500 text-xs">جاري تحميل الصفحات...</div>
+                </div>
+              </div>
+
+              <!-- Meta editor -->
+              <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                    <i data-lucide="edit-3" class="w-4 h-4 text-lime-400"></i>
+                    <span id="seoMetaEditorTitle">اختر صفحة للتعديل</span>
+                  </h4>
+                  <button onclick="saveSeoPageMeta()" id="btnSavePageMeta"
+                          class="hidden bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold text-xs px-4 py-1.5 rounded-lg flex items-center gap-1.5 transition-all">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <span>حفظ</span>
+                  </button>
+                </div>
+                <input type="hidden" id="seoEditingPageKey">
+
+                <div id="seoMetaEditorEmpty" class="flex flex-col items-center justify-center py-16 gap-3 text-slate-600">
+                  <i data-lucide="mouse-pointer-click" class="w-10 h-10"></i>
+                  <p class="text-sm">اختر صفحة من القائمة اليسرى للبدء بالتحرير</p>
+                </div>
+
+                <div id="seoMetaEditorForm" class="hidden space-y-3 text-xs">
+                  <!-- Row 1 -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label class="block font-semibold text-slate-300 mb-1 flex items-center justify-between">
+                        <span>عنوان Meta Title</span>
+                        <span id="seoCntTitle" class="font-mono text-slate-500">0/60</span>
+                      </label>
+                      <input type="text" id="seoFieldTitle" maxlength="80" placeholder="الرقية الشرعية أونلاين | ..."
+                             oninput="seoCountChars('seoFieldTitle','seoCntTitle',60)"
+                             class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-lime-500 transition">
+                    </div>
+                    <div>
+                      <label class="block font-semibold text-slate-300 mb-1">الكلمة المفتاحية الرئيسية</label>
+                      <input type="text" id="seoFieldFocusKw" placeholder="رقية شرعية، علاج العين..."
+                             class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-lime-500 transition">
+                    </div>
+                  </div>
+
+                  <!-- Description -->
+                  <div>
+                    <label class="block font-semibold text-slate-300 mb-1 flex items-center justify-between">
+                      <span>وصف Meta Description</span>
+                      <span id="seoCntDesc" class="font-mono text-slate-500">0/160</span>
+                    </label>
+                    <textarea id="seoFieldDesc" rows="3" maxlength="300" placeholder="وصف مختصر وجذاب يظهر في نتائج البحث (120-160 حرف)"
+                              oninput="seoCountChars('seoFieldDesc','seoCntDesc',160)"
+                              class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-lime-500 transition resize-none"></textarea>
+                  </div>
+
+                  <!-- Row 2 -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label class="block font-semibold text-slate-300 mb-1">Canonical URL</label>
+                      <input type="url" id="seoFieldCanonical" placeholder="https://roqiaonline.com/..."
+                             class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-lime-500 transition dir-ltr text-left">
+                    </div>
+                    <div>
+                      <label class="block font-semibold text-slate-300 mb-1">الكلمات المفتاحية (مفصولة بفاصلة)</label>
+                      <input type="text" id="seoFieldKeywords" placeholder="رقية شرعية، علاج العين، تحصين..."
+                             class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-lime-500 transition">
+                    </div>
+                  </div>
+
+                  <!-- OG Section -->
+                  <div class="border-t border-slate-800 pt-3">
+                    <p class="font-bold text-slate-300 mb-2 flex items-center gap-1.5">
+                      <i data-lucide="share-2" class="w-3.5 h-3.5 text-blue-400"></i>
+                      Open Graph / وسائل التواصل الاجتماعي
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label class="block font-semibold text-slate-400 mb-1">OG Title</label>
+                        <input type="text" id="seoFieldOgTitle" placeholder="اتركه فارغاً لاستخدام Meta Title"
+                               class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-blue-500 transition">
+                      </div>
+                      <div>
+                        <label class="block font-semibold text-slate-400 mb-1">OG Image URL</label>
+                        <input type="url" id="seoFieldOgImage" placeholder="https://roqiaonline.com/og-image.jpg"
+                               class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-blue-500 transition dir-ltr text-left">
+                      </div>
+                    </div>
+                    <div class="mt-2">
+                      <label class="block font-semibold text-slate-400 mb-1">OG Description</label>
+                      <textarea id="seoFieldOgDesc" rows="2" placeholder="وصف Open Graph — يظهر عند مشاركة الرابط في وسائل التواصل"
+                                class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                    </div>
+                  </div>
+
+                  <!-- Robots & Schema -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-slate-800 pt-3">
+                    <div class="space-y-2">
+                      <p class="font-bold text-slate-300 flex items-center gap-1.5">
+                        <i data-lucide="bot" class="w-3.5 h-3.5 text-amber-400"></i>
+                        إعدادات الروبوتات (Robots)
+                      </p>
+                      <label class="flex items-center gap-2.5 cursor-pointer">
+                        <input type="checkbox" id="seoFieldRobotsIndex" class="w-4 h-4 rounded accent-lime-500" checked>
+                        <span class="text-slate-300">index — السماح للبوتات بفهرسة الصفحة</span>
+                      </label>
+                      <label class="flex items-center gap-2.5 cursor-pointer">
+                        <input type="checkbox" id="seoFieldRobotsFollow" class="w-4 h-4 rounded accent-lime-500" checked>
+                        <span class="text-slate-300">follow — السماح للبوتات باتباع الروابط</span>
+                      </label>
+                    </div>
+                    <div>
+                      <label class="block font-semibold text-slate-400 mb-1">Twitter Card</label>
+                      <select id="seoFieldTwitterCard"
+                              class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-lime-500">
+                        <option value="summary_large_image">summary_large_image (صورة كبيرة)</option>
+                        <option value="summary">summary (ملخص عادي)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Schema JSON -->
+                  <div class="border-t border-slate-800 pt-3">
+                    <label class="block font-bold text-slate-300 mb-1 flex items-center gap-1.5">
+                      <i data-lucide="code-2" class="w-3.5 h-3.5 text-purple-400"></i>
+                      Schema.org / JSON-LD (بيانات منظمة)
+                    </label>
+                    <textarea id="seoFieldSchema" rows="5" placeholder='{"@context":"https://schema.org","@type":"WebPage",...}'
+                              class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-purple-500 transition font-mono text-[11px] dir-ltr text-left resize-none"></textarea>
+                    <button type="button" onclick="validateSchemaJson()" class="mt-1.5 text-[11px] text-purple-400 hover:text-purple-300 flex items-center gap-1">
+                      <i data-lucide="check-circle" class="w-3 h-3"></i>التحقق من صحة JSON
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── REDIRECTS ── -->
+          <div id="seo-pane-redirects" class="hidden space-y-4">
+            <div class="flex items-center justify-between">
+              <p class="text-xs text-slate-400">قواعد التحويل 301/302 — يتم تطبيقها تلقائياً على الطلبات الواردة</p>
+              <button onclick="openSeoRedirectModal()"
+                      class="bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>إضافة تحويل</span>
+              </button>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                  <thead class="bg-slate-950/70 text-slate-400 font-bold border-b border-slate-800">
+                    <tr>
+                      <th class="p-4">المسار الأصلي (From)</th>
+                      <th class="p-4">الهدف (To)</th>
+                      <th class="p-4">نوع</th>
+                      <th class="p-4">الحالة</th>
+                      <th class="p-4">ملاحظة</th>
+                      <th class="p-4 text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="seoRedirectsTableBody" class="divide-y divide-slate-800/60">
+                    <tr><td colspan="6" class="text-center py-8 text-slate-500">جاري تحميل قواعد التحويل...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── ROBOTS.TXT ── -->
+          <div id="seo-pane-robots" class="hidden space-y-4">
+            <div class="flex items-center justify-between">
+              <p class="text-xs text-slate-400">تعديل مباشر لملف robots.txt — يؤثر على ما تراه روبوتات محركات البحث</p>
+              <button onclick="saveRobotsTxt()"
+                      class="bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold text-xs px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>حفظ robots.txt</span>
+              </button>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+              <div class="flex items-center gap-2 mb-3 text-[11px] text-slate-500">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-sky-400"></i>
+                <span>التغييرات محفوظة مباشرةً في الملف على الخادم. تأكد من صحة الصياغة قبل الحفظ.</span>
+              </div>
+              <textarea id="robotsTxtContent" rows="20" spellcheck="false"
+                        class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-4 rounded-xl focus:outline-none focus:border-lime-500 font-mono text-xs dir-ltr text-left leading-relaxed resize-none transition">
+جاري التحميل...</textarea>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <button onclick="insertRobotsTemplate('ai')"
+                      class="text-xs text-lime-400 hover:text-lime-300 flex items-center gap-1.5 px-3 py-1.5 border border-slate-700 hover:border-lime-500/50 rounded-lg transition">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>إضافة قواعد بوتات الذكاء الاصطناعي
+              </button>
+              <button onclick="insertRobotsTemplate('sitemap')"
+                      class="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1.5 px-3 py-1.5 border border-slate-700 hover:border-sky-500/50 rounded-lg transition">
+                <i data-lucide="map" class="w-3.5 h-3.5"></i>إضافة Sitemap
+              </button>
+            </div>
+          </div>
+
+          <!-- ── ANALYSIS ── -->
+          <div id="seo-pane-analysis" class="hidden space-y-4">
+            <div class="flex items-center justify-between">
+              <p class="text-xs text-slate-400">نتائج آخر تحليل تفصيلي. اضغط "تشغيل تحليل" لتحديث البيانات.</p>
+              <button onclick="runSeoAnalysis()"
+                      class="bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-all">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>تحديث التحليل</span>
+              </button>
+            </div>
+            <div id="seoAnalysisResults" class="space-y-3">
+              <div class="text-center py-10 text-slate-500 text-sm">اضغط "تحديث التحليل" لعرض التقرير التفصيلي</div>
+            </div>
+          </div>
+
+        </section>
+
       </main>
     </div>
   </div>
@@ -904,6 +1236,52 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- SEO REDIRECT MODAL -->
+  <div id="seoRedirectModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-5">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i data-lucide="arrow-right-left" class="w-5 h-5 text-sky-400"></i>
+          <span>إضافة قاعدة تحويل جديدة</span>
+        </h3>
+        <button onclick="closeModal('seoRedirectModal')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="seoRedirectForm" onsubmit="saveSeoRedirect(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">المسار الأصلي (From) *</label>
+          <input type="text" id="redirectFromPath" required placeholder="/old-page أو /ar/page"
+                 class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500 dir-ltr text-left">
+          <p class="text-[11px] text-slate-500 mt-1">المسار النسبي الذي يريد المستخدم الوصول إليه (يبدأ بـ /)</p>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">الوجهة (To) *</label>
+          <input type="text" id="redirectToUrl" required placeholder="https://roqiaonline.com/new-page أو /new-path"
+                 class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500 dir-ltr text-left">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">نوع التحويل</label>
+            <select id="redirectStatusCode" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+              <option value="301">301 — دائم (Permanent)</option>
+              <option value="302">302 — مؤقت (Temporary)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">ملاحظة (اختياري)</label>
+            <input type="text" id="redirectNote" placeholder="سبب التحويل..."
+                   class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+          </div>
+        </div>
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+          <button type="button" onclick="closeModal('seoRedirectModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">إلغاء</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-colors">إضافة التحويل</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1324,7 +1702,8 @@
         forum: 'منتدى الاستفسارات والأسئلة (مجتمع السكينة)',
         audio: 'المكتبة الصوتية ومقاطع الرقية',
         settings: 'إعدادات ونصوص الواجهة (CMS)',
-        users: 'إدارة المستخدمين والأدوار'
+        users: 'إدارة المستخدمين والأدوار',
+        seo: 'إدارة SEO والظهور في محركات البحث'
       };
       document.getElementById('pageTitle').textContent = titles[tabId] || 'لوحة التحكم';
 
@@ -1341,6 +1720,7 @@
       else if (currentTab === 'audio') renderAudioTable();
       else if (currentTab === 'settings') loadSiteSettings();
       else if (currentTab === 'users') loadUsers();
+      else if (currentTab === 'seo') loadSeoOverview();
     }
 
     // --- 1. STATS LOGIC ---
@@ -2873,6 +3253,444 @@
         return dateStr;
       }
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // SEO MANAGEMENT — Complete JS Module
+    // ═══════════════════════════════════════════════════════════════════════
+
+    let currentSeoSubtab = 'overview';
+    let seoPages = [];
+    let seoArticlePages = [];
+
+    // ── Sub-tab switching ────────────────────────────────────────────────────
+    function switchSeoSubtab(name) {
+      currentSeoSubtab = name;
+      const subtabs = ['overview','pages','redirects','robots','analysis'];
+      subtabs.forEach(t => {
+        const btn  = document.getElementById(`seoSubtab${t.charAt(0).toUpperCase()+t.slice(1)}`);
+        const pane = document.getElementById(`seo-pane-${t}`);
+        if (btn)  { btn.className  = t === name ? 'px-3 py-1.5 rounded-lg font-bold bg-lime-500 text-slate-900 transition-all' : 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all'; }
+        if (pane) { pane.classList.toggle('hidden', t !== name); }
+      });
+      if (name === 'overview')  loadSeoOverview();
+      if (name === 'pages')     loadSeoPagesList();
+      if (name === 'redirects') loadSeoRedirects();
+      if (name === 'robots')    loadRobotsTxtContent();
+      if (name === 'analysis')  loadSeoAnalysisResults();
+    }
+
+    // ── Overview (entry point from refreshCurrentTab) ─────────────────────────
+    async function loadSeoOverview() {
+      // Load cached analysis scores
+      try {
+        const res = await apiRequest('/seo/analysis');
+        renderSeoOverviewTable(res.results || []);
+        if (res.avgScore !== null) {
+          document.getElementById('seoAvgScore').textContent = res.avgScore;
+          document.getElementById('seoTotalPages').textContent = (res.results || []).length;
+          // Count critical issues
+          let criticals = 0;
+          (res.results || []).forEach(r => {
+            criticals += (r.issues || []).filter(i => i.severity === 'critical').length;
+          });
+          document.getElementById('seoCriticalIssues').textContent = criticals;
+          if ((res.results || []).length > 0 && res.results[0].scannedAt) {
+            document.getElementById('seoLastScan').textContent = formatDate(res.results[0].scannedAt);
+          }
+        }
+      } catch(e) { /* no results yet */ }
+      // Load redirect count
+      try {
+        const rRes = await apiRequest('/seo/redirects');
+        const active = (rRes.redirects || []).filter(r => r.isActive).length;
+        document.getElementById('seoActiveRedirects').textContent = active;
+      } catch(_) {}
+      lucide.createIcons();
+    }
+
+    function renderSeoOverviewTable(results) {
+      const tbody = document.getElementById('seoOverviewTableBody');
+      if (!results || results.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-500">اضغط "تشغيل تحليل SEO الشامل" لعرض النتائج</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = results.map(r => {
+        const score = r.seoScore || 0;
+        const scoreColor = score >= 80 ? 'text-emerald-400' : score >= 60 ? 'text-amber-400' : 'text-red-400';
+        const criticals = (r.issues || []).filter(i => i.severity === 'critical').length;
+        const warnings  = (r.issues || []).filter(i => i.severity === 'warning').length;
+        return `<tr class="hover:bg-slate-800/30 transition-colors">
+          <td class="p-4 font-medium text-slate-200">${r.pageTitle || r.pageKey}</td>
+          <td class="p-4 text-slate-500 font-mono text-[11px] dir-ltr">${r.pageUrl}</td>
+          <td class="p-4">
+            <div class="flex items-center gap-2">
+              <span class="font-black text-lg ${scoreColor}">${score}</span>
+              <div class="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full ${score>=80?'bg-emerald-400':score>=60?'bg-amber-400':'bg-red-400'}" style="width:${score}%"></div>
+              </div>
+            </div>
+          </td>
+          <td class="p-4">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              ${criticals ? `<span class="text-[10px] font-bold px-1.5 py-0.5 bg-red-500/15 text-red-400 border border-red-500/30 rounded">${criticals} حرجة</span>` : ''}
+              ${warnings  ? `<span class="text-[10px] font-bold px-1.5 py-0.5 bg-amber-500/15 text-amber-400 border border-amber-500/30 rounded">${warnings} تحذيرات</span>` : ''}
+              ${!criticals && !warnings ? `<span class="text-[10px] text-emerald-400">✓ ممتاز</span>` : ''}
+            </div>
+          </td>
+          <td class="p-4 text-center">
+            <button onclick="openSeoMetaEditor('${r.pageKey}')" class="text-xs text-sky-400 hover:text-sky-300 underline underline-offset-2">تحرير SEO</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ── Run Analysis ─────────────────────────────────────────────────────────
+    async function runSeoAnalysis() {
+      const btn = document.getElementById('btnRunAnalysis');
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>جاري التحليل...</span>`;
+      lucide.createIcons();
+      try {
+        const res = await apiRequest('/seo/analyze', { method: 'POST' });
+        toast(`تم تحليل ${res.totalPages} صفحة. متوسط النقاط: ${res.avgScore}/100`, 'success');
+        renderSeoOverviewTable(res.results || []);
+        document.getElementById('seoAvgScore').textContent = res.avgScore;
+        document.getElementById('seoTotalPages').textContent = res.totalPages;
+        let criticals = 0;
+        (res.results || []).forEach(r => { criticals += (r.issues || []).filter(i => i.severity === 'critical').length; });
+        document.getElementById('seoCriticalIssues').textContent = criticals;
+        document.getElementById('seoLastScan').textContent = formatDate(new Date());
+        // Also update badge
+        if (criticals > 0) {
+          const badge = document.getElementById('navSeoBadge');
+          badge.textContent = criticals;
+          badge.classList.remove('hidden');
+        }
+        // If on analysis pane, also refresh it
+        if (currentSeoSubtab === 'analysis') renderSeoAnalysisCards(res.results || []);
+      } catch(err) {
+        toast(err.message || 'تعذر تشغيل التحليل', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        lucide.createIcons();
+      }
+    }
+
+    // ── IndexNow trigger ──────────────────────────────────────────────────────
+    async function triggerIndexNow() {
+      try {
+        const res = await apiRequest('/seo/indexnow', { method: 'POST', body: JSON.stringify({}) });
+        toast('تم إرسال تنبيه IndexNow بنجاح ✓', 'success');
+      } catch(err) {
+        toast(err.message || 'تعذر إرسال IndexNow', 'error');
+      }
+    }
+
+    // ── Page Meta List ────────────────────────────────────────────────────────
+    async function loadSeoPagesList() {
+      const list = document.getElementById('seoPagesList');
+      list.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">جاري التحميل...</div>`;
+      try {
+        const res = await apiRequest('/seo/pages');
+        seoPages = res.pages || [];
+        seoArticlePages = res.dynamicArticlePages || [];
+        renderSeoPagesList();
+      } catch(err) {
+        list.innerHTML = `<div class="text-center py-6 text-red-400 text-xs">${err.message}</div>`;
+      }
+    }
+
+    function renderSeoPagesList() {
+      const list = document.getElementById('seoPagesList');
+      const allPages = [
+        ...seoPages.map(p => ({ ...p, _type: 'static' })),
+        ...seoArticlePages.map(p => ({ ...p, _type: 'article' }))
+      ];
+      if (!allPages.length) {
+        list.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">لا توجد صفحات محددة</div>`;
+        return;
+      }
+      const labels = { home: 'الرئيسية', articles: 'المقالات', forum: 'المنتدى', portal: 'بوابة المستخدم' };
+      list.innerHTML = allPages.map(p => {
+        const label = labels[p.pageKey] || p._articleTitle || p.pageKey;
+        const scoreStr = '';
+        return `<button onclick="openSeoMetaEditor('${p.pageKey}')" class="w-full text-right px-4 py-3 hover:bg-slate-800/60 transition-colors">
+          <div class="flex items-center justify-between">
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-semibold text-slate-200 truncate">${label}</p>
+              <p class="text-[10px] text-slate-500 font-mono truncate">${p.pageKey}</p>
+            </div>
+            <i data-lucide="chevron-left" class="w-3.5 h-3.5 text-slate-600 ml-2 flex-shrink-0"></i>
+          </div>
+        </button>`;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function openSeoMetaEditor(pageKey) {
+      // If we're not on the pages sub-tab, switch to it first
+      if (currentSeoSubtab !== 'pages') switchSeoSubtab('pages');
+
+      const allPages = [...seoPages, ...seoArticlePages];
+      const page = allPages.find(p => p.pageKey === pageKey);
+      const labels = { home: 'الرئيسية', articles: 'المقالات', forum: 'المنتدى', portal: 'بوابة المستخدم' };
+      const label = (page && (labels[page.pageKey] || page._articleTitle || page.pageKey)) || pageKey;
+
+      document.getElementById('seoEditingPageKey').value = pageKey;
+      document.getElementById('seoMetaEditorTitle').textContent = `تحرير: ${label}`;
+      document.getElementById('btnSavePageMeta').classList.remove('hidden');
+      document.getElementById('seoMetaEditorEmpty').classList.add('hidden');
+      document.getElementById('seoMetaEditorForm').classList.remove('hidden');
+
+      // Populate fields
+      document.getElementById('seoFieldTitle').value    = page?.metaTitle    || '';
+      document.getElementById('seoFieldDesc').value     = page?.metaDesc     || '';
+      document.getElementById('seoFieldCanonical').value= page?.canonical    || page?.pageUrl || '';
+      document.getElementById('seoFieldKeywords').value = page?.keywords     || '';
+      document.getElementById('seoFieldFocusKw').value  = page?.focusKeyword || '';
+      document.getElementById('seoFieldOgTitle').value  = page?.ogTitle      || '';
+      document.getElementById('seoFieldOgDesc').value   = page?.ogDesc       || '';
+      document.getElementById('seoFieldOgImage').value  = page?.ogImage      || '';
+      document.getElementById('seoFieldSchema').value   = page?.schemaJson   || '';
+      document.getElementById('seoFieldRobotsIndex').checked  = page?.robotsIndex  !== false;
+      document.getElementById('seoFieldRobotsFollow').checked = page?.robotsFollow !== false;
+      document.getElementById('seoFieldTwitterCard').value = page?.twitterCard || 'summary_large_image';
+
+      // Update counters
+      seoCountChars('seoFieldTitle', 'seoCntTitle', 60);
+      seoCountChars('seoFieldDesc', 'seoCntDesc', 160);
+      lucide.createIcons();
+    }
+
+    async function saveSeoPageMeta() {
+      const pageKey = document.getElementById('seoEditingPageKey').value;
+      if (!pageKey) return;
+      const payload = {
+        pageUrl:      document.getElementById('seoFieldCanonical').value || '',
+        metaTitle:    document.getElementById('seoFieldTitle').value,
+        metaDesc:     document.getElementById('seoFieldDesc').value,
+        keywords:     document.getElementById('seoFieldKeywords').value,
+        canonical:    document.getElementById('seoFieldCanonical').value,
+        ogTitle:      document.getElementById('seoFieldOgTitle').value,
+        ogDesc:       document.getElementById('seoFieldOgDesc').value,
+        ogImage:      document.getElementById('seoFieldOgImage').value,
+        twitterCard:  document.getElementById('seoFieldTwitterCard').value,
+        robotsIndex:  document.getElementById('seoFieldRobotsIndex').checked,
+        robotsFollow: document.getElementById('seoFieldRobotsFollow').checked,
+        schemaJson:   document.getElementById('seoFieldSchema').value,
+        focusKeyword: document.getElementById('seoFieldFocusKw').value,
+      };
+      try {
+        const encodedKey = encodeURIComponent(pageKey);
+        await apiRequest(`/seo/pages/${encodedKey}`, {
+          method: 'PUT', body: JSON.stringify(payload)
+        });
+        toast('تم حفظ إعدادات SEO بنجاح ✓', 'success');
+        // Refresh pages list
+        await loadSeoPagesList();
+      } catch(err) {
+        toast(err.message || 'خطأ في الحفظ', 'error');
+      }
+    }
+
+    function seoCountChars(fieldId, counterId, max) {
+      const field   = document.getElementById(fieldId);
+      const counter = document.getElementById(counterId);
+      if (!field || !counter) return;
+      const len = field.value.length;
+      counter.textContent = `${len}/${max}`;
+      counter.className = len > max ? 'font-mono text-red-400' : len >= max*0.8 ? 'font-mono text-amber-400' : 'font-mono text-slate-500';
+    }
+
+    function validateSchemaJson() {
+      const raw = document.getElementById('seoFieldSchema').value.trim();
+      if (!raw) { toast('حقل JSON-LD فارغ', 'warning'); return; }
+      try { JSON.parse(raw); toast('JSON صالح ✓', 'success'); }
+      catch(e) { toast(`JSON غير صالح: ${e.message}`, 'error'); }
+    }
+
+    // ── Redirects ─────────────────────────────────────────────────────────────
+    async function loadSeoRedirects() {
+      const tbody = document.getElementById('seoRedirectsTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500">جاري التحميل...</td></tr>`;
+      try {
+        const res = await apiRequest('/seo/redirects');
+        renderRedirectsTable(res.redirects || []);
+      } catch(err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-red-400">${err.message}</td></tr>`;
+      }
+      lucide.createIcons();
+    }
+
+    function renderRedirectsTable(redirects) {
+      const tbody = document.getElementById('seoRedirectsTableBody');
+      if (!redirects.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">لا توجد قواعد تحويل بعد</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = redirects.map(r => `
+        <tr class="hover:bg-slate-800/30 transition-colors">
+          <td class="p-4 font-mono text-sky-400 dir-ltr text-right">${r.fromPath}</td>
+          <td class="p-4 text-slate-300 font-mono text-[11px] dir-ltr max-w-[200px] truncate">${r.toUrl}</td>
+          <td class="p-4"><span class="px-2 py-0.5 rounded text-[11px] font-bold ${r.statusCode===301?'bg-emerald-500/15 text-emerald-400':'bg-amber-500/15 text-amber-400'}">${r.statusCode}</span></td>
+          <td class="p-4">
+            <button onclick="toggleSeoRedirect('${r.id}')" class="text-[11px] font-bold px-2 py-0.5 rounded ${r.isActive?'bg-emerald-500/15 text-emerald-400':'bg-slate-700 text-slate-400'}">
+              ${r.isActive ? 'نشط' : 'معطل'}
+            </button>
+          </td>
+          <td class="p-4 text-slate-500 text-[11px]">${r.note || '-'}</td>
+          <td class="p-4 text-center">
+            <button onclick="deleteSeoRedirect('${r.id}','${r.fromPath}')" class="text-rose-400 hover:text-rose-300">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        </tr>`).join('');
+      lucide.createIcons();
+    }
+
+    function openSeoRedirectModal() {
+      document.getElementById('redirectFromPath').value = '';
+      document.getElementById('redirectToUrl').value    = '';
+      document.getElementById('redirectStatusCode').value = '301';
+      document.getElementById('redirectNote').value     = '';
+      openModal('seoRedirectModal');
+    }
+
+    async function saveSeoRedirect(e) {
+      e.preventDefault();
+      try {
+        await apiRequest('/seo/redirects', {
+          method: 'POST',
+          body: JSON.stringify({
+            fromPath:   document.getElementById('redirectFromPath').value.trim(),
+            toUrl:      document.getElementById('redirectToUrl').value.trim(),
+            statusCode: parseInt(document.getElementById('redirectStatusCode').value),
+            note:       document.getElementById('redirectNote').value.trim(),
+          })
+        });
+        toast('تم إضافة قاعدة التحويل بنجاح ✓', 'success');
+        closeModal('seoRedirectModal');
+        loadSeoRedirects();
+      } catch(err) {
+        toast(err.message || 'خطأ في إضافة التحويل', 'error');
+      }
+    }
+
+    async function toggleSeoRedirect(id) {
+      try {
+        await apiRequest(`/seo/redirects/${id}`, { method: 'PATCH' });
+        loadSeoRedirects();
+      } catch(err) { toast(err.message, 'error'); }
+    }
+
+    async function deleteSeoRedirect(id, path) {
+      if (!confirm(`هل تريد حذف قاعدة التحويل "${path}"؟`)) return;
+      try {
+        await apiRequest(`/seo/redirects/${id}`, { method: 'DELETE' });
+        toast('تم حذف التحويل ✓', 'success');
+        loadSeoRedirects();
+      } catch(err) { toast(err.message, 'error'); }
+    }
+
+    // ── Robots.txt ────────────────────────────────────────────────────────────
+    async function loadRobotsTxtContent() {
+      try {
+        const res = await apiRequest('/seo/robots');
+        document.getElementById('robotsTxtContent').value = res.content || '';
+      } catch(err) {
+        document.getElementById('robotsTxtContent').value = `# Error: ${err.message}`;
+      }
+    }
+
+    async function saveRobotsTxt() {
+      const content = document.getElementById('robotsTxtContent').value;
+      try {
+        await apiRequest('/seo/robots', { method: 'PUT', body: JSON.stringify({ content }) });
+        toast('تم حفظ robots.txt بنجاح ✓', 'success');
+      } catch(err) { toast(err.message || 'خطأ في الحفظ', 'error'); }
+    }
+
+    function insertRobotsTemplate(type) {
+      const ta = document.getElementById('robotsTxtContent');
+      const snippets = {
+        ai: `\n# AI Crawlers\nUser-agent: GPTBot\nAllow: /\n\nUser-agent: Claude-Web\nAllow: /\n\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: Google-Extended\nAllow: /\n`,
+        sitemap: `\nSitemap: https://roqiaonline.com/sitemap.xml\n`,
+      };
+      ta.value += snippets[type] || '';
+      toast('تم إضافة المقطع ✓', 'success');
+    }
+
+    // ── Analysis ──────────────────────────────────────────────────────────────
+    async function loadSeoAnalysisResults() {
+      try {
+        const res = await apiRequest('/seo/analysis');
+        if (!res.results || res.results.length === 0) {
+          document.getElementById('seoAnalysisResults').innerHTML =
+            `<div class="text-center py-10 text-slate-500 text-sm">لا توجد نتائج. اضغط "تحديث التحليل" لبدء الفحص.</div>`;
+          return;
+        }
+        renderSeoAnalysisCards(res.results);
+      } catch(err) {
+        document.getElementById('seoAnalysisResults').innerHTML =
+          `<div class="text-center py-10 text-red-400 text-sm">${err.message}</div>`;
+      }
+    }
+
+    function renderSeoAnalysisCards(results) {
+      const container = document.getElementById('seoAnalysisResults');
+      if (!results || !results.length) {
+        container.innerHTML = `<div class="text-center py-10 text-slate-500 text-sm">لا توجد نتائج بعد.</div>`;
+        return;
+      }
+      const sevIcons = { critical: '🔴', warning: '🟡', info: '🔵' };
+      const sevColors = {
+        critical: 'border-red-500/40 bg-red-500/5',
+        warning:  'border-amber-500/40 bg-amber-500/5',
+        info:     'border-sky-500/40 bg-sky-500/5',
+      };
+
+      container.innerHTML = results.map(r => {
+        const score = r.seoScore || 0;
+        const scoreColor = score >= 80 ? 'text-emerald-400' : score >= 60 ? 'text-amber-400' : 'text-red-400';
+        const issues = r.issues || [];
+        const issueHtml = issues.length === 0
+          ? `<p class="text-xs text-emerald-400 flex items-center gap-1.5 mt-2"><span>✓</span> لا توجد مشاكل — هذه الصفحة ممتازة!</p>`
+          : issues.map(i => `
+            <div class="flex items-start gap-2 py-1.5 border-b border-slate-800/50 last:border-0">
+              <span class="text-sm mt-0.5">${sevIcons[i.severity] || '⚪'}</span>
+              <div class="min-w-0">
+                <span class="text-[11px] font-bold text-slate-400">[${i.code}]</span>
+                <span class="text-xs text-slate-300 mr-1">${i.label}</span>
+              </div>
+            </div>`).join('');
+
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="px-5 py-3.5 flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-sm text-white">${r.pageTitle || r.pageKey}</h4>
+                <p class="text-[11px] text-slate-500 font-mono">${r.pageUrl}</p>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-black ${scoreColor}">${score}</div>
+                <div class="text-[10px] text-slate-500">/ 100</div>
+              </div>
+            </div>
+            <div class="px-5 pb-4 space-y-0.5">
+              ${issueHtml}
+            </div>
+            <div class="px-5 pb-4">
+              <button onclick="openSeoMetaEditor('${r.pageKey}')" class="text-xs text-lime-400 hover:text-lime-300 flex items-center gap-1">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>تحرير إعدادات SEO لهذه الصفحة
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+      lucide.createIcons();
+    }
+
   </script>
 </body>
 </html>

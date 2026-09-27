@@ -334,3 +334,60 @@ model AudioTrack {
   @@map("audio_tracks")
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SEO MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Per-page SEO metadata managed from the admin dashboard.
+/// pageKey is a unique slug like "home" | "articles" | "forum" | "article:{id}"
+model SeoPageMeta {
+  id           String   @id @default(cuid())
+  pageKey      String   @unique @map("page_key")
+  pageUrl      String   @map("page_url")
+  metaTitle    String?  @map("meta_title")
+  metaDesc     String?  @map("meta_desc")       @db.Text
+  keywords     String?
+  canonical    String?
+  ogTitle      String?  @map("og_title")
+  ogDesc       String?  @map("og_desc")         @db.Text
+  ogImage      String?  @map("og_image")
+  twitterCard  String?  @default("summary_large_image") @map("twitter_card")
+  robotsIndex  Boolean  @default(true)  @map("robots_index")
+  robotsFollow Boolean  @default(true)  @map("robots_follow")
+  schemaJson   String?  @map("schema_json")     @db.Text
+  focusKeyword String?  @map("focus_keyword")
+  customSlug   String?  @map("custom_slug")
+  altText      String?  @map("alt_text")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("seo_page_meta")
+}
+
+/// 301/302 redirect rules managed from the admin dashboard.
+model SeoRedirect {
+  id          String   @id @default(cuid())
+  fromPath    String   @unique @map("from_path")
+  toUrl       String   @map("to_url")
+  statusCode  Int      @default(301) @map("status_code")
+  isActive    Boolean  @default(true) @map("is_active")
+  note        String?
+  hitsCount   Int      @default(0) @map("hits_count")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([fromPath])
+  @@map("seo_redirects")
+}
+
+/// Cached SEO issue scan results per page — updated on demand by the admin.
+model SeoIssue {
+  id        String   @id @default(cuid())
+  pageKey   String   @unique @map("page_key")
+  pageUrl   String   @map("page_url")
+  pageTitle String?  @map("page_title")
+  seoScore  Int      @default(0) @map("seo_score")
+  issues    String   @db.Text @map("issues")  // JSON array of issue objects
+  scannedAt DateTime @default(now()) @map("scanned_at")
+
+  @@map("seo_issues")
+}
