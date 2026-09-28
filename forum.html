@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منتدى السكينة — مجتمع الرقية الشرعية والدعم الإيماني</title>
+  <meta name="description" content="منتدى مجتمع الرقية الشرعية: اطرح سؤالك وشارك تجربتك وتفاعل مع أهل العلم والمستفيدين في بيئة آمنة مشرفة وفق الضوابط الشرعية.">
+  <meta name="keywords" content="منتدى رقية شرعية, أسئلة شرعية, تجارب العلاج, مجتمع إسلامي, دعم إيماني">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://roqiaonline.com/forum">
+  <meta property="og:title" content="منتدى السكينة — مجتمع الرقية الشرعية">
+  <meta property="og:description" content="اطرح سؤالك وشارك تجربتك في منتدى الرقية الشرعية الآمن والمشرف.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://roqiaonline.com/forum">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"DiscussionForumPosting","name":"منتدى السكينة","url":"https://roqiaonline.com/forum","description":"مجتمع الرقية الشرعية والدعم الإيماني"}
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+          colors: {
+            sky: { 50:'#f0f9ff',100:'#e0f2fe',200:'#bae6fd',300:'#7dd3fc',400:'#38bdf8',500:'#0ea5e9',600:'#0284c7',700:'#0369a1',800:'#075985',900:'#0c4a6e' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f0f9ff; }
+    ::-webkit-scrollbar-thumb { background: #7dd3fc; border-radius: 9999px; }
+    .sky-glass { background: rgba(255,255,255,0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .pattern-bg { background-color:#fff; background-image:radial-gradient(#bae6fd 0.75px,transparent 0.75px),radial-gradient(#bae6fd 0.75px,#fff 0.75px); background-size:30px 30px; background-position:0 0,15px 15px; }
+    .post-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .post-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px -8px rgba(14,165,233,0.12); }
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeInUp 0.4s ease forwards; }
+    .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .line-clamp-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  </style>
+</head>
+<body class="text-slate-800 bg-slate-50 flex flex-col min-h-screen">
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none text-sm font-medium flex items-center gap-2">
+    <i data-lucide="info" class="w-4 h-4 text-sky-400"></i><span id="toastMsg"></span>
+  </div>
+
+  <!-- New Post Modal -->
+  <div id="newPostModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4" onclick="closeModalOverlay(event,'newPostModal')">
+    <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl" onclick="event.stopPropagation()">
+      <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="font-black text-sky-950 text-base flex items-center gap-2">
+          <i data-lucide="pencil" class="w-5 h-5 text-sky-500"></i>
+          موضوع جديد
+        </h3>
+        <button onclick="closeModal('newPostModal')" class="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="newPostForm" onsubmit="submitPost(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1.5">القسم *</label>
+          <select id="postCategory" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300 text-sm">
+            <option value="">اختر القسم...</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1.5">عنوان الموضوع *</label>
+          <input type="text" id="postTitle" required placeholder="مثال: سؤال حول أعراض العين وكيفية علاجها..."
+                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300 text-sm placeholder-slate-400">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1.5">محتوى الموضوع *</label>
+          <textarea id="postContent" required rows="5" placeholder="اكتب موضوعك بتفصيل... (300 حرف على الأقل)"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300 text-sm placeholder-slate-400 resize-none leading-relaxed"></textarea>
+        </div>
+        <div class="bg-sky-50 border border-sky-200 rounded-2xl p-3 text-xs text-sky-700 flex items-start gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 shrink-0 mt-0.5"></i>
+          <span>يخضع كل موضوع لمراجعة المشرفين قبل النشر للتأكد من توافقه مع الضوابط الشرعية.</span>
+        </div>
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="closeModal('newPostModal')" class="px-4 py-2 rounded-xl text-sm text-slate-500 hover:text-slate-700 transition-colors">إلغاء</button>
+          <button type="submit" id="postSubmitBtn" class="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md shadow-sky-600/20 transition-all">
+            <i data-lucide="send" class="w-4 h-4"></i>نشر الموضوع
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Post Reader Modal -->
+  <div id="postModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-start justify-center p-4 pt-12 overflow-y-auto" onclick="closeModalOverlay(event,'postModal')">
+    <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl my-4" onclick="event.stopPropagation()">
+      <div class="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-slate-100 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+          <span id="postModalCategoryBadge" class="text-xs px-2.5 py-1 rounded-full font-bold shrink-0"></span>
+          <span id="postModalTitle" class="font-bold text-sky-950 text-sm truncate"></span>
+        </div>
+        <button onclick="closeModal('postModal')" class="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 sm:p-8">
+        <!-- Original post -->
+        <div id="postModalBody" class="mb-8"></div>
+        <!-- Replies -->
+        <div class="border-t border-slate-100 pt-6">
+          <h4 class="font-bold text-slate-700 text-sm mb-4 flex items-center gap-2">
+            <i data-lucide="message-square" class="w-4 h-4 text-sky-500"></i>
+            الردود <span id="postReplyCount" class="text-sky-600 font-black"></span>
+          </h4>
+          <div id="repliesContainer" class="space-y-4 mb-6"></div>
+          <!-- Reply form -->
+          <div id="replyFormContainer" class="bg-sky-50 border border-sky-100 rounded-2xl p-4">
+            <p class="text-xs text-sky-700 font-bold mb-3 flex items-center gap-1.5">
+              <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+              يجب تسجيل الدخول للرد
+            </p>
+            <a href="/dashboard" class="inline-flex items-center gap-1.5 bg-sky-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-sky-500 transition-colors shadow-sm">
+              <i data-lucide="user" class="w-3.5 h-3.5"></i>تسجيل الدخول والرد
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 sky-glass border-b border-sky-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-18 py-3">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white shadow-lg shadow-sky-500/25 group-hover:scale-105 transition-transform">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="text-lg font-extrabold text-sky-900 block leading-tight">الرقية الشرعية</span>
+            <span class="text-xs font-semibold text-sky-500">أونلاين المعتمدة</span>
+          </div>
+        </a>
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="/" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-sky-600 rounded-xl hover:bg-sky-50 transition-colors">الرئيسية</a>
+          <a href="/blog" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-sky-600 rounded-xl hover:bg-sky-50 transition-colors">المدونة</a>
+          <a href="/forum" class="px-3 py-2 text-sm font-bold text-sky-700 bg-sky-50 rounded-xl border border-sky-200">المنتدى</a>
+          <a href="/dashboard" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-sky-600 rounded-xl hover:bg-sky-50 transition-colors">بوابتي</a>
+        </nav>
+        <div class="flex items-center gap-2">
+          <button onclick="openNewPost()" class="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-md shadow-sky-600/20 transition-all">
+            <i data-lucide="pencil" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">موضوع جديد</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="pattern-bg py-12 relative overflow-hidden">
+    <div class="absolute -top-24 left-1/4 w-72 h-72 bg-sky-200/30 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="max-w-xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-sky-100 text-sky-700 text-xs font-bold rounded-full mb-4 border border-sky-200">
+            <i data-lucide="messages-square" class="w-3.5 h-3.5"></i>
+            منتدى السكينة المشرف
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-black text-sky-950 leading-tight mb-3">
+            مجتمعك الإيماني<br>
+            <span class="text-sky-500">في رحلة الشفاء</span>
+          </h1>
+          <p class="text-slate-500 text-base leading-relaxed">
+            شارك تجربتك، اسأل أهل العلم، وادعم إخوانك — في بيئة آمنة ومشرفة وفق الضوابط الشرعية.
+          </p>
+        </div>
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-4 shrink-0">
+          <div class="bg-white rounded-2xl p-4 text-center border border-sky-100 shadow-sm">
+            <div id="statPosts" class="text-2xl font-black text-sky-600">—</div>
+            <div class="text-xs text-slate-500 font-medium">موضوع</div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 text-center border border-sky-100 shadow-sm">
+            <div id="statReplies" class="text-2xl font-black text-emerald-600">—</div>
+            <div class="text-xs text-slate-500 font-medium">رد</div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 text-center border border-sky-100 shadow-sm">
+            <div id="statCategories" class="text-2xl font-black text-amber-500">—</div>
+            <div class="text-xs text-slate-500 font-medium">قسم</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search + Filters -->
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <div class="relative flex-1 min-w-[200px] max-w-sm">
+          <input type="text" id="searchInput" placeholder="ابحث في المواضيع..." oninput="filterPosts()"
+                 class="w-full pl-4 pr-10 py-2.5 rounded-2xl border border-sky-200 bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 text-sm shadow-sm">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        </div>
+        <div id="categoryTabs" class="flex items-center gap-2 flex-wrap">
+          <button onclick="setCategoryFilter('')" data-cat="" class="cat-btn active px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm transition-all">الكل</button>
+        </div>
+        <div class="mr-auto flex items-center gap-2">
+          <select id="sortFilter" onchange="filterPosts()" class="px-3 py-2.5 rounded-xl border border-sky-200 bg-white text-slate-600 text-xs focus:outline-none focus:ring-2 focus:ring-sky-300 shadow-sm">
+            <option value="newest">الأحدث أولاً</option>
+            <option value="popular">الأكثر نشاطاً</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN -->
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+    <div class="flex flex-col lg:flex-row gap-8">
+
+      <!-- Posts Feed -->
+      <div class="flex-1 min-w-0">
+        <div id="postsContainer" class="space-y-4">
+          <!-- Skeletons -->
+          <div class="bg-white rounded-2xl border border-slate-100 p-5 animate-pulse space-y-3">
+            <div class="flex items-center gap-3"><div class="w-9 h-9 bg-slate-200 rounded-xl"></div><div class="flex-1"><div class="h-3 bg-slate-200 rounded-full w-1/3 mb-1"></div><div class="h-3 bg-slate-200 rounded-full w-1/4"></div></div></div>
+            <div class="h-5 bg-slate-200 rounded-full w-3/4"></div>
+            <div class="h-4 bg-slate-200 rounded-full"></div><div class="h-4 bg-slate-200 rounded-full w-5/6"></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-100 p-5 animate-pulse space-y-3">
+            <div class="flex items-center gap-3"><div class="w-9 h-9 bg-slate-200 rounded-xl"></div><div class="flex-1"><div class="h-3 bg-slate-200 rounded-full w-1/3 mb-1"></div><div class="h-3 bg-slate-200 rounded-full w-1/4"></div></div></div>
+            <div class="h-5 bg-slate-200 rounded-full w-3/4"></div>
+            <div class="h-4 bg-slate-200 rounded-full"></div>
+          </div>
+        </div>
+        <div id="emptyState" class="hidden text-center py-16">
+          <div class="w-16 h-16 rounded-3xl bg-sky-50 flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="message-square-dashed" class="w-8 h-8 text-sky-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-600 mb-2">لا توجد مواضيع</h3>
+          <p class="text-slate-400 text-sm mb-5">كن أول من يبدأ نقاشاً في هذا القسم</p>
+          <button onclick="openNewPost()" class="inline-flex items-center gap-2 bg-sky-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-sky-500 transition-all shadow-md shadow-sky-600/20">
+            <i data-lucide="pencil" class="w-4 h-4"></i>ابدأ موضوعاً الآن
+          </button>
+        </div>
+        <!-- Load more -->
+        <div id="loadMoreContainer" class="hidden mt-6 text-center">
+          <button onclick="loadMorePosts()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl border border-sky-200 text-sky-700 font-bold text-sm hover:bg-sky-50 transition-colors">
+            <i data-lucide="chevron-down" class="w-4 h-4"></i>تحميل المزيد
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="lg:w-72 shrink-0 space-y-5">
+        <!-- Join CTA -->
+        <div class="bg-gradient-to-br from-sky-600 to-sky-700 rounded-3xl p-6 text-white">
+          <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
+            <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-black text-lg mb-2">انضم للمجتمع</h3>
+          <p class="text-sky-100 text-xs leading-relaxed mb-4">سجّل حساباً مجانياً للمشاركة في النقاشات وطرح الأسئلة والاستفادة من خبرات الأعضاء.</p>
+          <a href="/dashboard" class="block w-full bg-white text-sky-700 text-sm font-black py-2.5 rounded-xl text-center hover:bg-sky-50 transition-all shadow-sm">
+            إنشاء حساب مجاني
+          </a>
+        </div>
+        <!-- Categories sidebar -->
+        <div class="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
+          <h3 class="font-bold text-sm text-slate-700 mb-4 flex items-center gap-2">
+            <i data-lucide="layout-grid" class="w-4 h-4 text-sky-500"></i>
+            أقسام المنتدى
+          </h3>
+          <div id="sidebarCategories" class="space-y-1.5"></div>
+        </div>
+        <!-- Guidelines -->
+        <div class="bg-amber-50 border border-amber-200 rounded-3xl p-5">
+          <h3 class="font-bold text-sm text-amber-800 mb-3 flex items-center gap-2">
+            <i data-lucide="scale" class="w-4 h-4 text-amber-600"></i>
+            ضوابط المنتدى
+          </h3>
+          <ul class="space-y-2 text-xs text-amber-700">
+            <li class="flex items-start gap-1.5"><span class="text-amber-500 font-black mt-0.5">•</span>الالتزام بالأدب والاحترام</li>
+            <li class="flex items-start gap-1.5"><span class="text-amber-500 font-black mt-0.5">•</span>عدم نشر معلومات شخصية</li>
+            <li class="flex items-start gap-1.5"><span class="text-amber-500 font-black mt-0.5">•</span>التوثيق من المصادر الشرعية</li>
+            <li class="flex items-start gap-1.5"><span class="text-amber-500 font-black mt-0.5">•</span>الابتعاد عن البدع والخرافات</li>
+            <li class="flex items-start gap-1.5"><span class="text-amber-500 font-black mt-0.5">•</span>يُراجع كل موضوع قبل النشر</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-sky-950 text-sky-200 py-10 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-sky-500/20 flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-4 h-4 text-sky-400"></i>
+        </div>
+        <span class="font-bold text-white">الرقية الشرعية أونلاين</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/" class="hover:text-white transition-colors">الرئيسية</a>
+        <a href="/blog" class="hover:text-white transition-colors">المدونة</a>
+        <a href="/dashboard" class="hover:text-white transition-colors">بوابتي</a>
+      </div>
+      <p class="text-sky-500 text-xs">© 2025 منصة الرقية الشرعية أونلاين — جميع الحقوق محفوظة</p>
+    </div>
+  </footer>
+
+  <script>
+    const API = '/api';
+    let allPosts = [];
+    let allCategories = [];
+    let activeCatId = '';
+    let page = 1;
+    const PER_PAGE = 15;
+
+    const CAT_COLORS = [
+      'bg-sky-100 text-sky-700','bg-emerald-100 text-emerald-700','bg-amber-100 text-amber-700',
+      'bg-violet-100 text-violet-700','bg-rose-100 text-rose-700','bg-teal-100 text-teal-700',
+    ];
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.remove('opacity-0','pointer-events-none');
+      t.classList.add('opacity-100');
+      setTimeout(() => { t.classList.add('opacity-0','pointer-events-none'); t.classList.remove('opacity-100'); }, 3500);
+    }
+
+    function formatDate(d) {
+      if (!d) return '';
+      const diff = Date.now() - new Date(d).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60)   return `منذ ${mins || 1} دقيقة`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24)    return `منذ ${hrs} ساعة`;
+      const days = Math.floor(hrs / 24);
+      if (days < 7)    return `منذ ${days} يوم`;
+      return new Date(d).toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric' });
+    }
+
+    // ── Categories ────────────────────────────────────────────────────────────
+    async function loadCategories() {
+      try {
+        const res = await fetch(`${API}/forum/categories`);
+        const data = await res.json();
+        allCategories = data.categories || data.data || [];
+        renderCategoryTabs();
+        renderSidebarCategories();
+        document.getElementById('statCategories').textContent = allCategories.length;
+        // Populate modal select
+        const sel = document.getElementById('postCategory');
+        sel.innerHTML = '<option value="">اختر القسم...</option>' +
+          allCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      } catch(e) { /* categories not loaded */ }
+    }
+
+    function renderCategoryTabs() {
+      const container = document.getElementById('categoryTabs');
+      container.innerHTML = `<button onclick="setCategoryFilter('')" data-cat="" class="cat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm transition-all">الكل</button>` +
+        allCategories.map((c, i) =>
+          `<button onclick="setCategoryFilter('${c.id}')" data-cat="${c.id}"
+                   class="cat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-sky-300 hover:text-sky-700 hover:bg-sky-50 shadow-sm transition-all">${c.name}</button>`
+        ).join('');
+    }
+
+    function renderSidebarCategories() {
+      const container = document.getElementById('sidebarCategories');
+      container.innerHTML = allCategories.map((c, i) => `
+        <button onclick="setCategoryFilter('${c.id}')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-sky-50 hover:text-sky-700 text-sm transition-colors group">
+          <span class="flex items-center gap-2.5 font-medium text-slate-700 group-hover:text-sky-700">
+            <span class="w-2 h-2 rounded-full ${CAT_COLORS[i % CAT_COLORS.length].split(' ')[0].replace('bg-','bg-').replace('100','400')}"></span>
+            ${c.name}
+          </span>
+          <span class="text-xs font-bold text-slate-400 group-hover:text-sky-600">${c._count?.posts || ''}</span>
+        </button>`).join('');
+    }
+
+    function setCategoryFilter(catId) {
+      activeCatId = catId;
+      page = 1;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        const active = btn.dataset.cat == catId;
+        btn.className = active
+          ? 'cat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm transition-all'
+          : 'cat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-sky-300 hover:text-sky-700 hover:bg-sky-50 shadow-sm transition-all';
+      });
+      loadPosts();
+    }
+
+    // ── Posts ─────────────────────────────────────────────────────────────────
+    async function loadPosts() {
+      document.getElementById('postsContainer').innerHTML = `
+        <div class="bg-white rounded-2xl border border-slate-100 p-5 animate-pulse space-y-3">
+          <div class="flex items-center gap-3"><div class="w-9 h-9 bg-slate-200 rounded-xl"></div><div class="flex-1"><div class="h-3 bg-slate-200 rounded-full w-1/3 mb-1"></div><div class="h-3 bg-slate-200 rounded-full w-1/4"></div></div></div>
+          <div class="h-5 bg-slate-200 rounded-full w-3/4"></div><div class="h-4 bg-slate-200 rounded-full"></div>
+        </div>`;
+      try {
+        const catParam = activeCatId ? `&categoryId=${activeCatId}` : '';
+        const res = await fetch(`${API}/forum/posts?limit=50&page=1${catParam}`);
+        const data = await res.json();
+        allPosts = data.posts || data.data || [];
+        document.getElementById('statPosts').textContent = data.total || allPosts.length;
+        // Sum replies
+        const totalReplies = allPosts.reduce((s, p) => s + (p._count?.replies || p.replyCount || 0), 0);
+        document.getElementById('statReplies').textContent = totalReplies;
+        filterPosts();
+      } catch(e) {
+        document.getElementById('postsContainer').innerHTML =
+          `<div class="text-center py-12 text-red-400 text-sm">تعذر تحميل المواضيع. يرجى المحاولة لاحقاً.</div>`;
+      }
+    }
+
+    function filterPosts() {
+      const q    = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      const sort = document.getElementById('sortFilter').value;
+      let filtered = allPosts.filter(p => !q || (p.title||'').toLowerCase().includes(q) || (p.content||'').toLowerCase().includes(q));
+      if (sort === 'popular') {
+        filtered = filtered.sort((a, b) => (b._count?.replies || 0) - (a._count?.replies || 0));
+      }
+      renderPosts(filtered.slice(0, PER_PAGE * page));
+      document.getElementById('loadMoreContainer').classList.toggle('hidden', filtered.length <= PER_PAGE * page);
+    }
+
+    function loadMorePosts() { page++; filterPosts(); }
+
+    function renderPosts(posts) {
+      const container = document.getElementById('postsContainer');
+      const empty     = document.getElementById('emptyState');
+      if (!posts || !posts.length) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      container.innerHTML = posts.map((p, i) => {
+        const cat   = allCategories.find(c => c.id === p.categoryId) || {};
+        const catColor = CAT_COLORS[allCategories.indexOf(cat) % CAT_COLORS.length] || 'bg-slate-100 text-slate-600';
+        const replies = p._count?.replies || p.replyCount || 0;
+        const likes   = p._count?.likes   || p.likesCount || 0;
+        const author  = p.author?.name || p.authorName || 'عضو';
+        const initial = author.charAt(0);
+        return `
+          <article class="post-card bg-white rounded-2xl border border-slate-100 hover:border-sky-200 p-5 fade-in cursor-pointer"
+                   style="animation-delay:${i * 40}ms" onclick="openPost('${p.id}')">
+            <div class="flex items-start gap-3">
+              <!-- Avatar -->
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-sm">
+                ${initial}
+              </div>
+              <div class="flex-1 min-w-0">
+                <!-- Meta row -->
+                <div class="flex items-center gap-2 flex-wrap mb-2">
+                  ${cat.name ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${catColor}">${cat.name}</span>` : ''}
+                  ${p.isPinned ? `<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 flex items-center gap-1"><i data-lucide="pin" class="w-2.5 h-2.5"></i>مثبت</span>` : ''}
+                  ${p.status === 'PUBLISHED' && p.officialReply ? `<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-1"><i data-lucide="badge-check" class="w-2.5 h-2.5"></i>أُجيب عليه</span>` : ''}
+                </div>
+                <!-- Title -->
+                <h2 class="font-extrabold text-sky-950 text-sm leading-snug mb-1.5 line-clamp-2 hover:text-sky-700 transition-colors">${p.title || 'بدون عنوان'}</h2>
+                <!-- Excerpt -->
+                <p class="text-slate-500 text-xs leading-relaxed line-clamp-2 mb-3">${p.content || ''}</p>
+                <!-- Footer -->
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <div class="flex items-center gap-1.5 text-xs text-slate-400">
+                    <span class="font-bold text-slate-600">${author}</span>
+                    <span>·</span>
+                    <span>${formatDate(p.createdAt)}</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs text-slate-400">
+                    <span class="flex items-center gap-1 hover:text-sky-500 transition-colors">
+                      <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>${replies}
+                    </span>
+                    <span class="flex items-center gap-1 hover:text-rose-400 transition-colors">
+                      <i data-lucide="heart" class="w-3.5 h-3.5"></i>${likes}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    // ── Open Post ─────────────────────────────────────────────────────────────
+    async function openPost(postId) {
+      const post = allPosts.find(p => p.id == postId);
+      if (!post) return;
+
+      const cat = allCategories.find(c => c.id === post.categoryId) || {};
+      const catColor = CAT_COLORS[allCategories.indexOf(cat) % CAT_COLORS.length] || 'bg-slate-100 text-slate-600';
+      const author = post.author?.name || post.authorName || 'عضو';
+
+      document.getElementById('postModalTitle').textContent = post.title || '';
+      const badge = document.getElementById('postModalCategoryBadge');
+      badge.textContent = cat.name || '';
+      badge.className = `text-xs px-2.5 py-1 rounded-full font-bold shrink-0 ${catColor}`;
+
+      document.getElementById('postModalBody').innerHTML = `
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-black shadow-sm">
+            ${author.charAt(0)}
+          </div>
+          <div>
+            <p class="font-bold text-slate-800 text-sm">${author}</p>
+            <p class="text-xs text-slate-400">${formatDate(post.createdAt)}</p>
+          </div>
+        </div>
+        <h2 class="text-xl font-black text-sky-950 mb-4 leading-snug">${post.title || ''}</h2>
+        <div class="text-slate-700 text-sm leading-loose whitespace-pre-wrap">${post.content || ''}</div>
+      `;
+
+      document.getElementById('postModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('repliesContainer').innerHTML = '<div class="text-xs text-slate-400 py-2">جاري تحميل الردود...</div>';
+
+      // Fetch full post with replies
+      try {
+        const res = await fetch(`${API}/forum/posts/${postId}`);
+        const data = await res.json();
+        const full = data.post || data.data || data;
+        const replies = full.replies || [];
+        document.getElementById('postReplyCount').textContent = replies.length ? `(${replies.length})` : '';
+        if (!replies.length) {
+          document.getElementById('repliesContainer').innerHTML = '<p class="text-xs text-slate-400 py-2">لا توجد ردود بعد — كن أول من يرد.</p>';
+        } else {
+          document.getElementById('repliesContainer').innerHTML = replies.map(r => {
+            const rAuth = r.author?.name || 'عضو';
+            const isOfficial = r.isOfficial;
+            return `
+              <div class="flex items-start gap-3 ${isOfficial ? 'bg-emerald-50 border border-emerald-100 rounded-2xl p-4' : 'border-b border-slate-50 pb-4'}">
+                <div class="w-8 h-8 rounded-xl ${isOfficial ? 'bg-emerald-600' : 'bg-slate-200'} flex items-center justify-center ${isOfficial ? 'text-white' : 'text-slate-500'} font-black text-xs shrink-0">
+                  ${rAuth.charAt(0)}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-xs font-bold ${isOfficial ? 'text-emerald-800' : 'text-slate-700'}">${rAuth}</span>
+                    ${isOfficial ? '<span class="text-[10px] font-black px-1.5 py-0.5 bg-emerald-200 text-emerald-800 rounded-full flex items-center gap-0.5"><i data-lucide="badge-check" class="w-2.5 h-2.5"></i>رد رسمي</span>' : ''}
+                    <span class="text-[10px] text-slate-400">${formatDate(r.createdAt)}</span>
+                  </div>
+                  <p class="text-sm text-slate-700 leading-relaxed">${r.content || ''}</p>
+                </div>
+              </div>`;
+          }).join('');
+          lucide.createIcons();
+        }
+      } catch(_) {
+        document.getElementById('repliesContainer').innerHTML = '<p class="text-xs text-slate-400 py-2">تعذر تحميل الردود.</p>';
+      }
+      lucide.createIcons();
+    }
+
+    // ── New Post ──────────────────────────────────────────────────────────────
+    function openNewPost() {
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (!token) {
+        showToast('يجب تسجيل الدخول أولاً لنشر موضوع');
+        setTimeout(() => { window.location.href = '/dashboard'; }, 1200);
+        return;
+      }
+      document.getElementById('newPostForm').reset();
+      document.getElementById('newPostModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    async function submitPost(e) {
+      e.preventDefault();
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (!token) { showToast('يجب تسجيل الدخول أولاً'); return; }
+      const btn = document.getElementById('postSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>جاري النشر...';
+      lucide.createIcons();
+      try {
+        await fetch(`${API}/forum/posts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            categoryId: document.getElementById('postCategory').value,
+            title:      document.getElementById('postTitle').value.trim(),
+            content:    document.getElementById('postContent').value.trim(),
+          })
+        });
+        closeModal('newPostModal');
+        showToast('تم إرسال موضوعك بنجاح ✓ — سيظهر بعد مراجعة المشرفين');
+        loadPosts();
+      } catch(err) {
+        showToast('حدث خطأ. حاول مجدداً.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i>نشر الموضوع';
+        lucide.createIcons();
+      }
+    }
+
+    // ── Utilities ─────────────────────────────────────────────────────────────
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    function closeModalOverlay(e, id) {
+      if (e.target === document.getElementById(id)) closeModal(id);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      await loadCategories();
+      await loadPosts();
+    });
+  </script>
+</body>
+</html>

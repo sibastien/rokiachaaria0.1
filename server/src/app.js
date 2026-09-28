@@ -62,6 +62,8 @@ function createApp() {
   app.get('/index.html', (req, res) => res.redirect(301, '/'));
   app.get('/portal.html', (req, res) => res.redirect(301, '/dashboard'));
   app.get('/admin.html', (req, res) => res.redirect(301, '/admin'));
+  app.get('/blog.html',  (req, res) => res.redirect(301, '/blog'));
+  app.get('/forum.html', (req, res) => res.redirect(301, '/forum'));
 
   // Clean Public & Member Routes
   app.get('/', (req, res) => {
@@ -72,7 +74,16 @@ function createApp() {
     res.sendFile(path.join(staticRoot, 'index.html'));
   });
 
-  app.get(['/dashboard', '/portal', '/forum', '/articles', '/profile'], (req, res) => {
+  // Dedicated standalone pages
+  app.get(['/blog', '/articles'], (req, res) => {
+    res.sendFile(path.join(staticRoot, 'blog.html'));
+  });
+
+  app.get('/forum', (req, res) => {
+    res.sendFile(path.join(staticRoot, 'forum.html'));
+  });
+
+  app.get(['/dashboard', '/portal', '/profile'], (req, res) => {
     res.sendFile(path.join(staticRoot, 'portal.html'));
   });
 
