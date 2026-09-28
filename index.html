@@ -2196,9 +2196,9 @@
 
         function openBookingModal() {
             if (!authToken) {
-                simulateToast('يجب تسجيل الدخول أو إنشاء حساب جديد أولاً لحجز الجلسة.');
+                simulateToast('أنشئ حساباً مجانياً لحجز جلستك في ثوانٍ.');
                 sessionStorage.setItem('pendingBookingIntent', 'true');
-                openAuthModal('login');
+                openAuthModal('register');
                 return;
             }
             loadRaqis();
