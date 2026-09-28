@@ -653,19 +653,24 @@
                         <h2 class="text-3xl font-extrabold text-sky-950 mt-3">مدونة الشفاء والنور</h2>
                         <p class="text-slate-600 mt-2 text-sm sm:text-base">مقالات موثقة بأدلة الوحيين لتصحيح المفاهيم وبث الطمأنينة</p>
                     </div>
-
-                    <!-- Category Pills -->
-                    <div class="flex flex-wrap gap-2 mt-4 md:mt-0" id="blogFilterContainer">
-                        <button onclick="filterBlog('all')" class="blog-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-sky-600 text-white shadow-sm transition">الكل</button>
-                        <button onclick="filterBlog('sunnah')" class="blog-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-sky-100 transition">السنة النبوية</button>
-                        <button onclick="filterBlog('hasad')" class="blog-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-sky-100 transition">العين والحسد</button>
-                        <button onclick="filterBlog('adhkar')" class="blog-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-sky-100 transition">الأذكار والتحصين</button>
-                    </div>
+                    <a href="/blog" class="hidden md:inline-flex items-center gap-2 mt-4 md:mt-0 text-sky-600 font-bold hover:text-sky-700 transition-colors text-sm">
+                        <span>عرض جميع المقالات</span>
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    </a>
                 </div>
 
-                <!-- Articles Grid -->
+                <!-- Articles Grid (3 preview cards) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="blogGrid">
                     <!-- Dynamic blog cards populated by JavaScript -->
+                </div>
+
+                <!-- Read More Button -->
+                <div class="mt-10 text-center">
+                    <a href="/blog" class="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-lg shadow-sky-600/20 hover:-translate-y-0.5 transition-all duration-200">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>اقرأ المزيد من المقالات</span>
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    </a>
                 </div>
             </div>
         </section>
@@ -1799,17 +1804,17 @@
 
         async function loadBlog(category = 'all') {
             try {
-                const params = new URLSearchParams({ limit: 9 });
+                const params = new URLSearchParams({ limit: 3 });
                 if (category && category !== 'all') params.set('category', category);
                 const data = await apiCall(`/articles?${params}`);
                 blogArticlesCache = data.data;
-                renderBlog(data.data);
+                renderBlog(data.data.slice(0, 3));
             } catch (err) {
                 console.warn('[Blog] Could not fetch articles from API, using fallback data:', err.message);
                 if (blogArticlesCache.length > 0) {
-                    renderBlog(blogArticlesCache);
+                    renderBlog(blogArticlesCache.slice(0, 3));
                 } else {
-                    renderBlog(blogArticles);
+                    renderBlog(blogArticles.slice(0, 3));
                 }
             }
         }
