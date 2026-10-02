@@ -1,0 +1,23 @@
+{
+  "name": "rukiaonline-article-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for generating and managing SEO articles for Ruqyah Online Platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test-call.js"
+  },
+  "keywords": [
+    "mcp",
+    "seo",
+    "article-generation",
+    "ruqyah-online"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.2",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2"
+  }
+}
