@@ -11,6 +11,8 @@
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 
 const prisma = new PrismaClient();
 
@@ -85,63 +87,27 @@ async function main() {
   console.log(`✅  Raqi 2: ${raqi2User.email}`);
 
   // ── 3. Blog Articles ──────────────────────────────────────────────────────
-  const articles = [
-    {
-      title: 'الفرق الجوهري بين الرقية الشرعية والكهانة المحرمة',
-      excerpt: 'كيف يعرف المسلم الراقي الشرعي الصادق الذي يكتفي بكتاب الله، وما هي علامات الدجالين التي يجب الحذر منها؟',
-      content: `<p>الحمد لله والصلاة والسلام على رسول الله. إن الرقية الشرعية عبادة شرعية الأصل فيها كلام الله تعالى، وأسماؤه الحسنى، وصفاته العلى، والأدعية المأثورة عن رسول الله ﷺ.</p>
-<p class="font-bold">شروط الرقية الشرعية المتفق عليها:</p>
-<ul>
-  <li>أن تكون بكلام الله تعالى أو بأسمائه وصفاته.</li>
-  <li>أن تكون باللسان العربي وبما يُعرف معناه دون طلاسم.</li>
-  <li>أن يُعتقد أن الرقية لا تؤثر بذاتها بل بتقدير الله تعالى والشفاء منه وحده.</li>
-</ul>
-<p>أما الكهانة والدجل فتتميز بطلب اسم الأم، أو التمتمة بكلام غير مفهوم، أو إعطاء أحجبة وحروز، وكل ذلك محرم شرعاً.</p>`,
-      categoryKey: 'sunnah',
-      categoryName: 'السنة النبوية',
-      author: 'د. عبد الرحمن السعدي',
-      readTime: '4 دقائق',
-    },
-    {
-      title: 'أعراض الإصابة بالعين وكيف ترقي نفسك في بيتك',
-      excerpt: 'خطوات ميسرة وعملية لرشح النفس بالمعوذات والنفث، وأثر الوضوء والذكر في رد كيد الحاسدين.',
-      content: `<p>العين حق كما قال النبي ﷺ: «العينُ حقٌّ ولو كان شيءٌ سابقَ القدَرَ سبقتْهُ العينُ».</p>
-<p class="font-bold">طريقة الرقية الذاتية من العين:</p>
-<p>1. ضع يدك على رأسك وقل: «بسمِ اللهِ أرقيكَ من كلِّ شيءٍ يُؤذيكَ» ثلاثاً.</p>
-<p>2. قراءة سورة الفاتحة والإخلاص والمعوذتين مع النفث في الكفين ومسح الجسد.</p>
-<p>3. الإكثار من قول: «ما شاء الله لا قوة إلا بالله».</p>`,
-      categoryKey: 'hasad',
-      categoryName: 'العين والحسد',
-      author: 'الشيخ عمر القاسم',
-      readTime: '6 دقائق',
-    },
-    {
-      title: 'حصن المسلم المتين: 5 أذكار تحفظك طوال يومك وليلتك',
-      excerpt: 'كنوز نبوية عظيمة تحصنك من كل سوء بكلمات يسيرة لا تستغرق أكثر من خمس دقائق يومياً.',
-      content: `<p>قال النبي ﷺ: «مَن قالَ: بسمِ اللهِ الذي لا يَضُرُّ مع اسمِهِ شيءٌ في الأرضِ ولا في السماءِ وهو السميعُ العليمُ، ثلاثَ مراتٍ، لم تُصِبْهُ فجأةُ بلاءٍ حتى يُصبِحَ».</p>
-<p class="font-bold">الأوراد الخمسة الجامعة:</p>
-<ul>
-  <li>قراءة آية الكرسي دبر كل صلاة وعند النوم.</li>
-  <li>المعوذتان وقل هو الله أحد ثلاث مرات صباحاً ومساءً.</li>
-  <li>قول: «أعوذ بكلمات الله التامات من شر ما خلق» ثلاثاً بالمساء.</li>
-  <li>قول: «لا إله إلا الله وحده لا شريك له...» 100 مرة في اليوم.</li>
-</ul>`,
-      categoryKey: 'adhkar',
-      categoryName: 'الأذكار والتحصين',
-      author: 'د. يوسف النابلسي',
-      readTime: '3 دقائق',
-    },
-  ];
+  let articles = [];
+  const articlesJsonPath = path.resolve(__dirname, '../../content/articles/articles.json');
+  if (fs.existsSync(articlesJsonPath)) {
+    try {
+      const loaded = JSON.parse(fs.readFileSync(articlesJsonPath, 'utf-8'));
+      articles = loaded.map((a) => ({
+        title: a.title,
+        excerpt: a.excerpt,
+        content: a.content,
+        categoryKey: a.category_id,
+        categoryName: a.category_name,
+        author: a.author,
+        readTime: a.read_time,
+        coverImage: a.cover_image_url || null,
+        publishedAt: a.published_at ? new Date(a.published_at) : new Date(),
+      }));
+    } catch (_) {}
+  }
 
   for (const article of articles) {
-    await prisma.article.upsert({
-      where: { id: article.title }, // won't match — will always insert on first run
-      update: {},
-      create: article,
-    }).catch(async () => {
-      // On conflict or cuid mismatch just create
-      await prisma.article.create({ data: article }).catch(() => {});
-    });
+    await prisma.article.create({ data: article }).catch(() => {});
   }
   console.log(`✅  Articles: ${articles.length} seeded`);
 
