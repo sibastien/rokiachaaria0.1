@@ -63,6 +63,11 @@ function createApp() {
   app.get('/portal.html', (req, res) => res.redirect(301, '/dashboard'));
   app.get('/admin.html', (req, res) => res.redirect(301, '/admin'));
   app.get('/blog.html',  (req, res) => res.redirect(301, '/blog'));
+  app.get('/article.html', (req, res) => {
+    const slug = req.query.slug || req.query.id;
+    if (slug) return res.redirect(301, `/blog/${slug}`);
+    res.redirect(301, '/blog');
+  });
   app.get('/forum.html', (req, res) => res.redirect(301, '/forum'));
 
   // Clean Public & Member Routes
@@ -77,6 +82,11 @@ function createApp() {
   // Dedicated standalone pages
   app.get(['/blog', '/articles'], (req, res) => {
     res.sendFile(path.join(staticRoot, 'blog.html'));
+  });
+
+  // Dedicated single article page (slug or ID)
+  app.get(['/blog/:slug', '/article/:slug', '/articles/:slug'], (req, res) => {
+    res.sendFile(path.join(staticRoot, 'article.html'));
   });
 
   app.get('/forum', (req, res) => {

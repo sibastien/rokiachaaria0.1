@@ -144,6 +144,7 @@ model Booking {
 /// Knowledge base articles — powers the مدونة الشفاء section.
 model Article {
   id           String    @id @default(cuid())
+  slug         String?   @unique
   title        String
   excerpt      String    // Short summary shown in card view
   content      String    @db.Text  // Full HTML/Markdown content
@@ -158,6 +159,7 @@ model Article {
   updatedAt    DateTime  @updatedAt      @map("updated_at")
   deletedAt    DateTime? @map("deleted_at")  // Soft delete
 
+  @@index([slug])
   @@index([categoryKey])
   @@index([publishedAt])
   @@map("articles")

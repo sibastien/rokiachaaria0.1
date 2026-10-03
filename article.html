@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">جاري تحميل المقال... — مدونة الشفاء</title>
+  <meta id="metaDesc" name="description" content="مقالات علمية شرعية متخصصة في الرقية الشرعية والطب النبوي والتحصين.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" id="canonicalLink" href="https://roqiaonline.com/blog">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" id="ogTitle" content="مدونة الشفاء — مقالات الرقية الشرعية">
+  <meta property="og:description" id="ogDesc" content="مقالات شرعية متخصصة في الرقية والتحصين.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" id="ogUrl" content="https://roqiaonline.com/blog">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Marked.js for fast, robust Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+          colors: {
+            sky: { 50:'#f0f9ff',100:'#e0f2fe',200:'#bae6fd',300:'#7dd3fc',400:'#38bdf8',500:'#0ea5e9',600:'#0284c7',700:'#0369a1',800:'#075985',900:'#0c4a6e',950:'#082f49' },
+            emerald: { 50:'#ecfdf5',100:'#d1fae5',500:'#10b981',600:'#059669',700:'#047857' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f0f9ff; }
+    ::-webkit-scrollbar-thumb { background: #7dd3fc; border-radius: 9999px; }
+    .sky-glass { background: rgba(255,255,255,0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    .pattern-bg { background-color:#fff; background-image:radial-gradient(#bae6fd 0.75px,transparent 0.75px),radial-gradient(#bae6fd 0.75px,#fff 0.75px); background-size:30px 30px; background-position:0 0,15px 15px; }
+    
+    /* Rich Typography for Markdown content */
+    .article-content { line-height: 2.1; font-size: 1.1rem; color: #334155; }
+    .article-content h2 { font-size: 1.55rem; font-weight: 800; color: #082f49; margin-top: 2.25rem; margin-bottom: 1rem; border-bottom: 2px solid #e0f2fe; padding-bottom: 0.5rem; }
+    .article-content h3 { font-size: 1.28rem; font-weight: 700; color: #0369a1; margin-top: 1.75rem; margin-bottom: 0.75rem; }
+    .article-content p { margin-bottom: 1.4rem; }
+    .article-content strong { color: #0f172a; font-weight: 700; }
+    .article-content ul, .article-content ol { margin-right: 1.5rem; margin-bottom: 1.4rem; list-style-type: disc; }
+    .article-content ol { list-style-type: decimal; }
+    .article-content li { margin-bottom: 0.5rem; }
+    .article-content blockquote { border-right: 4px solid #0284c7; background: #f0f9ff; padding: 1rem 1.25rem; border-radius: 0.75rem 0 0 0.75rem; margin: 1.5rem 0; font-style: italic; color: #0369a1; }
+    .article-content hr { border: 0; border-top: 1px solid #e2e8f0; margin: 2.5rem 0; }
+    
+    /* Styled Markdown tables */
+    .article-content table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 1.75rem 0; border-radius: 1rem; overflow: hidden; border: 1px solid #e2e8f0; }
+    .article-content th { background-color: #f0f9ff; color: #0369a1; font-weight: 700; padding: 0.85rem 1rem; text-align: right; border-bottom: 1px solid #bae6fd; font-size: 0.95rem; }
+    .article-content td { padding: 0.85rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
+    .article-content tr:last-child td { border-bottom: none; }
+    .article-content tr:nth-child(even) td { background-color: #f8fafc; }
+
+    .sidebar-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .sidebar-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(14,165,233,0.12); }
+  </style>
+</head>
+<body class="text-slate-800 bg-slate-50 flex flex-col min-h-screen">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none text-sm font-medium flex items-center gap-2">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMsg">تم نسخ الرابط بنجاح!</span>
+  </div>
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 sky-glass border-b border-sky-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-18 py-3">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white shadow-lg shadow-sky-500/25 group-hover:scale-105 transition-transform">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="text-lg font-extrabold text-sky-950 block leading-tight">الرقية الشرعية</span>
+            <span class="text-xs font-semibold text-sky-600">أونلاين المعتمدة</span>
+          </div>
+        </a>
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="/" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-sky-600 rounded-xl hover:bg-sky-50 transition-colors">الرئيسية</a>
+          <a href="/blog" class="px-3 py-2 text-sm font-bold text-sky-700 bg-sky-50 rounded-xl border border-sky-200">المدونة</a>
+          <a href="/forum" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-sky-600 rounded-xl hover:bg-sky-50 transition-colors">المنتدى</a>
+          <a href="/dashboard" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-sky-600 rounded-xl hover:bg-sky-50 transition-colors">بوابتي</a>
+        </nav>
+        <div class="flex items-center gap-3">
+          <a href="/blog" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 hover:text-sky-900 px-3 py-2 rounded-xl bg-sky-50 border border-sky-200/80 transition-all">
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> كل المقالات
+          </a>
+          <a href="/dashboard" class="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-md shadow-sky-600/20 transition-all">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">حجز جلسة</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- BREADCRUMB & HEADER STRIP -->
+  <div class="bg-white border-b border-slate-100 py-3.5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center gap-2 text-xs text-slate-500 flex-wrap" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-sky-600 flex items-center gap-1 transition-colors">
+          <i data-lucide="home" class="w-3.5 h-3.5"></i> الرئيسية
+        </a>
+        <i data-lucide="chevron-left" class="w-3.5 h-3.5 text-slate-300"></i>
+        <a href="/blog" class="hover:text-sky-600 transition-colors">مدونة الشفاء</a>
+        <i data-lucide="chevron-left" class="w-3.5 h-3.5 text-slate-300"></i>
+        <span id="breadcrumbCategory" class="text-sky-700 font-medium">التصنيف</span>
+        <i data-lucide="chevron-left" class="w-3.5 h-3.5 text-slate-300"></i>
+        <span id="breadcrumbTitle" class="text-slate-700 font-bold truncate max-w-xs sm:max-w-md">المقال الحالي</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- MAIN ARTICLE CONTAINER -->
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+    
+    <!-- Loading Skeleton -->
+    <div id="loadingSkeleton" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-8 space-y-6">
+        <div class="h-6 w-32 bg-slate-200 rounded-full animate-pulse"></div>
+        <div class="h-12 w-4/5 bg-slate-200 rounded-2xl animate-pulse"></div>
+        <div class="h-5 w-1/2 bg-slate-200 rounded-full animate-pulse"></div>
+        <div class="h-72 w-full bg-slate-200 rounded-3xl animate-pulse"></div>
+        <div class="space-y-3 pt-4">
+          <div class="h-4 bg-slate-200 rounded-full animate-pulse w-full"></div>
+          <div class="h-4 bg-slate-200 rounded-full animate-pulse w-11/12"></div>
+          <div class="h-4 bg-slate-200 rounded-full animate-pulse w-4/5"></div>
+          <div class="h-4 bg-slate-200 rounded-full animate-pulse w-full"></div>
+        </div>
+      </div>
+      <div class="lg:col-span-4 space-y-6">
+        <div class="h-60 bg-slate-200 rounded-3xl animate-pulse"></div>
+        <div class="h-72 bg-slate-200 rounded-3xl animate-pulse"></div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="hidden text-center py-20 max-w-xl mx-auto">
+      <div class="w-20 h-20 rounded-3xl bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-5">
+        <i data-lucide="file-question" class="w-10 h-10"></i>
+      </div>
+      <h2 class="text-2xl font-black text-slate-800 mb-2">عذراً، المقال غير موجود</h2>
+      <p class="text-slate-500 text-sm mb-6">قد يكون تم نقله أو حذف رابطه، يمكنك تصفح أحدث المقالات الشرعية الموثقة.</p>
+      <div class="flex items-center justify-center gap-3">
+        <a href="/blog" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky-600 text-white font-bold text-sm shadow-lg shadow-sky-600/25 hover:bg-sky-500 transition-all">
+          <i data-lucide="book-open" class="w-4 h-4"></i> الذهاب إلى المدونة
+        </a>
+        <a href="/" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-all">
+          <i data-lucide="home" class="w-4 h-4"></i> الرئيسية
+        </a>
+      </div>
+    </div>
+
+    <!-- Article Content Grid -->
+    <div id="articleContainer" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-10">
+      
+      <!-- =================================================================== -->
+      <!-- MAIN ARTICLE COLUMN (WordPress Single Post Main Area) -->
+      <!-- =================================================================== -->
+      <article class="lg:col-span-8">
+        <div class="bg-white rounded-3xl border border-slate-100 p-6 sm:p-10 shadow-sm relative overflow-hidden">
+          
+          <!-- Top Accent Ribbon -->
+          <div class="absolute top-0 right-0 left-0 h-2 bg-gradient-to-l from-sky-400 via-sky-600 to-sky-800"></div>
+
+          <!-- Article Meta Badges -->
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-5 mt-1">
+            <div class="flex items-center gap-2">
+              <span id="articleCategoryBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200/60">
+                <span id="categoryIcon">📖</span>
+                <span id="categoryName">السنة النبوية</span>
+              </span>
+              <span class="inline-flex items-center gap-1 text-xs text-slate-500 font-medium bg-slate-50 px-2.5 py-1 rounded-full border border-slate-100">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span id="articleReadTime">5 دقائق قراءة</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+              <span>محتوى شرعي موثق ومُحكّم</span>
+            </div>
+          </div>
+
+          <!-- Main Article Title -->
+          <h1 id="articleTitle" class="text-2xl sm:text-3xl lg:text-4xl font-black text-sky-950 leading-tight mb-6 tracking-tight">
+            <!-- Dynamic Title -->
+          </h1>
+
+          <!-- Author, Date & Quick Share Bar -->
+          <div class="flex items-center justify-between flex-wrap gap-4 pb-6 mb-8 border-b border-slate-100 text-xs text-slate-500">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-100 to-sky-200 border border-sky-200/80 flex items-center justify-center text-sky-800 font-black text-sm">
+                <span id="authorInitial">م</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span id="articleAuthor" class="font-bold text-slate-800 text-sm">هيئة التحرير</span>
+                  <i data-lucide="badge-check" class="w-4 h-4 text-sky-500"></i>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                  <span id="articleDate">2 أكتوبر 2026</span>
+                  <span>•</span>
+                  <span>منصة الرقية الشرعية المعتمدة</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Share Buttons -->
+            <div class="flex items-center gap-1.5">
+              <span class="text-slate-400 ml-1 hidden sm:inline">مشاركة:</span>
+              <button onclick="shareViaWhatsApp()" title="مشاركة عبر واتساب" class="w-8 h-8 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition-colors">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+              </button>
+              <button onclick="shareViaTwitter()" title="مشاركة على إكس / تويتر" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors">
+                <i data-lucide="share-2" class="w-4 h-4"></i>
+              </button>
+              <button onclick="copyArticleLink()" title="نسخ الرابط" class="w-8 h-8 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 flex items-center justify-center transition-colors">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Excerpt Lead Box -->
+          <div id="articleExcerptBox" class="bg-gradient-to-br from-sky-50/80 to-slate-50 border border-sky-100/90 rounded-2xl p-5 mb-8 text-sky-950 font-medium text-base leading-relaxed shadow-sm">
+            <p id="articleExcerptText"></p>
+          </div>
+
+          <!-- Main Article HTML Body (Parsed from Markdown) -->
+          <div id="articleBody" class="article-content prose prose-slate max-w-none">
+            <!-- Dynamic Content -->
+          </div>
+
+          <!-- FAQs Section (If present in Article) -->
+          <div id="articleFaqSection" class="hidden mt-12 pt-8 border-t border-slate-100">
+            <div class="inline-flex items-center gap-2 text-xs font-bold text-sky-700 bg-sky-100 px-3 py-1 rounded-full mb-3">
+              <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+              أسئلة شائعة وفتاوى ذات صلة
+            </div>
+            <h3 class="text-xl font-black text-sky-950 mb-5">أبرز ما يسأل عنه المسترقي في هذا الموضوع</h3>
+            <div id="faqAccordion" class="space-y-3">
+              <!-- FAQs rendered here -->
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div id="articleTagsContainer" class="hidden mt-10 pt-6 border-t border-slate-100 flex items-center gap-2 flex-wrap text-xs">
+            <span class="text-slate-400 font-medium flex items-center gap-1">
+              <i data-lucide="tags" class="w-3.5 h-3.5"></i> الوسوم:
+            </span>
+            <div id="articleTagsList" class="flex items-center gap-1.5 flex-wrap"></div>
+          </div>
+
+          <!-- Bottom In-Article CTA Banner -->
+          <div class="mt-12 bg-gradient-to-br from-sky-900 to-sky-950 text-white rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-xl">
+            <div class="absolute -top-12 -left-12 w-48 h-48 bg-sky-500/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div class="space-y-2 text-center sm:text-right">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/20 text-sky-200 text-xs font-bold">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sky-400"></i> جلسات رقية مباشرة وموثقة
+                </div>
+                <h4 class="text-xl font-black text-white">هل تحتاج إلى استشارة تشخيصية أو جلسة رقية شرعية؟</h4>
+                <p class="text-sky-200/80 text-sm max-w-xl">
+                  تواصل الآن عبر مكالمة مرئية أو صوتية آمنة مع رقاة معتمدين ومجازين في القراءات والسنة النبوية دون وساطة.
+                </p>
+              </div>
+              <a href="/dashboard" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-black text-sm shadow-lg shadow-sky-500/30 whitespace-nowrap transition-all">
+                <i data-lucide="calendar-check" class="w-4 h-4"></i> احجز جلستك الآن
+              </a>
+            </div>
+          </div>
+
+          <!-- Post Footer Nav -->
+          <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
+            <a href="/blog" class="inline-flex items-center gap-2 text-sm font-bold text-sky-700 hover:text-sky-900 transition-colors">
+              <i data-lucide="arrow-right" class="w-4 h-4"></i> العودة لجميع مقالات المدونة
+            </a>
+            <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 transition-colors">
+              <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i> الصعود للأعلى
+            </button>
+          </div>
+
+        </div>
+      </article>
+
+      <!-- =================================================================== -->
+      <!-- WORDPRESS-STYLE SIDEBAR (Related Articles, Categories, Sticky CTA) -->
+      <!-- =================================================================== -->
+      <aside class="lg:col-span-4 space-y-6">
+        
+        <!-- SIDEBAR WIDGET 1: مقالات مقترحة للقراءة (Suggested / Related Posts) -->
+        <div class="sidebar-card bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center text-sky-600">
+                <i data-lucide="bookmark" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-extrabold text-sky-950 text-base">مقالات مقترحة للقراءة</h3>
+            </div>
+            <span class="text-[11px] text-sky-600 font-bold bg-sky-50 px-2 py-0.5 rounded-lg">مختارات</span>
+          </div>
+
+          <div id="suggestedArticlesList" class="space-y-4">
+            <!-- Suggested articles loaded here -->
+            <div class="text-xs text-slate-400 text-center py-4">جاري تحميل المقترحات...</div>
+          </div>
+        </div>
+
+        <!-- SIDEBAR WIDGET 2: أحدث المقالات (Recent Articles) -->
+        <div class="sidebar-card bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                <i data-lucide="clock" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-extrabold text-sky-950 text-base">أحدث المقالات</h3>
+            </div>
+            <a href="/blog" class="text-xs text-sky-600 hover:text-sky-800 font-bold">المزيد</a>
+          </div>
+
+          <div id="recentArticlesList" class="space-y-3.5">
+            <!-- Recent articles loaded here -->
+          </div>
+        </div>
+
+        <!-- SIDEBAR WIDGET 3: تصنيفات المدونة (Categories Widget) -->
+        <div class="sidebar-card bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
+          <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+            <div class="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+              <i data-lucide="folder" class="w-4 h-4"></i>
+            </div>
+            <h3 class="font-extrabold text-sky-950 text-base">تصنيفات المدونة</h3>
+          </div>
+
+          <div class="space-y-2 text-sm">
+            <a href="/blog?category=sunnah" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-sky-50 text-slate-700 hover:text-sky-700 transition-colors group">
+              <div class="flex items-center gap-2">
+                <span class="text-base">📖</span>
+                <span class="font-medium group-hover:font-bold">السنة النبوية</span>
+              </div>
+              <i data-lucide="chevron-left" class="w-4 h-4 text-slate-300 group-hover:text-sky-600 transition-transform group-hover:-translate-x-1"></i>
+            </a>
+
+            <a href="/blog?category=hasad" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50 text-slate-700 hover:text-amber-800 transition-colors group">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🧿</span>
+                <span class="font-medium group-hover:font-bold">العين والحسد</span>
+              </div>
+              <i data-lucide="chevron-left" class="w-4 h-4 text-slate-300 group-hover:text-amber-700 transition-transform group-hover:-translate-x-1"></i>
+            </a>
+
+            <a href="/blog?category=adhkar" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors group">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🌙</span>
+                <span class="font-medium group-hover:font-bold">الأذكار والتحصين</span>
+              </div>
+              <i data-lucide="chevron-left" class="w-4 h-4 text-slate-300 group-hover:text-emerald-700 transition-transform group-hover:-translate-x-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- SIDEBAR WIDGET 4: بطاقة حجز جلسة (Sticky Booking CTA) -->
+        <div class="sidebar-card bg-gradient-to-br from-sky-600 to-sky-800 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+          <div class="relative z-10 space-y-4">
+            <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white">
+              <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+            </div>
+            <h4 class="text-lg font-black leading-snug">احجز جلسة رقية شرعية خاصة</h4>
+            <p class="text-sky-100 text-xs leading-relaxed">
+              توجيه مباشر من مشايخ ورقاة مجازين بالصوت والصورة، مع مراعاة كاملة للخصوصية والضوابط الشرعية.
+            </p>
+            <ul class="text-xs text-sky-100 space-y-1.5 pt-1">
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-sky-300"></i> رقاة مجازون في القراءات والسنة</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-sky-300"></i> جلسات تشخيصية وعلاجية فردية</li>
+              <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-sky-300"></i> إشراف ومتابعة أسبوعية</li>
+            </ul>
+            <a href="/dashboard" class="block w-full text-center py-3 bg-white hover:bg-sky-50 text-sky-900 font-extrabold text-sm rounded-2xl shadow-md transition-all">
+              احجز موعدك الآن
+            </a>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-sky-950 text-sky-200 py-10 mt-16 border-t border-sky-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-sky-500/20 flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-4 h-4 text-sky-400"></i>
+        </div>
+        <span class="font-bold text-white">الرقية الشرعية أونلاين</span>
+      </div>
+      <div class="flex items-center gap-4 text-xs sm:text-sm">
+        <a href="/" class="hover:text-white transition-colors">الرئيسية</a>
+        <a href="/blog" class="hover:text-white transition-colors">المدونة</a>
+        <a href="/forum" class="hover:text-white transition-colors">المنتدى</a>
+        <a href="/dashboard" class="hover:text-white transition-colors">بوابتي</a>
+      </div>
+      <p class="text-sky-500 text-xs">© 2025 منصة الرقية الشرعية أونلاين — جميع الحقوق محفوظة</p>
+    </div>
+  </footer>
+
+  <script>
+    const API = '/api';
+
+    const CATEGORIES = {
+      sunnah: { label: 'السنة النبوية', color: 'bg-emerald-100 text-emerald-800 border-emerald-200', icon: '📖' },
+      hasad:  { label: 'العين والحسد', color: 'bg-amber-100 text-amber-800 border-amber-200',     icon: '🧿' },
+      adhkar: { label: 'الأذكار والتحصين', color: 'bg-sky-100 text-sky-800 border-sky-200',     icon: '🌙' },
+    };
+
+    function formatDate(d) {
+      if (!d) return '';
+      return new Date(d).toLocaleDateString('ar-SA', { year:'numeric', month:'long', day:'numeric' });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.remove('opacity-0','pointer-events-none');
+      t.classList.add('opacity-100');
+      setTimeout(() => { t.classList.add('opacity-0','pointer-events-none'); t.classList.remove('opacity-100'); }, 3000);
+    }
+
+    function getSlugFromUrl() {
+      // 1. Check pathname: /blog/:slug or /article/:slug
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      if (pathParts.length >= 2 && (pathParts[0] === 'blog' || pathParts[0] === 'article' || pathParts[0] === 'articles')) {
+        return decodeURIComponent(pathParts[1]);
+      }
+      // 2. Check query params: ?slug=... or ?id=...
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('slug') || urlParams.get('id') || '';
+    }
+
+    async function loadArticle() {
+      const slugOrId = getSlugFromUrl();
+      const skeleton = document.getElementById('loadingSkeleton');
+      const container = document.getElementById('articleContainer');
+      const errorState = document.getElementById('errorState');
+
+      if (!slugOrId) {
+        skeleton.classList.add('hidden');
+        errorState.classList.remove('hidden');
+        lucide.createIcons();
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/articles/${encodeURIComponent(slugOrId)}`);
+        const json = await res.json();
+
+        if (!json.success || !json.article) {
+          throw new Error('Article not found');
+        }
+
+        renderMainArticle(json.article);
+        renderSidebar(json.article, json.related || []);
+
+        skeleton.classList.add('hidden');
+        container.classList.remove('hidden');
+        lucide.createIcons();
+
+      } catch (err) {
+        skeleton.classList.add('hidden');
+        errorState.classList.remove('hidden');
+        lucide.createIcons();
+      }
+    }
+
+    function renderMainArticle(article) {
+      // Page Title & Meta Tags
+      const pageTitle = (article.metaTitle || article.title || 'مقال شرعي') + ' — مدونة الشفاء';
+      document.title = pageTitle;
+      document.getElementById('pageTitle').textContent = pageTitle;
+
+      if (article.metaDescription || article.excerpt) {
+        document.getElementById('metaDesc').setAttribute('content', article.metaDescription || article.excerpt);
+        document.getElementById('ogDesc').setAttribute('content', article.metaDescription || article.excerpt);
+      }
+      document.getElementById('ogTitle').setAttribute('content', pageTitle);
+      document.getElementById('canonicalLink').setAttribute('href', window.location.href);
+
+      // Breadcrumbs
+      const cat = CATEGORIES[article.categoryKey] || { label: article.categoryName || 'مقالات شرعية', icon: '📄', color: 'bg-slate-100 text-slate-800' };
+      document.getElementById('breadcrumbCategory').textContent = cat.label;
+      document.getElementById('breadcrumbTitle').textContent = article.title || '';
+
+      // Badges
+      const catBadge = document.getElementById('articleCategoryBadge');
+      catBadge.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${cat.color}`;
+      document.getElementById('categoryIcon').textContent = cat.icon;
+      document.getElementById('categoryName').textContent = cat.label;
+      document.getElementById('articleReadTime').textContent = article.readTime || '5 دقائق قراءة';
+
+      // Title & Header info
+      document.getElementById('articleTitle').textContent = article.title || '';
+      document.getElementById('articleAuthor').textContent = article.author || 'هيئة التحرير الشرعية';
+      document.getElementById('authorInitial').textContent = (article.author || 'م').charAt(0);
+      document.getElementById('articleDate').textContent = formatDate(article.publishedAt || article.createdAt);
+
+      // Excerpt box
+      if (article.excerpt) {
+        document.getElementById('articleExcerptBox').classList.remove('hidden');
+        document.getElementById('articleExcerptText').textContent = article.excerpt;
+      } else {
+        document.getElementById('articleExcerptBox').classList.add('hidden');
+      }
+
+      // Render Markdown Content with Marked.js
+      const rawContent = article.content || article.excerpt || '';
+      if (window.marked) {
+        marked.setOptions({ breaks: true, gfm: true });
+        document.getElementById('articleBody').innerHTML = marked.parse(rawContent);
+      } else {
+        document.getElementById('articleBody').innerHTML = rawContent
+          .split('\n\n')
+          .map(p => p.trim() ? `<p>${p.replace(/\n/g, '<br>')}</p>` : '')
+          .join('');
+      }
+
+      // FAQs (if present)
+      const faqSection = document.getElementById('articleFaqSection');
+      const faqList = document.getElementById('faqAccordion');
+      if (article.faq && Array.isArray(article.faq) && article.faq.length > 0) {
+        faqSection.classList.remove('hidden');
+        faqList.innerHTML = article.faq.map((f, idx) => `
+          <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4.5 transition-colors hover:border-sky-300">
+            <h5 class="text-sm font-bold text-sky-950 flex items-start gap-2 mb-2">
+              <span class="w-5 h-5 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-black shrink-0 mt-0.5">س</span>
+              <span>${f.question}</span>
+            </h5>
+            <p class="text-slate-600 text-xs sm:text-sm leading-relaxed pr-7">${f.answer}</p>
+          </div>
+        `).join('');
+      } else {
+        faqSection.classList.add('hidden');
+      }
+
+      // Tags
+      const tagsContainer = document.getElementById('articleTagsContainer');
+      const tagsList = document.getElementById('articleTagsList');
+      if (article.tags && Array.isArray(article.tags) && article.tags.length > 0) {
+        tagsContainer.classList.remove('hidden');
+        tagsList.innerHTML = article.tags.map(t => `
+          <span class="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-700 font-medium transition-colors">
+            #${t}
+          </span>
+        `).join('');
+      } else {
+        tagsContainer.classList.add('hidden');
+      }
+    }
+
+    async function renderSidebar(currentArticle, relatedArticles) {
+      // 1. Render Suggested / Related articles
+      const suggestedContainer = document.getElementById('suggestedArticlesList');
+      
+      let itemsToShow = relatedArticles;
+
+      // If related articles were empty, fetch recent articles
+      if (!itemsToShow || itemsToShow.length === 0) {
+        try {
+          const res = await fetch(`${API}/articles?limit=5`);
+          const data = await res.json();
+          const all = data.data || [];
+          itemsToShow = all.filter(a => a.id !== currentArticle.id && a.slug !== currentArticle.slug).slice(0, 4);
+        } catch (_) {
+          itemsToShow = [];
+        }
+      }
+
+      if (itemsToShow.length === 0) {
+        suggestedContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">لا توجد مقالات مقترحة إضافية حالياً</p>`;
+      } else {
+        suggestedContainer.innerHTML = itemsToShow.map(a => {
+          const cat = CATEGORIES[a.categoryKey] || { label: a.categoryName || 'مقال', icon: '📄', color: 'bg-slate-100 text-slate-700' };
+          const articleUrl = `/blog/${encodeURIComponent(a.slug || a.id)}`;
+          return `
+            <a href="${articleUrl}" class="group block p-3 rounded-2xl border border-slate-100 hover:border-sky-300 hover:bg-sky-50/40 transition-all">
+              <div class="flex items-center gap-1.5 text-[11px] font-bold text-sky-700 mb-1.5">
+                <span>${cat.icon}</span>
+                <span>${cat.label}</span>
+                <span class="text-slate-300">•</span>
+                <span class="text-slate-400 font-normal">${a.readTime || '4 د'}</span>
+              </div>
+              <h4 class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-sky-700 leading-snug line-clamp-2 transition-colors mb-2">
+                ${a.title}
+              </h4>
+              <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-50">
+                <span>${a.author || 'المحرر'}</span>
+                <span class="text-sky-600 font-bold group-hover:underline flex items-center gap-0.5">
+                  قراءة <i data-lucide="arrow-left" class="w-3 h-3"></i>
+                </span>
+              </div>
+            </a>
+          `;
+        }).join('');
+      }
+
+      // 2. Render Recent articles
+      const recentContainer = document.getElementById('recentArticlesList');
+      try {
+        const res = await fetch(`${API}/articles?limit=3`);
+        const data = await res.json();
+        const recents = (data.data || []).slice(0, 3);
+        if (recents.length > 0) {
+          recentContainer.innerHTML = recents.map(r => `
+            <a href="/blog/${encodeURIComponent(r.slug || r.id)}" class="flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50 transition-colors group">
+              <div class="w-2 h-2 rounded-full bg-sky-400 mt-2 shrink-0 group-hover:scale-125 transition-transform"></div>
+              <div>
+                <h5 class="text-xs font-bold text-slate-700 group-hover:text-sky-600 leading-snug line-clamp-2 transition-colors">
+                  ${r.title}
+                </h5>
+                <span class="text-[10px] text-slate-400">${formatDate(r.publishedAt)}</span>
+              </div>
+            </a>
+          `).join('');
+        }
+      } catch (_) {}
+
+      lucide.createIcons();
+    }
+
+    // Share Helpers
+    function shareViaWhatsApp() {
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent(document.title + '\n' + window.location.href);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    function shareViaTwitter() {
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent(document.title);
+      window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+    }
+
+    function copyArticleLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        showToast('تم نسخ رابط المقال إلى الحافظة بنجاح');
+      }).catch(() => {
+        showToast('رابط المقال: ' + window.location.href);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      loadArticle();
+    });
+  </script>
+</body>
+</html>

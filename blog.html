@@ -58,40 +58,7 @@
     <span id="toastMsg"></span>
   </div>
 
-  <!-- Article Reader Modal -->
-  <div id="articleModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-start justify-center p-4 pt-16 overflow-y-auto" onclick="closeArticle(event)">
-    <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl relative my-4" onclick="event.stopPropagation()">
-      <div class="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-slate-100 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-sky-100 flex items-center justify-center">
-            <i data-lucide="book-open" class="w-4 h-4 text-sky-600"></i>
-          </div>
-          <span class="text-sm font-bold text-sky-900">مدونة الشفاء</span>
-        </div>
-        <button onclick="closeArticleModal()" class="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div class="p-6 sm:p-10">
-        <div id="articleBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 bg-sky-100 text-sky-700"></div>
-        <h1 id="articleReaderTitle" class="text-2xl sm:text-3xl font-black text-sky-950 leading-snug mb-3"></h1>
-        <div class="flex items-center gap-4 text-xs text-slate-500 mb-6 pb-6 border-b border-slate-100">
-          <span class="flex items-center gap-1"><i data-lucide="user" class="w-3.5 h-3.5"></i><span id="articleReaderAuthor"></span></span>
-          <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i><span id="articleReaderTime"></span> دقيقة قراءة</span>
-          <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span id="articleReaderDate"></span></span>
-        </div>
-        <div id="articleReaderContent" class="prose prose-slate max-w-none text-slate-700 leading-loose text-base"></div>
-        <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
-          <a href="/dashboard" class="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md shadow-sky-600/20 transition-all">
-            <i data-lucide="calendar-check" class="w-4 h-4"></i> احجز جلسة رقية الآن
-          </a>
-          <button onclick="closeArticleModal()" class="text-sm text-slate-400 hover:text-slate-700 flex items-center gap-1 transition-colors">
-            <i data-lucide="arrow-right" class="w-4 h-4"></i> العودة للمدونة
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <!-- HEADER -->
   <header class="sticky top-0 z-40 sky-glass border-b border-sky-100">
@@ -287,9 +254,11 @@
 
       grid.innerHTML = articles.map((a, i) => {
         const cat = CATEGORIES[a.categoryKey] || { label: a.categoryName || a.categoryKey, color: 'bg-slate-100 text-slate-600', icon: '📄' };
+        const articleUrl = `/blog/${encodeURIComponent(a.slug || a.id)}`;
         return `
-          <article class="article-card bg-white rounded-3xl border border-slate-100 hover:border-sky-200 overflow-hidden fade-in cursor-pointer group"
-                   style="animation-delay:${i * 60}ms" onclick="openArticle('${a.id}')">
+          <a href="${articleUrl}"
+             class="article-card block bg-white rounded-3xl border border-slate-100 hover:border-sky-300 overflow-hidden fade-in group no-underline text-inherit"
+             style="animation-delay:${i * 60}ms">
             <!-- Card top accent -->
             <div class="h-1.5 bg-gradient-to-l from-sky-400 to-sky-600"></div>
             <div class="p-6">
@@ -299,11 +268,11 @@
                   <span>${cat.icon}</span>${cat.label}
                 </span>
                 <span class="flex items-center gap-1 text-xs text-slate-400">
-                  <i data-lucide="clock" class="w-3 h-3"></i>${a.readTime || 5} د
+                  <i data-lucide="clock" class="w-3 h-3"></i>${a.readTime || '5 دقائق'}
                 </span>
               </div>
               <!-- Title -->
-              <h2 class="text-base font-extrabold text-sky-950 leading-snug mb-3 line-clamp-2 group-hover:text-sky-700 transition-colors">${a.title || 'بدون عنوان'}</h2>
+              <h2 class="text-base font-extrabold text-sky-950 leading-snug mb-3 line-clamp-2 group-hover:text-sky-600 transition-colors">${a.title || 'بدون عنوان'}</h2>
               <!-- Excerpt -->
               <p class="text-slate-500 text-sm leading-relaxed line-clamp-3 mb-5">${a.excerpt || ''}</p>
               <!-- Footer -->
@@ -322,49 +291,13 @@
                 </span>
               </div>
             </div>
-          </article>`;
+          </a>`;
       }).join('');
       lucide.createIcons();
     }
 
-    async function openArticle(id) {
-      const article = allArticles.find(a => a.id == id);
-      if (!article) return;
-
-      const cat = CATEGORIES[article.categoryKey] || { label: article.categoryName || article.categoryKey, color: 'bg-slate-100 text-slate-600', icon: '📄' };
-      document.getElementById('articleBadge').className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 ${cat.color}`;
-      document.getElementById('articleBadge').innerHTML = `${cat.icon} ${cat.label}`;
-      document.getElementById('articleReaderTitle').textContent   = article.title || '';
-      document.getElementById('articleReaderAuthor').textContent  = article.author || 'المحرر';
-      document.getElementById('articleReaderTime').textContent    = article.readTime || 5;
-      document.getElementById('articleReaderDate').textContent    = formatDate(article.publishedAt || article.createdAt);
-
-      const content = article.content || article.excerpt || '';
-      document.getElementById('articleReaderContent').innerHTML = content
-        .split('\n\n').map(p => p.trim() ? `<p class="mb-5 leading-loose text-slate-700">${p.replace(/\n/g,'<br>')}</p>` : '').join('');
-
-      document.getElementById('articleModal').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      lucide.createIcons();
-
-      // Try to fetch full article
-      try {
-        const res = await fetch(`${API}/articles/${id}`);
-        const data = await res.json();
-        const full = data.data || data.article || data;
-        if (full && full.content) {
-          document.getElementById('articleReaderContent').innerHTML = full.content
-            .split('\n\n').map(p => p.trim() ? `<p class="mb-5 leading-loose text-slate-700">${p.replace(/\n/g,'<br>')}</p>` : '').join('');
-        }
-      } catch(_) {}
-    }
-
-    function closeArticle(e) {
-      if (e.target === document.getElementById('articleModal')) closeArticleModal();
-    }
-    function closeArticleModal() {
-      document.getElementById('articleModal').classList.add('hidden');
-      document.body.style.overflow = '';
+    function openArticle(slugOrId) {
+      window.location.href = `/blog/${encodeURIComponent(slugOrId)}`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
