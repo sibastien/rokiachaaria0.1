@@ -56,6 +56,119 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #475569;
     }
+
+    /* ── Mobile Sidebar ── */
+    #mobileSidebarOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 40;
+      backdrop-filter: blur(2px);
+    }
+    #mobileSidebarOverlay.open { display: block; }
+    #dashboardSidebar {
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    @media (min-width: 768px) {
+      #dashboardSidebar { transform: translateX(0) !important; position: fixed; }
+      #mobileSidebarOverlay { display: none !important; }
+      #contentWrapper { margin-right: 16rem !important; }
+      #mobileMenuBtn { display: none !important; }
+    }
+    #dashboardSidebar.open { transform: translateX(0); }
+
+    /* ── WordPress-like Article Editor ── */
+    #articleEditorView {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: #0b0f19;
+      overflow-y: auto;
+    }
+    #articleEditorView.open { display: flex; flex-direction: column; }
+
+    .wp-toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .wp-toolbar-btn:hover {
+      background: #1e293b;
+      color: #e2e8f0;
+    }
+    .wp-toolbar-btn.active {
+      background: #0ea5e9;
+      color: #fff;
+    }
+    .wp-editor-area {
+      min-height: 420px;
+      outline: none;
+      line-height: 1.9;
+      font-size: 15px;
+      direction: rtl;
+      text-align: right;
+      color: #e2e8f0;
+      caret-color: #38bdf8;
+    }
+    .wp-editor-area:empty:before {
+      content: attr(data-placeholder);
+      color: #475569;
+      pointer-events: none;
+    }
+    .wp-editor-area h1, .wp-editor-area h2, .wp-editor-area h3 {
+      font-weight: 800;
+      color: #f8fafc;
+      margin: 1.2em 0 0.5em;
+    }
+    .wp-editor-area h1 { font-size: 1.7em; }
+    .wp-editor-area h2 { font-size: 1.35em; }
+    .wp-editor-area h3 { font-size: 1.1em; }
+    .wp-editor-area blockquote {
+      border-right: 4px solid #0ea5e9;
+      padding: 0.5em 1em;
+      margin: 1em 0;
+      color: #94a3b8;
+      background: #0f172a;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+    }
+    .wp-editor-area ul, .wp-editor-area ol {
+      padding-right: 1.5em;
+      margin: 0.5em 0;
+    }
+    .wp-editor-area li { margin: 0.3em 0; }
+    .wp-editor-area a { color: #38bdf8; text-decoration: underline; }
+    .wp-editor-area strong { color: #f8fafc; }
+    .wp-editor-area em { color: #a5b4fc; }
+    .wp-editor-area img { max-width: 100%; border-radius: 8px; margin: 0.5em 0; }
+    .wp-editor-area hr { border-color: #1e293b; margin: 1.5em 0; }
+
+    .editor-tab-btn { cursor: pointer; padding: 0.35rem 1rem; border-radius: 8px; font-size: 13px; font-weight: 600; color: #94a3b8; transition: all 0.15s; }
+    .editor-tab-btn.active { background: #0ea5e9; color: #fff; }
+
+    /* tag pills */
+    .tag-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #1e293b; border: 1px solid #334155;
+      color: #94a3b8; border-radius: 999px;
+      padding: 2px 10px 2px 6px; font-size: 12px;
+      cursor: default;
+    }
+    .tag-pill button { color: #64748b; background: none; border: none; cursor: pointer; padding: 0; line-height: 1; }
+    .tag-pill button:hover { color: #f87171; }
   </style>
 </head>
 <body class="min-h-screen bg-[#0b0f19] text-slate-200 antialiased selection:bg-sky-500 selection:text-white">
@@ -115,9 +228,12 @@
 
   <!-- ================= MAIN DASHBOARD SHELL ================= -->
   <div id="dashboardApp" class="hidden min-h-screen flex">
-    
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileSidebarOverlay" onclick="closeMobileSidebar()"></div>
+
     <!-- SIDEBAR -->
-    <aside class="w-64 bg-slate-900 border-l border-slate-800/80 flex flex-col fixed inset-y-0 right-0 z-30 shadow-2xl">
+    <aside id="dashboardSidebar" class="w-64 bg-slate-900 border-l border-slate-800/80 flex flex-col fixed inset-y-0 right-0 z-50 shadow-2xl">
       <!-- Brand Header -->
       <div class="p-5 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -220,26 +336,30 @@
     </aside>
 
     <!-- CONTENT WRAPPER -->
-    <div class="flex-1 mr-64 flex flex-col min-h-screen">
+    <div id="contentWrapper" class="flex-1 flex flex-col min-h-screen md:mr-64">
       
       <!-- TOP HEADER -->
-      <header class="h-16 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-8 flex items-center justify-between sticky top-0 z-20">
-        <div class="flex items-center gap-4">
-          <h2 id="pageTitle" class="text-lg font-black text-white">نظرة عامة وإحصائيات</h2>
-          <span id="apiStatusBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono border border-slate-700">API: متصل</span>
+      <header class="h-16 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 md:px-8 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center gap-3">
+          <!-- Hamburger (mobile only) -->
+          <button id="mobileMenuBtn" onclick="openMobileSidebar()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors md:hidden">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <h2 id="pageTitle" class="text-base md:text-lg font-black text-white truncate max-w-[180px] md:max-w-none">نظرة عامة</h2>
+          <span id="apiStatusBadge" class="hidden sm:inline text-[11px] px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono border border-slate-700">API: متصل</span>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 md:gap-4">
           <button onclick="refreshCurrentTab()" title="تحديث البيانات" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
           </button>
 
           <!-- Admin Profile Badge -->
-          <div class="flex items-center gap-3 pr-3 border-r border-slate-800">
-            <div class="w-9 h-9 rounded-full bg-sky-500/20 border border-sky-500/40 text-sky-300 flex items-center justify-center font-bold text-sm" id="adminAvatar">
+          <div class="flex items-center gap-2 md:gap-3 pr-2 md:pr-3 border-r border-slate-800">
+            <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-sky-500/20 border border-sky-500/40 text-sky-300 flex items-center justify-center font-bold text-sm" id="adminAvatar">
               A
             </div>
-            <div class="text-right">
+            <div class="text-right hidden sm:block">
               <div class="text-xs font-bold text-white" id="adminName">المدير العام</div>
               <div class="text-[10px] text-slate-400 font-mono" id="adminEmail">admin@roqia.com</div>
             </div>
@@ -248,7 +368,7 @@
       </header>
 
       <!-- TAB CONTENT PANES -->
-      <main class="flex-1 p-8 overflow-y-auto">
+      <main class="flex-1 p-4 md:p-8 overflow-y-auto">
         
         <!-- ================= 1. STATS TAB ================= -->
         <section id="tab-stats" class="tab-pane space-y-8">
@@ -1034,63 +1154,255 @@
     </div>
   </div>
 
-  <!-- 2. ARTICLE CREATE / EDIT MODAL -->
-  <div id="articleModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
-        <h3 id="articleModalTitle" class="font-bold text-base text-white flex items-center gap-2">
-          <i data-lucide="file-edit" class="w-5 h-5 text-purple-400"></i>
-          <span>مقال جديد</span>
-        </h3>
-        <button onclick="closeModal('articleModal')" class="text-slate-400 hover:text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
+  <!-- 2. ARTICLE EDITOR (WordPress-like Full Screen) -->
+  <div id="articleEditorView">
+    <!-- Editor Top Bar -->
+    <div class="sticky top-0 z-10 bg-slate-950 border-b border-slate-800 flex items-center justify-between px-4 py-2.5 gap-3 flex-wrap">
+      <div class="flex items-center gap-3">
+        <button onclick="closeArticleEditor()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="رجوع">
+          <i data-lucide="arrow-right" class="w-5 h-5"></i>
+        </button>
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="file-edit" class="w-4 h-4 text-purple-400"></i>
+          <span id="editorModeLabel" class="text-sm font-bold text-white">مقال جديد</span>
+        </div>
+        <span id="editorAutoSaveStatus" class="text-[11px] text-slate-500 hidden sm:inline">● غير محفوظ</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <!-- View toggle -->
+        <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-lg p-0.5">
+          <button onclick="switchEditorTab('write')" id="editorTabWrite" class="editor-tab-btn active">✏️ كتابة</button>
+          <button onclick="switchEditorTab('preview')" id="editorTabPreview" class="editor-tab-btn">👁 معاينة</button>
+        </div>
+        <button type="button" onclick="saveArticleFromEditor()" class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-white transition-colors shadow-lg shadow-emerald-500/20">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>نشر المقال</span>
+        </button>
+        <button type="button" onclick="saveDraftFromEditor()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors">
+          <i data-lucide="save" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">حفظ مسودة</span>
         </button>
       </div>
+    </div>
 
-      <form id="articleForm" onsubmit="saveArticle(event)" class="space-y-4 overflow-y-auto flex-1 pr-1 text-xs">
-        <input type="hidden" id="articleId">
+    <!-- Editor Body -->
+    <div class="flex flex-col lg:flex-row flex-1 min-h-0">
+      <!-- Main writing area -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="max-w-3xl mx-auto px-4 py-6">
+          <input type="hidden" id="articleId">
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block font-semibold text-slate-300 mb-1">عنوان المقال *</label>
-            <input type="text" id="articleTitle" required placeholder="مثال: الفرق بين الرقية الشرعية والكهانة" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+          <!-- Big Title -->
+          <input type="text" id="articleTitle"
+                 placeholder="عنوان المقال الرئيسي..."
+                 class="w-full bg-transparent text-2xl md:text-3xl font-black text-white placeholder-slate-600 border-none outline-none border-b border-slate-800 pb-4 mb-6 dir-rtl"
+                 style="direction:rtl;text-align:right">
+
+          <!-- Excerpt -->
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-widest">المقتطف (يظهر في بطاقة المقال)</label>
+            <textarea id="articleExcerpt" rows="2"
+                      placeholder="موجز قصير يصف المقال في سطرين..."
+                      class="w-full bg-slate-900/60 border border-slate-800 text-slate-300 text-sm p-3 rounded-xl focus:outline-none focus:border-sky-500 resize-none"
+                      style="direction:rtl"></textarea>
           </div>
-          <div>
-            <label class="block font-semibold text-slate-300 mb-1">الكاتب أو الشيخ *</label>
-            <input type="text" id="articleAuthor" required placeholder="الشيخ / د. ..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+
+          <!-- Rich Toolbar -->
+          <div id="editorWriteArea">
+            <div class="bg-slate-900/80 border border-slate-800 rounded-t-xl px-2 py-1.5 flex items-center gap-0.5 flex-wrap">
+              <!-- Format -->
+              <button class="wp-toolbar-btn" onclick="editorCmd('bold')" title="عريض"><strong>B</strong></button>
+              <button class="wp-toolbar-btn" onclick="editorCmd('italic')" title="مائل"><em>I</em></button>
+              <button class="wp-toolbar-btn" onclick="editorCmd('underline')" title="تحته خط"><u>U</u></button>
+              <button class="wp-toolbar-btn" onclick="editorCmd('strikeThrough')" title="شطب"><s>S</s></button>
+              <div class="w-px h-5 bg-slate-700 mx-1"></div>
+              <!-- Headings -->
+              <button class="wp-toolbar-btn text-[11px] font-black" onclick="editorHeading(1)" title="عنوان 1">H1</button>
+              <button class="wp-toolbar-btn text-[11px] font-black" onclick="editorHeading(2)" title="عنوان 2">H2</button>
+              <button class="wp-toolbar-btn text-[11px] font-black" onclick="editorHeading(3)" title="عنوان 3">H3</button>
+              <div class="w-px h-5 bg-slate-700 mx-1"></div>
+              <!-- Lists -->
+              <button class="wp-toolbar-btn" onclick="editorCmd('insertUnorderedList')" title="قائمة نقطية">
+                <i data-lucide="list" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="wp-toolbar-btn" onclick="editorCmd('insertOrderedList')" title="قائمة مرقمة">
+                <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
+              </button>
+              <div class="w-px h-5 bg-slate-700 mx-1"></div>
+              <!-- Alignment -->
+              <button class="wp-toolbar-btn" onclick="editorCmd('justifyRight')" title="محاذاة يمين">
+                <i data-lucide="align-right" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="wp-toolbar-btn" onclick="editorCmd('justifyCenter')" title="توسيط">
+                <i data-lucide="align-center" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="wp-toolbar-btn" onclick="editorCmd('justifyLeft')" title="محاذاة يسار">
+                <i data-lucide="align-left" class="w-3.5 h-3.5"></i>
+              </button>
+              <div class="w-px h-5 bg-slate-700 mx-1"></div>
+              <!-- Quote & HR -->
+              <button class="wp-toolbar-btn" onclick="editorInsertQuote()" title="اقتباس">
+                <i data-lucide="quote" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="wp-toolbar-btn" onclick="editorCmd('insertHorizontalRule')" title="خط فاصل">
+                <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="wp-toolbar-btn" onclick="editorInsertLink()" title="رابط">
+                <i data-lucide="link" class="w-3.5 h-3.5"></i>
+              </button>
+              <div class="w-px h-5 bg-slate-700 mx-1"></div>
+              <!-- Undo/Redo -->
+              <button class="wp-toolbar-btn" onclick="editorCmd('undo')" title="تراجع">
+                <i data-lucide="undo-2" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="wp-toolbar-btn" onclick="editorCmd('redo')" title="إعادة">
+                <i data-lucide="redo-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <!-- Editable area -->
+            <div id="articleContent"
+                 contenteditable="true"
+                 class="wp-editor-area bg-slate-900/40 border border-t-0 border-slate-800 rounded-b-xl p-5"
+                 data-placeholder="اكتب محتوى المقال هنا... يمكنك استخدام شريط الأدوات أعلاه لتنسيق النص"
+                 dir="rtl"
+                 style="direction:rtl;text-align:right">
+            </div>
+            <div class="mt-2 flex items-center justify-between text-[11px] text-slate-600">
+              <span id="editorWordCount">0 كلمة</span>
+              <span>اضغط Enter لسطر جديد • Ctrl+B عريض • Ctrl+I مائل</span>
+            </div>
+          </div>
+
+          <!-- Preview area (hidden by default) -->
+          <div id="editorPreviewArea" class="hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+              <h1 id="previewTitle" class="text-2xl font-black text-white mb-3"></h1>
+              <p id="previewExcerpt" class="text-slate-400 text-sm italic mb-6 border-b border-slate-800 pb-4"></p>
+              <div id="previewContent" class="wp-editor-area" style="pointer-events:none;min-height:0"></div>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block font-semibold text-slate-300 mb-1">التصنيف الشرعي *</label>
-            <select id="articleCategoryKey" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
-              <option value="sunnah">السنة النبوية (sunnah)</option>
-              <option value="hasad">العين والحسد (hasad)</option>
-              <option value="adhkar">الأذكار والتحصين (adhkar)</option>
-            </select>
+      <!-- Right Sidebar Panel -->
+      <div class="w-full lg:w-72 border-t lg:border-t-0 lg:border-r border-slate-800 bg-slate-950 overflow-y-auto">
+        <div class="p-4 space-y-5">
+
+          <!-- Publish Box -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+            <h4 class="font-bold text-sm text-white mb-3 flex items-center gap-2">
+              <i data-lucide="send" class="w-4 h-4 text-emerald-400"></i>
+              النشر
+            </h4>
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-400 mb-1">الحالة</label>
+                <select id="articleStatus" class="w-full bg-slate-950 border border-slate-700 text-slate-200 p-2 rounded-lg focus:outline-none focus:border-sky-500">
+                  <option value="published">منشور</option>
+                  <option value="draft">مسودة</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-400 mb-1">الكاتب / الشيخ</label>
+                <input type="text" id="articleAuthor" placeholder="الشيخ / د. ..." class="w-full bg-slate-950 border border-slate-700 text-slate-200 p-2 rounded-lg focus:outline-none focus:border-sky-500">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-400 mb-1">وقت القراءة (دقائق)</label>
+                <input type="number" id="articleReadTime" value="5" min="1" max="60" class="w-full bg-slate-950 border border-slate-700 text-slate-200 p-2 rounded-lg focus:outline-none focus:border-sky-500">
+              </div>
+            </div>
           </div>
-          <div>
-            <label class="block font-semibold text-slate-300 mb-1">وقت القراءة المقدر (بالدقائق) *</label>
-            <input type="number" id="articleReadTime" value="5" min="1" max="60" class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500">
+
+          <!-- Category & Tags -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+            <h4 class="font-bold text-sm text-white mb-3 flex items-center gap-2">
+              <i data-lucide="tag" class="w-4 h-4 text-purple-400"></i>
+              التصنيف والوسوم
+            </h4>
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-400 mb-1">التصنيف الشرعي</label>
+                <select id="articleCategoryKey" class="w-full bg-slate-950 border border-slate-700 text-slate-200 p-2 rounded-lg focus:outline-none focus:border-sky-500">
+                  <option value="sunnah">السنة النبوية</option>
+                  <option value="hasad">العين والحسد</option>
+                  <option value="adhkar">الأذكار والتحصين</option>
+                  <option value="ruqyah">الرقية الشرعية</option>
+                  <option value="sihr">السحر وعلاجه</option>
+                  <option value="tawbah">التوبة والتزكية</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-400 mb-1">الوسوم (Tags)</label>
+                <div id="tagsContainer" class="flex flex-wrap gap-1.5 mb-2 min-h-[24px]"></div>
+                <input type="text" id="tagInput" placeholder="اكتب وسماً ثم اضغط Enter"
+                       class="w-full bg-slate-950 border border-slate-700 text-slate-200 p-2 rounded-lg focus:outline-none focus:border-sky-500 text-xs"
+                       onkeydown="handleTagInput(event)">
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">المقتطف المختصر (Excerpt) *</label>
-          <textarea id="articleExcerpt" rows="2" required placeholder="موجز أو ملخص قصير يظهر في البطاقة الرئيسية للمقال..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500"></textarea>
-        </div>
+          <!-- Featured Image -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+            <h4 class="font-bold text-sm text-white mb-3 flex items-center gap-2">
+              <i data-lucide="image" class="w-4 h-4 text-sky-400"></i>
+              الصورة المميزة
+            </h4>
+            <div id="featuredImagePreview" class="hidden mb-2 relative">
+              <img id="featuredImageThumb" src="" alt="" class="w-full rounded-lg object-cover max-h-40">
+              <button onclick="removeFeaturedImage()" class="absolute top-1 left-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">&times;</button>
+            </div>
+            <div id="featuredImageUploadArea"
+                 class="border-2 border-dashed border-slate-700 rounded-lg p-4 text-center cursor-pointer hover:border-sky-500 transition-colors"
+                 onclick="document.getElementById('featuredImageInput').click()"
+                 ondragover="event.preventDefault()" ondrop="handleImageDrop(event)">
+              <i data-lucide="upload-cloud" class="w-8 h-8 mx-auto text-slate-500 mb-2"></i>
+              <p class="text-xs text-slate-500">اسحب صورة هنا أو انقر للاختيار</p>
+              <input type="file" id="featuredImageInput" accept="image/*" class="hidden" onchange="handleFeaturedImage(event)">
+            </div>
+            <!-- Or URL -->
+            <input type="text" id="articleImageUrl" placeholder="أو أدخل رابط الصورة مباشرة..."
+                   class="w-full mt-2 bg-slate-950 border border-slate-700 text-slate-300 p-2 rounded-lg text-xs focus:outline-none focus:border-sky-500"
+                   oninput="previewImageFromUrl(this.value)">
+          </div>
 
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">محتوى المقال كاملاً *</label>
-          <textarea id="articleContent" rows="7" required placeholder="اكتب نص المقال الكامل والأدلة من القرآن والسنة هنا..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-sky-500 leading-relaxed"></textarea>
-        </div>
+          <!-- SEO Box -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+            <h4 class="font-bold text-sm text-white mb-3 flex items-center gap-2">
+              <i data-lucide="search" class="w-4 h-4 text-lime-400"></i>
+              SEO المقال
+            </h4>
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-400 mb-1">العنوان في محركات البحث</label>
+                <input type="text" id="articleSeoTitle" placeholder="يُملأ تلقائياً من العنوان الرئيسي"
+                       class="w-full bg-slate-950 border border-slate-700 text-slate-200 p-2 rounded-lg focus:outline-none focus:border-sky-500">
+                <div class="mt-1 flex justify-between">
+                  <span class="text-slate-600">0-60 حرف</span>
+                  <span id="seoTitleCount" class="text-slate-500">0</span>
+                </div>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-400 mb-1">الوصف التعريفي (Meta Description)</label>
+                <textarea id="articleSeoDesc" rows="3" placeholder="وصف قصير يظهر في نتائج البحث (150-160 حرف)"
+                          class="w-full bg-slate-950 border border-slate-700 text-slate-200 p-2 rounded-lg focus:outline-none focus:border-sky-500 resize-none"></textarea>
+                <div class="mt-1 flex justify-between">
+                  <span class="text-slate-600">150-160 حرف</span>
+                  <span id="seoDescCount" class="text-slate-500">0</span>
+                </div>
+              </div>
+              <!-- Google Preview -->
+              <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+                <p class="text-[10px] font-semibold text-slate-500 mb-2 uppercase tracking-wider">معاينة Google</p>
+                <p id="seoPreviewTitle" class="text-sky-400 text-xs font-semibold truncate">عنوان المقال</p>
+                <p class="text-emerald-600 text-[10px] font-mono">roqia.com › blog › slug</p>
+                <p id="seoPreviewDesc" class="text-slate-400 text-[10px] leading-snug mt-0.5 line-clamp-2">وصف المقال...</p>
+              </div>
+            </div>
+          </div>
 
-        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
-          <button type="button" onclick="closeModal('articleModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">إلغاء</button>
-          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-colors">حفظ المقال</button>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -1677,6 +1989,8 @@
     // --- TAB SWITCHING ---
     function switchTab(tabId) {
       currentTab = tabId;
+      // Close mobile sidebar when navigating
+      closeMobileSidebar();
 
       document.querySelectorAll('#sidebarNav .nav-btn').forEach(btn => {
         if (btn.dataset.tab === tabId) {
@@ -2017,16 +2331,51 @@
       }
     }
 
+    // ─── Mobile sidebar ───
+    function openMobileSidebar() {
+      document.getElementById('dashboardSidebar').classList.add('open');
+      document.getElementById('mobileSidebarOverlay').classList.add('open');
+    }
+    function closeMobileSidebar() {
+      document.getElementById('dashboardSidebar').classList.remove('open');
+      document.getElementById('mobileSidebarOverlay').classList.remove('open');
+    }
+
+    // ─── WordPress-like Article Editor ───
+    let editorTags = [];
+    let autoSaveTimer = null;
+
     function openArticleModal() {
-      document.getElementById('articleForm').reset();
+      // Reset all editor fields
       document.getElementById('articleId').value = '';
+      document.getElementById('articleTitle').value = '';
+      document.getElementById('articleExcerpt').value = '';
+      document.getElementById('articleContent').innerHTML = '';
       document.getElementById('articleAuthor').value = currentUser?.name || 'المدير العام';
-      document.getElementById('articleModalTitle').innerHTML = `
-        <i data-lucide="file-plus" class="w-5 h-5 text-purple-400"></i>
-        <span>كتابة مقال جديد</span>
-      `;
-      openModal('articleModal');
-      lucide.createIcons();
+      document.getElementById('articleCategoryKey').value = 'sunnah';
+      document.getElementById('articleReadTime').value = 5;
+      document.getElementById('articleStatus').value = 'published';
+      document.getElementById('articleSeoTitle').value = '';
+      document.getElementById('articleSeoDesc').value = '';
+      document.getElementById('articleImageUrl').value = '';
+      document.getElementById('seoTitleCount').textContent = '0';
+      document.getElementById('seoDescCount').textContent = '0';
+      document.getElementById('seoPreviewTitle').textContent = 'عنوان المقال';
+      document.getElementById('seoPreviewDesc').textContent = 'وصف المقال...';
+      document.getElementById('editorModeLabel').textContent = 'مقال جديد';
+      document.getElementById('editorAutoSaveStatus').textContent = '● غير محفوظ';
+      document.getElementById('editorWordCount').textContent = '0 كلمة';
+      editorTags = [];
+      renderTagPills();
+      removeFeaturedImage();
+      switchEditorTab('write');
+
+      // Setup live listeners
+      setupEditorListeners();
+
+      document.getElementById('articleEditorView').classList.add('open');
+      lucide.createIcons({ root: document.getElementById('articleEditorView') });
+      document.getElementById('articleTitle').focus();
     }
 
     function editArticle(id) {
@@ -2035,64 +2384,257 @@
 
       document.getElementById('articleId').value = a.id;
       document.getElementById('articleTitle').value = a.title || '';
+      document.getElementById('articleExcerpt').value = a.excerpt || '';
+      // Content is HTML or plain text
+      const contentEl = document.getElementById('articleContent');
+      contentEl.innerHTML = a.content || '';
       document.getElementById('articleAuthor').value = a.author || '';
       document.getElementById('articleCategoryKey').value = a.categoryKey || 'sunnah';
       document.getElementById('articleReadTime').value = parseInt(a.readTime) || 5;
-      document.getElementById('articleExcerpt').value = a.excerpt || '';
-      document.getElementById('articleContent').value = a.content || '';
+      document.getElementById('articleStatus').value = 'published';
+      document.getElementById('articleSeoTitle').value = a.seoTitle || a.title || '';
+      document.getElementById('articleSeoDesc').value = a.seoDescription || a.excerpt || '';
+      document.getElementById('articleImageUrl').value = a.imageUrl || '';
+      document.getElementById('editorModeLabel').textContent = 'تعديل المقال';
+      document.getElementById('editorAutoSaveStatus').textContent = '● محفوظ';
 
-      document.getElementById('articleModalTitle').innerHTML = `
-        <i data-lucide="file-edit" class="w-5 h-5 text-purple-400"></i>
-        <span>تعديل المقال</span>
-      `;
-      openModal('articleModal');
-      lucide.createIcons();
+      // SEO counts
+      updateSeoCounters();
+
+      // Tags
+      editorTags = a.tags ? (Array.isArray(a.tags) ? a.tags : a.tags.split(',').map(t=>t.trim())) : [];
+      renderTagPills();
+
+      // Featured image
+      if (a.imageUrl) previewImageFromUrl(a.imageUrl);
+      else removeFeaturedImage();
+
+      // Word count
+      updateWordCount();
+      switchEditorTab('write');
+      setupEditorListeners();
+
+      document.getElementById('articleEditorView').classList.add('open');
+      lucide.createIcons({ root: document.getElementById('articleEditorView') });
     }
 
-    async function saveArticle(e) {
+    function closeArticleEditor() {
+      document.getElementById('articleEditorView').classList.remove('open');
+      if (autoSaveTimer) clearTimeout(autoSaveTimer);
+    }
+
+    function setupEditorListeners() {
+      // Auto-update SEO preview from title
+      const titleEl = document.getElementById('articleTitle');
+      titleEl.oninput = () => {
+        const v = titleEl.value;
+        const seoTitleEl = document.getElementById('articleSeoTitle');
+        if (!seoTitleEl.value || seoTitleEl.dataset.auto !== 'false') {
+          seoTitleEl.value = v;
+          seoTitleEl.dataset.auto = 'true';
+        }
+        updateSeoCounters();
+        triggerAutoSave();
+      };
+
+      document.getElementById('articleSeoTitle').oninput = function() {
+        this.dataset.auto = 'false';
+        updateSeoCounters();
+      };
+      document.getElementById('articleSeoDesc').oninput = updateSeoCounters;
+
+      // Word count on content changes
+      document.getElementById('articleContent').oninput = () => {
+        updateWordCount();
+        triggerAutoSave();
+      };
+    }
+
+    function updateSeoCounters() {
+      const title = document.getElementById('articleSeoTitle').value;
+      const desc = document.getElementById('articleSeoDesc').value;
+      document.getElementById('seoTitleCount').textContent = title.length;
+      document.getElementById('seoTitleCount').className = title.length > 60 ? 'text-red-400' : 'text-slate-500';
+      document.getElementById('seoDescCount').textContent = desc.length;
+      document.getElementById('seoDescCount').className = desc.length > 160 ? 'text-red-400' : 'text-slate-500';
+      document.getElementById('seoPreviewTitle').textContent = title || 'عنوان المقال';
+      document.getElementById('seoPreviewDesc').textContent = desc || 'وصف المقال...';
+    }
+
+    function updateWordCount() {
+      const text = document.getElementById('articleContent').innerText || '';
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      document.getElementById('editorWordCount').textContent = `${words} كلمة`;
+    }
+
+    function triggerAutoSave() {
+      document.getElementById('editorAutoSaveStatus').textContent = '● جاري الحفظ...';
+      if (autoSaveTimer) clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(() => {
+        document.getElementById('editorAutoSaveStatus').textContent = '✓ تم الحفظ التلقائي';
+      }, 2000);
+    }
+
+    // ── Rich Text Toolbar Commands ──
+    function editorCmd(cmd) {
+      document.getElementById('articleContent').focus();
+      document.execCommand(cmd, false, null);
+    }
+
+    function editorHeading(level) {
+      document.getElementById('articleContent').focus();
+      document.execCommand('formatBlock', false, `h${level}`);
+    }
+
+    function editorInsertQuote() {
+      document.getElementById('articleContent').focus();
+      document.execCommand('formatBlock', false, 'blockquote');
+    }
+
+    function editorInsertLink() {
+      const url = prompt('أدخل رابط URL:');
+      if (url) {
+        document.getElementById('articleContent').focus();
+        document.execCommand('createLink', false, url);
+      }
+    }
+
+    // ── Write / Preview tabs ──
+    function switchEditorTab(tab) {
+      const writeArea = document.getElementById('editorWriteArea');
+      const previewArea = document.getElementById('editorPreviewArea');
+      const writeBtn = document.getElementById('editorTabWrite');
+      const previewBtn = document.getElementById('editorTabPreview');
+
+      if (tab === 'write') {
+        writeArea.classList.remove('hidden');
+        previewArea.classList.add('hidden');
+        writeBtn.classList.add('active');
+        previewBtn.classList.remove('active');
+      } else {
+        writeArea.classList.add('hidden');
+        previewArea.classList.remove('hidden');
+        writeBtn.classList.remove('active');
+        previewBtn.classList.add('active');
+        // Populate preview
+        document.getElementById('previewTitle').textContent = document.getElementById('articleTitle').value || 'بدون عنوان';
+        document.getElementById('previewExcerpt').textContent = document.getElementById('articleExcerpt').value || '';
+        document.getElementById('previewContent').innerHTML = document.getElementById('articleContent').innerHTML;
+      }
+    }
+
+    // ── Tags ──
+    function handleTagInput(e) {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        const val = document.getElementById('tagInput').value.trim().replace(/,$/, '');
+        if (val && !editorTags.includes(val)) {
+          editorTags.push(val);
+          renderTagPills();
+        }
+        document.getElementById('tagInput').value = '';
+      }
+    }
+
+    function renderTagPills() {
+      const container = document.getElementById('tagsContainer');
+      container.innerHTML = editorTags.map((tag, i) => `
+        <span class="tag-pill">
+          ${tag}
+          <button onclick="removeTag(${i})" title="حذف">&times;</button>
+        </span>
+      `).join('');
+    }
+
+    function removeTag(i) {
+      editorTags.splice(i, 1);
+      renderTagPills();
+    }
+
+    // ── Featured Image ──
+    function handleFeaturedImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => showFeaturedImagePreview(ev.target.result);
+      reader.readAsDataURL(file);
+    }
+
+    function handleImageDrop(e) {
       e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = ev => showFeaturedImagePreview(ev.target.result);
+      reader.readAsDataURL(file);
+    }
+
+    function previewImageFromUrl(url) {
+      if (url && url.startsWith('http')) showFeaturedImagePreview(url);
+      else if (!url) removeFeaturedImage();
+    }
+
+    function showFeaturedImagePreview(src) {
+      document.getElementById('featuredImageThumb').src = src;
+      document.getElementById('featuredImagePreview').classList.remove('hidden');
+      document.getElementById('featuredImageUploadArea').classList.add('hidden');
+    }
+
+    function removeFeaturedImage() {
+      document.getElementById('featuredImageThumb').src = '';
+      document.getElementById('featuredImagePreview').classList.add('hidden');
+      document.getElementById('featuredImageUploadArea').classList.remove('hidden');
+      document.getElementById('featuredImageInput').value = '';
+      document.getElementById('articleImageUrl').value = '';
+    }
+
+    // ── Save / Publish ──
+    async function saveArticleFromEditor() {
+      await _persistArticle('published');
+    }
+
+    async function saveDraftFromEditor() {
+      await _persistArticle('draft');
+    }
+
+    async function _persistArticle(statusOverride) {
       const id = document.getElementById('articleId').value;
       const title = document.getElementById('articleTitle').value.trim();
+      if (!title) { toast('الرجاء إدخال عنوان المقال', 'warning'); return; }
+
       const author = document.getElementById('articleAuthor').value.trim();
       const categoryKey = document.getElementById('articleCategoryKey').value;
       const readTimeNum = document.getElementById('articleReadTime').value || 5;
       const readTime = `${readTimeNum} دقائق`;
       const excerpt = document.getElementById('articleExcerpt').value.trim();
-      const content = document.getElementById('articleContent').value.trim();
+      const content = document.getElementById('articleContent').innerHTML.trim();
+      const seoTitle = document.getElementById('articleSeoTitle').value.trim() || title;
+      const seoDescription = document.getElementById('articleSeoDesc').value.trim();
+      const imageUrl = document.getElementById('articleImageUrl').value.trim();
+      const status = statusOverride || document.getElementById('articleStatus').value;
 
       const catMap = {
-        sunnah: 'السنة النبوية',
-        hasad: 'العين والحسد',
-        adhkar: 'الأذكار والتحصين'
+        sunnah: 'السنة النبوية', hasad: 'العين والحسد',
+        adhkar: 'الأذكار والتحصين', ruqyah: 'الرقية الشرعية',
+        sihr: 'السحر وعلاجه', tawbah: 'التوبة والتزكية'
       };
       const categoryName = catMap[categoryKey] || 'الرقية الشرعية';
 
-      const payload = {
-        title,
-        excerpt,
-        content,
-        categoryKey,
-        categoryName,
-        author,
-        readTime
-      };
+      const payload = { title, excerpt, content, categoryKey, categoryName, author, readTime, seoTitle, seoDescription, imageUrl, status, tags: editorTags };
 
       try {
         if (id) {
-          await apiRequest(`/articles/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(payload)
-          });
-          toast('تم تحديث المقال بنجاح', 'success');
+          await apiRequest(`/articles/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+          toast(status === 'draft' ? 'تم حفظ المسودة بنجاح' : 'تم تحديث المقال بنجاح', 'success');
         } else {
-          await apiRequest('/articles', {
-            method: 'POST',
-            body: JSON.stringify(payload)
-          });
-          toast('تم إنشاء ونشر المقال بنجاح في مدونة الشفاء', 'success');
+          await apiRequest('/articles', { method: 'POST', body: JSON.stringify(payload) });
+          toast(status === 'draft' ? 'تم حفظ المسودة' : 'تم نشر المقال بنجاح في مدونة الشفاء 🎉', 'success');
         }
-        closeModal('articleModal');
-        loadArticles();
+        document.getElementById('editorAutoSaveStatus').textContent = '✓ محفوظ';
+        if (status === 'published') {
+          closeArticleEditor();
+          loadArticles();
+        }
       } catch (err) {
         toast(err.message || 'فشل حفظ المقال', 'error');
       }
