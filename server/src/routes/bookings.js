@@ -3,6 +3,7 @@
 const { Router } = require('express');
 const {
   getRaqis,
+  deleteRaqi,
   getAvailableSlots,
   createBooking,
   getMyBookings,
@@ -23,6 +24,10 @@ router.get('/raqis', getRaqis);
 
 // Available time slots for a raqi on a given date
 router.get('/slots', getAvailableSlots);
+
+// ── Protected admin routes ────────────────────────────────────────────────────────
+// Delete a raqi profile (ADMIN only)
+router.delete('/raqis/:id', authenticate, requireRole('ADMIN'), deleteRaqi);
 
 // ── Protected user routes (require JWT) ───────────────────────────────────────
 router.use(authenticate);

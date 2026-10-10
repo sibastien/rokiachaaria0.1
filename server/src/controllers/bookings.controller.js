@@ -1,14 +1,15 @@
 // src/controllers/bookings.controller.js
 // Booking API — handles session reservations with double-booking prevention.
 //
-//   GET  /api/bookings/raqis     — list available certified raqis
-//   GET  /api/bookings/slots     — available slots for a raqi on a date
-//   POST /api/bookings           — create booking (authenticated users)
-//   GET  /api/bookings/my        — list my bookings (authenticated)
-//   GET  /api/bookings/:id       — get single booking detail
-//   PATCH /api/bookings/:id/cancel  — cancel a booking
-//   GET  /api/bookings/all       — all bookings (ADMIN/RAQI)
-//   PATCH /api/bookings/:id/status  — update status (RAQI/ADMIN)
+//   GET    /api/bookings/raqis        — list available certified raqis
+//   DELETE /api/bookings/raqis/:id    — remove a raqi (ADMIN only)
+//   GET    /api/bookings/slots        — available slots for a raqi on a date
+//   POST   /api/bookings              — create booking (authenticated users)
+//   GET    /api/bookings/my           — list my bookings (authenticated)
+//   GET    /api/bookings/:id          — get single booking detail
+//   PATCH  /api/bookings/:id/cancel   — cancel a booking
+//   GET    /api/bookings/all          — all bookings (ADMIN/RAQI)
+//   PATCH  /api/bookings/:id/status   — update status (RAQI/ADMIN)
 
 const { validationResult } = require('express-validator');
 const prisma = require('../config/prisma');
@@ -411,8 +412,40 @@ async function updateBookingStatus(req, res, next) {
   }
 }
 
+// ── DELETE /api/bookings/raqis/:id  (ADMIN only) ────────────────────────────
+// Deletes a raqi's profile and demotes their user account role to USER.
+async function deleteRaqi(req, res, next) {
+  try {
+    const { id } = req.params; // raqiProfile.id
+
+    const raqi = await prisma.raqiProfile.findUnique({
+      where: { id },
+      include: { user: { select: { id: true, name: true } } },
+    });
+
+    if (!raqi) return next(createError('الراقي غير موجود.', 404));
+
+    // Run deletion in a transaction: remove profile, demote user role
+    await prisma.$transaction([
+      prisma.raqiProfile.delete({ where: { id } }),
+      prisma.user.update({
+        where: { id: raqi.userId },
+        data: { role: 'USER' },
+      }),
+    ]);
+
+    res.json({
+      success: true,
+      message: `تم حذف الراقي "${raqi.user.name}" وإزالة صلاحياته بنجاح.`,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getRaqis,
+  deleteRaqi,
   getAvailableSlots,
   createBooking,
   getMyBookings,

@@ -2261,10 +2261,19 @@
 
             <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
               <span class="text-slate-400">سعر الجلسة: <strong class="text-white">${r.sessionPrice || r.hourlyRate || 150} ر.س</strong></span>
-              <span class="text-amber-400 flex items-center gap-1 font-bold">
-                <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i>
-                5.0
-              </span>
+              <div class="flex items-center gap-2">
+                <span class="text-amber-400 flex items-center gap-1 font-bold">
+                  <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i>
+                  5.0
+                </span>
+                <button
+                  onclick="deleteRaqi('${r.id}', '${r.name ? r.name.replace(/'/g, "\\'") : 'هذا الراقي'}')"
+                  title="حذف الراقي"
+                  class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 transition-colors text-[11px] font-bold">
+                  <i data-lucide="trash-2" class="w-3 h-3"></i>
+                  حذف
+                </button>
+              </div>
             </div>
           </div>
         `).join('');
@@ -2278,6 +2287,17 @@
     function openRaqiModal() {
       document.getElementById('raqiForm').reset();
       openModal('raqiModal');
+    }
+
+    async function deleteRaqi(raqiId, raqiName) {
+      if (!confirm(`هل أنت متأكد من حذف الراقي "${raqiName}"؟\nسيتم إزالة ملفه الشخصي وصلاحياته نهائياً ولا يمكن التراجع عن هذا الإجراء.`)) return;
+      try {
+        const res = await apiRequest(`/bookings/raqis/${raqiId}`, { method: 'DELETE' });
+        toast(res.message || 'تم حذف الراقي بنجاح', 'success');
+        loadRaqis(); // refresh the grid
+      } catch (err) {
+        toast('فشل حذف الراقي: ' + err.message, 'error');
+      }
     }
 
     async function saveRaqi(e) {
